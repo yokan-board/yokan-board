@@ -94,7 +94,7 @@ Follow these steps to run the client and server directly on your machine.
 **1. Clone the Repository**
 
 ```bash
-git clone https://github.com/jurodriguez/yokan.git
+git clone https://github.com/yokan-board/yokan-board.git
 cd yokan
 ```
 
