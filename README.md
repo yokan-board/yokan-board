@@ -166,8 +166,9 @@ For the fastest setup using Docker:
     ```
     This will build the `yokan-server` and `yokan-client` images and start them in detached mode.
 3.  **Access the application:**
-    - Frontend: `http://localhost:3002`
-    - Backend API (Swagger UI): `http://localhost:3003/api-docs`
+    - Frontend: `http://localhost:3000`
+    - Backend API base URL: `http://localhost:3001/api/v1.1`
+    - Backend API documentation (Swagger UI): `http://localhost:3001/api-docs`
 4.  **Stop the services:**
     ```bash
     docker compose down
