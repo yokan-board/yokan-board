@@ -1,6 +1,6 @@
 services:
   server:
-    image: yokan-server:latest
+    image: yokan-board/yokan-server:latest
     container_name: yokan-server
     ports:
       - "3001:3001"
@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
 
   client:
-    image: yokan-client:latest
+    image: yokan-board/yokan-client:latest
     container_name: yokan-client
     ports:
       - "3000:3000"
