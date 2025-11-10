@@ -10,6 +10,9 @@ Yokan (予感) is a clean, intuitive Kanban board application designed for simpl
 
 恋の予感
 
+![](docs/screenshots/yokan-board-dashboard-01.png)
+![](docs/screenshots/yokan-board-kanban-board-01.png)
+
 ## 🎯 Purpose
 
 Yokan aims to provide a straightforward, privacy-focused alternative to complex online Kanban tools. Whether you're managing personal tasks, small team projects, or keeping track of ongoing work, Yokan offers a simple, reliable solution that you completely control.
