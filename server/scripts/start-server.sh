@@ -9,4 +9,4 @@ docker run -p 3001:3001 \
     -e DB_FILE=/app/data/db.sqlite \
     -e HOST=0.0.0.0 \
     -e JWT_SECRET=supersecretjwtkey \
-    yokan-board/yokan-server:latest
+    yokanboard/yokan-server:latest

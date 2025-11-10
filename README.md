@@ -164,13 +164,13 @@ For the fastest setup using Docker:
     ```bash
     # build server image
     cd server
-    docker build -t yokan-board/yokan-server .
+    docker build -t yokanboard/yokan-server .
 
     # build client image
     cd client
     cp .env.example .env
     vi .env  # update values
-    docker build -t yokan-board/yokan-client .
+    docker build -t yokanboard/yokan-client .
     ```
     This will build the `yokan-board/yokan-server` and `yokan-board/yokan-client` images.
 3. **Start the services:** From the project root directory, run:
@@ -238,15 +238,15 @@ Yokan includes Dockerfiles for both client and server:
 
     ```bash
     cd server
-    docker build -t yokan-board/yokan-server .
-    docker run -p 3001:3001 -e NODE_ENV=production -e JWT_SECRET=your_secret_key_here yokan-board/yokan-server
+    docker build -t yokanboard/yokan-server .
+    docker run -p 3001:3001 -e NODE_ENV=production -e JWT_SECRET=your_secret_key_here yokanboard/yokan-server
     ```
 
 2. **Build and run client container:**
     ```bash
     cd client
-    docker build -t yokan-board/yokan-client .
-    docker run -p 3000:3000 -e REACT_APP_SERVER_URL=http://localhost:3001/api/v1.1 yokan-board/yokan-client
+    docker build -t yokanboard/yokan-client .
+    docker run -p 3000:3000 -e REACT_APP_SERVER_URL=http://localhost:3001/api/v1.1 yokanboard/yokan-client
     ```
 
 ## 🤝 Contributing
