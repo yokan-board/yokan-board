@@ -92,7 +92,7 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
 
                         const INITIAL_USER_ID = process.env.INITIAL_USER_ID || 'user';
                         const INITIAL_USER_PASSWORD = process.env.INITIAL_USER_PASSWORD || 'password';
-                        const INITIAL_USER_EMAIL = process.env.INITIAL_USER_EMAIL || 'user@email-server.com';
+                        const INITIAL_USER_EMAIL = process.env.INITIAL_USER_EMAIL || 'yokan.board@gmail.com';
 
                         db.get(
                             `SELECT COUNT(*) as count FROM users WHERE username = ?`,

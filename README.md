@@ -160,16 +160,30 @@ Open your browser to `http://localhost:3000` and start using Yokan!
 For the fastest setup using Docker:
 
 1.  **Ensure Docker is running.**
-2.  **Build and start the services:** From the project root directory, run:
+2.  **Build the images:** From the project root directory, run:
     ```bash
-    docker compose up --build -d
+    # build server image
+    cd server
+    docker build -t yokan-server .
+
+    # build client image
+    cd client
+    cp .env.example .env
+    vi .env  # update values
+    docker build -t yokan-client .
     ```
-    This will build the `yokan-server` and `yokan-client` images and start them in detached mode.
-3.  **Access the application:**
+    This will build the `yokan-server` and `yokan-client` images.
+3. **Start the services:** From the project root directory, run:
+    ```bash
+    cp docker-compose.yml.example docker-compose.yml
+    vi docker-compose.yml  # update values
+    docker compose up -d
+    ```
+4.  **Access the application:**
     - Frontend: `http://localhost:3000`
     - Backend API base URL: `http://localhost:3001/api/v1.1`
     - Backend API documentation (Swagger UI): `http://localhost:3001/api-docs`
-4.  **Stop the services:**
+5.  **Stop the services:**
     ```bash
     docker compose down
     ```
@@ -180,7 +194,7 @@ On first startup, a default user will be created:
 
 - Username: `user`
 - Password: `password`
-- Email: (empty)
+- Email: `yokan.board@gmail.com`
 
 **Important**: Change these credentials immediately after your first login.
 
