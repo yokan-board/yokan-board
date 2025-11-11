@@ -6,7 +6,7 @@
 
 Yokan, because yes, you can -- have a Kanban board that's simple, private, and truly yours.
 
-Yokan (予感) is a clean, intuitive Kanban board application designed for simplicity and ease of self-hosting. Yokan provides a seamless experience for organizing tasks and managing projects without the complexity you would find with the alternatives.
+Yokan (予感) is a clean, intuitive Kanban board application designed for simplicity and ease of self-hosting. Yokan provides a seamless experience for organizing tasks and managing projects without the complexity you would find with the alternatives. With [**Yokan Board MCP**](https://github.com/yokan-board/yokan-board-mcp), you can even use AI agents to interact with your Kanban boards.
 
 恋の予感
 
@@ -15,7 +15,7 @@ Yokan (予感) is a clean, intuitive Kanban board application designed for simpl
 
 ## 🎯 Purpose
 
-Yokan aims to provide a straightforward, privacy-focused alternative to complex online Kanban tools. Whether you're managing personal tasks, small team projects, or keeping track of ongoing work, Yokan offers a simple, reliable solution that you completely control. And, with [**Yokan Board MCP**](https://github.com/yokan-board/yokan-board-mcp) you can use AI agents to interact with your Kanban boards.
+Yokan aims to provide a straightforward, privacy-focused alternative to complex online Kanban tools. Whether you're managing personal tasks, small team projects, or keeping track of ongoing work, Yokan offers a simple, reliable solution that you completely control.
 
 ## ✨ Features
 
