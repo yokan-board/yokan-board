@@ -15,7 +15,7 @@ Yokan (予感) is a clean, intuitive Kanban board application designed for simpl
 
 ## 🎯 Purpose
 
-Yokan aims to provide a straightforward, privacy-focused alternative to complex online Kanban tools. Whether you're managing personal tasks, small team projects, or keeping track of ongoing work, Yokan offers a simple, reliable solution that you completely control.
+Yokan aims to provide a straightforward, privacy-focused alternative to complex online Kanban tools. Whether you're managing personal tasks, small team projects, or keeping track of ongoing work, Yokan offers a simple, reliable solution that you completely control. And, with [**Yokan Board MCP**](https://github.com/yokan-board/yokan-board-mcp) you can use AI agents to interact with your Kanban boards.
 
 ## ✨ Features
 
@@ -23,24 +23,25 @@ Yokan aims to provide a straightforward, privacy-focused alternative to complex 
 - **User Authentication**: Secure login and registration system with password protection
 - **Personalized Boards**: Create multiple boards for different projects or contexts
 - **Customizable Boards**:
-    - Gradient color customization for boards, including copy/paste functionality and a color picker for fine-tuning.
-    - Inline editing of board names directly from the board page.
+    - Gradient color customization for boards, including copy/paste functionality and a color picker for fine-tuning
+    - Inline editing of board names directly from the board page
 - **Customizable Columns**:
-    - Add, reorder, and delete columns.
-    - Minimize/maximize columns to focus on relevant tasks.
-    - Customize column appearance with a highlight color picker.
+    - Add, reorder, and delete columns
+    - Minimize/maximize columns to focus on relevant tasks
+    - Customize column appearance with a highlight color picker
 - **Real-time Organization**: Drag and drop tasks between columns with immediate visual feedback
 - **Dark/Light Mode**: Choose your preferred theme for comfortable viewing
 - **Gravatar Integration**: Personalized avatars based on your email address
 - **Nested Tasks Support**: Support for parent-child relationships and subtasks
 - **Task Details**: Due dates and descriptions for tasks (supporting Markdown)
 - **Data Export/Import**: Export boards in JSON or CSV formats for backup or migration
-- **Automatic Session Management**: Your session is automatically renewed as long as you are active, preventing unexpected logouts during work.
+- **Automatic Session Management**: Your session is automatically renewed as long as you are active, preventing unexpected logouts during work
 - **Self-Hosted Control**: Complete ownership of your data with no external dependencies
 - **Responsive Design**: Works well on various screen sizes and devices
-- **Persistent Sidebar**: A navigation sidebar that can be pinned/unpinned, displaying a list of boards with task counts and quick access to settings and user information.
-- **User Account Management**: A dedicated "Settings" page for managing your profile (display name, email, password) and preferences.
+- **Persistent Sidebar**: A navigation sidebar that can be pinned/unpinned, displaying a list of boards with task counts and quick access to settings and user information
+- **User Account Management**: A dedicated "Settings" page for managing your profile (display name, email, password) and preferences
 - **About Page**: Displays application version, author, and license information
+- **MCP Server**: Use [**Yokan Board MCP**](https://github.com/yokan-board/yokan-board-mcp) to use AI agents to interact with your Kanban boards
 
 ## 🌟 What Makes Yokan Different
 
