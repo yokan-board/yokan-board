@@ -210,7 +210,8 @@ function BoardPage() {
             if (boardRef.current && boardRef.current.getBoardData) {
                 boardToExport = boardRef.current.getBoardData();
             }
-            boardService.exportBoardMarkdown(boardData.name, boardToExport);
+            const boardDescription = boardToExport.description;
+            boardService.exportBoardMarkdown(boardData.name, boardDescription, boardToExport);
             console.log('Markdown export initiated.');
         } catch (err) {
             console.error('Error exporting Markdown:', err);

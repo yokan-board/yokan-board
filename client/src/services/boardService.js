@@ -75,8 +75,11 @@ const exportBoardCsv = async (boardId, userId) => {
     return response.data;
 };
 
-const exportBoardMarkdown = (boardName, boardData) => {
+const exportBoardMarkdown = (boardName, boardDescription, boardData) => {
     let markdown = `# Board Name: ${boardName}\n\n`;
+    if (boardDescription) {
+        markdown += `${boardDescription}\n\n`;
+    }
 
     const tasksMap = {};
     if (boardData.columns) {
