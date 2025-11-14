@@ -76,7 +76,7 @@ const exportBoardCsv = async (boardId, userId) => {
     return response.data;
 };
 
-const exportBoardMarkdown = (boardName, boardDescription, boardData) => {
+const generateBoardMarkdown = (boardName, boardDescription, boardData) => {
     let markdown = `# Board Name: ${boardName}\n\n`;
     if (boardDescription) {
         markdown += `${boardDescription}\n\n`;
@@ -129,8 +129,11 @@ const exportBoardMarkdown = (boardName, boardDescription, boardData) => {
             }
         });
     }
+    return markdown;
+};
 
-    const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+const downloadMarkdownFile = (markdownContent, boardName) => {
+    const blob = new Blob([markdownContent], { type: 'text/markdown;charset=utf-8' });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
     const date = new Date().toISOString().split('T')[0];
@@ -139,6 +142,11 @@ const exportBoardMarkdown = (boardName, boardDescription, boardData) => {
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(link.href);
+};
+
+const exportBoardMarkdown = (boardName, boardDescription, boardData) => {
+    const markdownContent = generateBoardMarkdown(boardName, boardDescription, boardData);
+    downloadMarkdownFile(markdownContent, boardName);
 };
 
 const importBoardJson = async (boardData, userId) => {
@@ -160,58 +168,7 @@ const exportAllBoardsMarkdownAsZip = async (userId) => {
         const date = new Date().toISOString().split('T')[0];
 
         for (const board of allBoards) {
-            let markdown = `# Board Name: ${board.name}\n\n`;
-            if (board.data.description) {
-                markdown += `${board.data.description}\n\n`;
-            }
-
-            const tasksMap = {};
-            if (board.data.columns) {
-                Object.values(board.data.columns).forEach((col) => {
-                    if (col.tasks) {
-                        col.tasks.forEach((t) => (tasksMap[t.id] = t));
-                    }
-                });
-            }
-
-            if (board.data.columnOrder) {
-                board.data.columnOrder.forEach((columnId) => {
-                    const column = board.data.columns[columnId];
-                    if (!column) return;
-                    markdown += `## Column: ${column.title}\n\n`;
-
-                    if (column.tasks && Array.isArray(column.tasks)) {
-                        column.tasks.forEach((task) => {
-                            if (!task) return;
-
-                            const isCompleted = task.completed ? 'x' : ' ';
-                            markdown += `- [${isCompleted}] **${task.content}** (#${task.displayId})\n`;
-
-                            if (task.dueDate) {
-                                const dueDate = new Date(task.dueDate).toISOString().split('T')[0];
-                                markdown += `  - **Due:** ${dueDate}\n`;
-                            }
-
-                            if (task.description) {
-                                const description = task.description.replace(/\n/g, '\n    > ');
-                                markdown += `  - **Description:**\n    > ${description}\n`;
-                            }
-
-                            if (task.subtasks && task.subtasks.length > 0) {
-                                markdown += `  - **Subtasks:**\n`;
-                                task.subtasks.forEach((subtaskId) => {
-                                    const subtask = tasksMap[subtaskId];
-                                    if (subtask) {
-                                        const isSubtaskCompleted = subtask.completed ? 'x' : ' ';
-                                        markdown += `    - [${isSubtaskCompleted}] ${subtask.content} (#${subtask.displayId})\n`;
-                                    }
-                                });
-                            }
-                            markdown += '\n';
-                        });
-                    }
-                });
-            }
+            const markdown = generateBoardMarkdown(board.name, board.data.description, board.data);
             zip.file(`${board.name}-export-${date}.md`, markdown);
         }
 

@@ -135,10 +135,6 @@ function DashboardPage() {
         navigate(`/board/${boardId}`);
     };
 
-    const importMenuItems = [
-        { text: 'Import from JSON', icon: <UploadIcon />, onClick: () => setOpenImportDialog(true) },
-    ];
-
     const handleExportAllBoards = async () => {
         try {
             await boardService.exportAllBoardsMarkdownAsZip(user.id);
@@ -148,6 +144,11 @@ function DashboardPage() {
         }
     };
 
+    const importMenuItems = [
+        { text: 'Import from JSON', icon: <UploadIcon />, onClick: () => setOpenImportDialog(true) },
+        { text: 'Export all boards as Markdown ZIP', icon: <DownloadIcon />, onClick: handleExportAllBoards },
+    ];
+
     return (
         <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -155,11 +156,6 @@ function DashboardPage() {
                     Your Kanban Boards
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Tooltip title="Export all boards as Markdown ZIP">
-                        <IconButton aria-label="export all boards" onClick={handleExportAllBoards} color="inherit">
-                            <DownloadIcon />
-                        </IconButton>
-                    </Tooltip>
                     <Tooltip title="Add a board">
                         <IconButton
                             aria-label="create new board"
