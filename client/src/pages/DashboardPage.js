@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Typography, Tooltip, IconButton } from '@mui/material';
-import { Add as AddIcon, Upload as UploadIcon } from '@mui/icons-material';
+import { Add as AddIcon, Upload as UploadIcon, Download as DownloadIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 import SettingsMenu from '../components/SettingsMenu';
@@ -139,6 +139,15 @@ function DashboardPage() {
         { text: 'Import from JSON', icon: <UploadIcon />, onClick: () => setOpenImportDialog(true) },
     ];
 
+    const handleExportAllBoards = async () => {
+        try {
+            await boardService.exportAllBoardsMarkdownAsZip(user.id);
+        } catch (error) {
+            console.error('Error exporting all boards:', error);
+            // Optionally, show a user-friendly error message
+        }
+    };
+
     return (
         <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -146,6 +155,11 @@ function DashboardPage() {
                     Your Kanban Boards
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Tooltip title="Export all boards as Markdown ZIP">
+                        <IconButton aria-label="export all boards" onClick={handleExportAllBoards} color="inherit">
+                            <DownloadIcon />
+                        </IconButton>
+                    </Tooltip>
                     <Tooltip title="Add a board">
                         <IconButton
                             aria-label="create new board"

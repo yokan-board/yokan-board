@@ -1,4 +1,5 @@
 import api from './api'; // Import the shared api instance
+import JSZip from 'jszip'; // Import jszip for ZIP file generation
 
 const parseBoardData = (board) => {
     if (board && typeof board.data === 'string') {
@@ -152,6 +153,82 @@ const importBoardCsv = async (csvData, boardName) => {
     return response.data;
 };
 
+const exportAllBoardsMarkdownAsZip = async (userId) => {
+    try {
+        const allBoards = await getBoards(userId);
+        const zip = new JSZip();
+        const date = new Date().toISOString().split('T')[0];
+
+        for (const board of allBoards) {
+            let markdown = `# Board Name: ${board.name}\n\n`;
+            if (board.data.description) {
+                markdown += `${board.data.description}\n\n`;
+            }
+
+            const tasksMap = {};
+            if (board.data.columns) {
+                Object.values(board.data.columns).forEach((col) => {
+                    if (col.tasks) {
+                        col.tasks.forEach((t) => (tasksMap[t.id] = t));
+                    }
+                });
+            }
+
+            if (board.data.columnOrder) {
+                board.data.columnOrder.forEach((columnId) => {
+                    const column = board.data.columns[columnId];
+                    if (!column) return;
+                    markdown += `## Column: ${column.title}\n\n`;
+
+                    if (column.tasks && Array.isArray(column.tasks)) {
+                        column.tasks.forEach((task) => {
+                            if (!task) return;
+
+                            const isCompleted = task.completed ? 'x' : ' ';
+                            markdown += `- [${isCompleted}] **${task.content}** (#${task.displayId})\n`;
+
+                            if (task.dueDate) {
+                                const dueDate = new Date(task.dueDate).toISOString().split('T')[0];
+                                markdown += `  - **Due:** ${dueDate}\n`;
+                            }
+
+                            if (task.description) {
+                                const description = task.description.replace(/\n/g, '\n    > ');
+                                markdown += `  - **Description:**\n    > ${description}\n`;
+                            }
+
+                            if (task.subtasks && task.subtasks.length > 0) {
+                                markdown += `  - **Subtasks:**\n`;
+                                task.subtasks.forEach((subtaskId) => {
+                                    const subtask = tasksMap[subtaskId];
+                                    if (subtask) {
+                                        const isSubtaskCompleted = subtask.completed ? 'x' : ' ';
+                                        markdown += `    - [${isSubtaskCompleted}] ${subtask.content} (#${subtask.displayId})\n`;
+                                    }
+                                });
+                            }
+                            markdown += '\n';
+                        });
+                    }
+                });
+            }
+            zip.file(`${board.name}-export-${date}.md`, markdown);
+        }
+
+        const content = await zip.generateAsync({ type: 'blob' });
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(content);
+        link.download = `all-boards-markdown-export-${date}.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(link.href);
+    } catch (error) {
+        console.error('Error exporting all boards as Markdown ZIP:', error);
+        throw error;
+    }
+};
+
 const boardService = {
     getBoards,
     getBoard,
@@ -163,6 +240,7 @@ const boardService = {
     exportBoardMarkdown,
     importBoardJson,
     importBoardCsv,
+    exportAllBoardsMarkdownAsZip,
 };
 
 export default boardService;

@@ -21,6 +21,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.12.2",
     "dayjs": "^1.11.18",
+    "jszip": "^3.10.1",
     "jwt-decode": "^4.0.0",
     "marked": "^16.4.1",
     "md5": "^2.3.0",
