@@ -128,6 +128,8 @@ JWT_SECRET=your_secret_key_here
 PORT=3001
 ```
 
+You can generate a strong JWT_SECRET by using the output of `openssl rand -base64 32`, for example, or by picking your own secret.
+
 **JWT Timeout Configuration:** The JWT token is configured to expire in 1 hour (`expiresIn: '1h'`) in `server/controllers/authController.js`. The client-side renewal logic (inactivity checks, refresh thresholds) is located in `client/src/contexts/AuthContext.js`.
 
 Create a `.env` file in the `client` directory:
