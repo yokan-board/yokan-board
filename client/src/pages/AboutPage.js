@@ -26,8 +26,8 @@ function AboutPage() {
                 </Typography>
                 <Typography variant="body1" paragraph>
                     Yokan (予感) is a clean, intuitive Kanban board application designed for simplicity and ease of
-                    self-hosting. Yokan provides a seamless experience for organizing tasks and managing projects without
-                    the complexity you would find with the alternatives.
+                    self-hosting. Yokan provides a seamless experience for organizing tasks and managing projects
+                    without the complexity you would find with the alternatives.
                 </Typography>
                 <Typography variant="body1" paragraph>
                     Yokan is created by: <strong>Julian I. Kamil</strong>
@@ -71,11 +71,7 @@ function AboutPage() {
                     <Link href="mailto:yokan.board@gmail.com">yokan.board@gmail.com</Link>
                 </Typography>
             </Box>
-            <Avatar
-                alt="Yokan Logo"
-                src="/avatar.png"
-                sx={{ width: 120, height: 120 }}
-            />
+            <Avatar alt="Yokan Logo" src="/avatar.png" sx={{ width: 120, height: 120 }} />
         </Box>
     );
 }

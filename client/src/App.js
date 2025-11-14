@@ -46,7 +46,11 @@ function AppContent() {
                             flexGrow: 1,
                         }}
                     >
-                        <img src="/avatar.png" alt="Yokan Logo" style={{ marginRight: '8px', width: '28px', height: '28px', borderRadius: '50%' }} />
+                        <img
+                            src="/avatar.png"
+                            alt="Yokan Logo"
+                            style={{ marginRight: '8px', width: '28px', height: '28px', borderRadius: '50%' }}
+                        />
                         <Typography variant="h6" component="div" noWrap>
                             Yokan
                         </Typography>

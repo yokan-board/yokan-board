@@ -41,13 +41,14 @@ export const useTaskRelationships = (taskId, allTasks, subtasks) => {
     const findAllAncestors = useCallback((currentTaskId, tasks) => {
         const ancestors = new Set();
         const visited = new Set(); // Track visited tasks to detect cycles
-        let task = tasks.find((t) => t.id === currentTaskId);
-        while (task && task.parentId) {
-            if (visited.has(task.id)) break; // Cycle detected
-            visited.add(task.id);
+        let currentTask = tasks.find((t) => t.id === currentTaskId);
+        while (currentTask && currentTask.parentId) {
+            if (visited.has(currentTask.id)) break; // Cycle detected
+            visited.add(currentTask.id);
 
-            ancestors.add(task.parentId);
-            task = tasks.find((t) => t.id === task.parentId);
+            const parentId = currentTask.parentId;
+            ancestors.add(parentId);
+            currentTask = tasks.find((t) => t.id === parentId);
         }
         return ancestors;
     }, []);
