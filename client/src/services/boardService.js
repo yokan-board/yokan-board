@@ -75,6 +75,68 @@ const exportBoardCsv = async (boardId, userId) => {
     return response.data;
 };
 
+const exportBoardMarkdown = (boardName, boardData) => {
+    let markdown = `# Board Name: ${boardName}\n\n`;
+
+    const tasksMap = {};
+    if (boardData.columns) {
+        Object.values(boardData.columns).forEach((col) => {
+            if (col.tasks) {
+                col.tasks.forEach((t) => (tasksMap[t.id] = t));
+            }
+        });
+    }
+
+    if (boardData.columnOrder) {
+        boardData.columnOrder.forEach((columnId) => {
+            const column = boardData.columns[columnId];
+            if (!column) return;
+            markdown += `## Column: ${column.title}\n\n`;
+
+            if (column.tasks && Array.isArray(column.tasks)) {
+                column.tasks.forEach((task) => {
+                    if (!task) return;
+
+                    const isCompleted = task.completed ? 'x' : ' ';
+                    markdown += `- [${isCompleted}] **${task.content}** (#${task.displayId})\n`;
+
+                    if (task.dueDate) {
+                        const date = new Date(task.dueDate).toISOString().split('T')[0];
+                        markdown += `  - **Due:** ${date}\n`;
+                    }
+
+                    if (task.description) {
+                        const description = task.description.replace(/\n/g, '\n    > ');
+                        markdown += `  - **Description:**\n    > ${description}\n`;
+                    }
+
+                    if (task.subtasks && task.subtasks.length > 0) {
+                        markdown += `  - **Subtasks:**\n`;
+                        task.subtasks.forEach((subtaskId) => {
+                            const subtask = tasksMap[subtaskId];
+                            if (subtask) {
+                                const isSubtaskCompleted = subtask.completed ? 'x' : ' ';
+                                markdown += `    - [${isSubtaskCompleted}] ${subtask.content} (#${subtask.displayId})\n`;
+                            }
+                        });
+                    }
+                    markdown += '\n';
+                });
+            }
+        });
+    }
+
+    const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    const date = new Date().toISOString().split('T')[0];
+    link.download = `${boardName}-export-${date}.md`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(link.href);
+};
+
 const importBoardJson = async (boardData, userId) => {
     const response = await api.post(`/boards/import/json`, boardData, {
         // headers: { 'x-user-id': userId }, // x-user-id removed
@@ -95,6 +157,7 @@ const boardService = {
     deleteBoard,
     exportBoardJson,
     exportBoardCsv,
+    exportBoardMarkdown,
     importBoardJson,
     importBoardCsv,
 };

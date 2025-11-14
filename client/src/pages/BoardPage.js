@@ -204,6 +204,19 @@ function BoardPage() {
         }
     };
 
+    const handleExportMarkdown = () => {
+        try {
+            let boardToExport = boardData.data;
+            if (boardRef.current && boardRef.current.getBoardData) {
+                boardToExport = boardRef.current.getBoardData();
+            }
+            boardService.exportBoardMarkdown(boardData.name, boardToExport);
+            console.log('Markdown export initiated.');
+        } catch (err) {
+            console.error('Error exporting Markdown:', err);
+        }
+    };
+
     const handleRefresh = () => {
         fetchBoard(true); // Pass true to bypass cache
     };
@@ -212,6 +225,7 @@ function BoardPage() {
         { text: 'Edit Properties', icon: <EditIcon />, onClick: () => setOpenEditDialog(true) },
         { text: 'Export to JSON', icon: <DownloadIcon />, onClick: handleExportJson },
         { text: 'Export to CSV', icon: <DownloadIcon />, onClick: handleExportCsv },
+        { text: 'Export to Markdown', icon: <DownloadIcon />, onClick: handleExportMarkdown },
     ];
 
     if (loading) {
