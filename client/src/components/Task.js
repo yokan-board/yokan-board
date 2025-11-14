@@ -40,6 +40,11 @@ function Task({ task, boardId, getParentDisplayId, onDelete, highlightColor, tas
                 minHeight: '80px',
                 '&:hover': {
                     backgroundColor: theme.palette.action.hover,
+                    '& [data-testid="task-icons"]': {
+                        // Target the icons Box
+                        opacity: 1,
+                        visibility: 'visible',
+                    },
                 },
             }}
             {...attributes}
@@ -89,7 +94,17 @@ function Task({ task, boardId, getParentDisplayId, onDelete, highlightColor, tas
                 </Box>
             )}
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+            <Box
+                data-testid="task-icons" // Add data-testid
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    mt: 1,
+                    opacity: 0, // Initially hidden
+                    visibility: 'hidden', // Initially hidden
+                    transition: 'opacity 0.3s ease-in-out, visibility 0.3s ease-in-out', // Smooth transition
+                }}
+            >
                 <IconButton size="small" {...listeners} sx={{ cursor: 'grab' }} onClick={(e) => e.stopPropagation()}>
                     <DragHandleIcon fontSize="small" />
                 </IconButton>

@@ -2,7 +2,6 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ColorPickerDialog from '../ColorPickerDialog';
 
-
 // Mock Material-UI's useTheme hook
 jest.mock('@mui/material/styles', () => ({
     ...jest.requireActual('@mui/material/styles'),
@@ -48,8 +47,6 @@ describe('ColorPickerDialog', () => {
         name: 'Test Board',
         data: { gradientColors: ['#AABBCC', '#DDEEFF'] },
     };
-
-    
 
     beforeEach(() => {
         jest.clearAllMocks();
