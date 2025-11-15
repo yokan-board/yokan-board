@@ -200,6 +200,8 @@ exports.exportBoardCsv = async (req, res, next) => {
             'Due Date',
             'Column Name',
             'Parent Task ID',
+            'Archived',
+            'Archive Date',
         ];
         csvRows.push(headers.join(','));
 
@@ -214,10 +216,27 @@ exports.exportBoardCsv = async (req, res, next) => {
                             columnName: column.title || '',
                             description: task.description || '',
                             dueDate: task.dueDate || null,
+                            isArchived: false,
+                            archiveDate: null,
                         });
                     });
                 }
             }
+        }
+
+        if (boardContent.archiveHistory) {
+            boardContent.archiveHistory.forEach((archiveEntry) => {
+                archiveEntry.tasks.forEach((task) => {
+                    allTasks.push({
+                        ...task,
+                        columnName: task.columnTitle || '', // Archived tasks store original column in columnTitle
+                        description: task.description || '',
+                        dueDate: task.dueDate || null,
+                        isArchived: true,
+                        archiveDate: archiveEntry.date,
+                    });
+                });
+            });
         }
 
         allTasks.sort((a, b) => {
@@ -235,8 +254,21 @@ exports.exportBoardCsv = async (req, res, next) => {
                 : '""';
             const columnName = `"${(task.columnName || '').replace(/"/g, '""')}"`;
             const parentTaskId = `"${(task.parentId || '').replace(/"/g, '""')}"`;
+            const isArchived = task.isArchived ? 'TRUE' : 'FALSE';
+            const archiveDate = task.archiveDate
+                ? `"${new Date(task.archiveDate).toISOString().slice(0, 10)}"`
+                : '""';
             csvRows.push(
-                [taskId, taskContent, description, dueDate, columnName, parentTaskId].join(',')
+                [
+                    taskId,
+                    taskContent,
+                    description,
+                    dueDate,
+                    columnName,
+                    parentTaskId,
+                    isArchived,
+                    archiveDate,
+                ].join(',')
             );
         });
 
