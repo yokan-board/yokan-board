@@ -360,8 +360,11 @@ function BoardPage() {
                     )}
                 </TabPanel>
                 <TabPanel value="archive" sx={{ p: 0 }}>
-                    {currentBoardData && (
-                        <ArchiveHistoryDisplay archiveHistory={currentBoardData.archiveHistory} />
+                    {currentBoardData && boardRef.current && (
+                        <ArchiveHistoryDisplay
+                            archiveHistory={currentBoardData.archiveHistory}
+                            tasksMap={boardRef.current.tasksMap}
+                        />
                     )}
                 </TabPanel>
             </TabContext>

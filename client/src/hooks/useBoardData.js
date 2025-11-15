@@ -198,8 +198,11 @@ export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard, 
                     return prev;
                 }
 
+                const columnOfTask = findColumn(taskId); // Find the column the task belongs to
+                const columnTitle = columnOfTask ? columnOfTask.title : 'Unknown Column'; // Get column title
+
                 const today = dayjs().format('YYYY-MM-DD');
-                const updatedTask = { ...taskToArchive, archivedAt: today };
+                const updatedTask = { ...taskToArchive, archivedAt: today, columnTitle: columnTitle }; // Add columnTitle
 
                 const newArchiveHistory = addTaskToArchive(prev.archiveHistory || [], updatedTask, today);
                 const newColumns = removeTaskFromColumns(prev.columns, taskId);

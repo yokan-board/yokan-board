@@ -65,8 +65,9 @@ export const archiveColumnTasks = (columns, archiveHistory, columnId, date) => {
     if (newColumns[columnId]) {
         const tasksToArchive = newColumns[columnId].tasks;
         const columnHighlightColor = newColumns[columnId].highlightColor; // Get column's highlight color
+        const columnTitle = newColumns[columnId].title; // Get column's title
         tasksToArchive.forEach((task) => {
-            const updatedTask = { ...task, archivedAt: date, highlightColor: columnHighlightColor }; // Add archivedAt timestamp and highlightColor
+            const updatedTask = { ...task, archivedAt: date, highlightColor: columnHighlightColor, columnTitle: columnTitle }; // Add archivedAt timestamp, highlightColor, and columnTitle
             const dateIndex = newArchiveHistory.findIndex((entry) => entry.date === date);
             if (dateIndex !== -1) {
                 newArchiveHistory[dateIndex] = {
