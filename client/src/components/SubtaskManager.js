@@ -44,8 +44,8 @@ function SubtaskManager({
                 }}
                 renderInput={(params) => <TextField {...params} variant="outlined" placeholder="Select subtasks" />}
                 renderTags={() => []}
-                renderOption={(props, option) => (
-                    <li {...props}>
+                renderOption={({ key, ...props }, option) => (
+                    <li key={key} {...props}>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <Box
                                 sx={{

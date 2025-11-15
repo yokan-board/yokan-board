@@ -1,17 +1,24 @@
 import React from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from '@mui/material';
 
-function DeleteConfirmationDialog({ open, onClose, onConfirm }) {
+function DeleteConfirmationDialog({
+    open,
+    onClose,
+    onConfirm,
+    title = 'Confirm Deletion',
+    message = 'Are you sure you want to delete this board? This action is not reversible.',
+    confirmButtonText = 'Delete', // New prop with default value
+}) {
     return (
         <Dialog open={open} onClose={onClose}>
-            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                <Typography>Are you sure you want to delete this board? This action is not reversible.</Typography>
+                <Typography>{message}</Typography>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>
                 <Button onClick={onConfirm} color="error">
-                    Delete
+                    {confirmButtonText}
                 </Button>
             </DialogActions>
         </Dialog>

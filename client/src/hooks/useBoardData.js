@@ -1,15 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
+import dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
 import { arrayMove } from '@dnd-kit/sortable';
 import { createColumnsFromTemplate } from '../services/templateService';
+import { addTaskToArchive, removeTaskFromColumns, archiveColumnTasks } from '../utils/archiveUtils';
 import { useTheme } from '@mui/material/styles';
 
-export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard) => {
+export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard, onBoardDataChange) => {
     const theme = useTheme();
-    const [boardData, setBoardData] = useState(initialBoardData || { columns: {} });
-    const [tasksMap, setTasksMap] = useState({});
-
-    useEffect(() => {
+    const [boardData, setBoardData] = useState(() => {
         if (initialBoardData) {
             const columns = initialBoardData.columns || {};
             const updatedColumns = Object.fromEntries(
@@ -23,11 +22,11 @@ export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard) 
                     },
                 ])
             );
-            setBoardData({ ...initialBoardData, columns: updatedColumns });
-        } else {
-            setBoardData({ columns: {} });
+            return { ...initialBoardData, columns: updatedColumns };
         }
-    }, [initialBoardData, theme.palette.primary.main]);
+        return { columns: {}, archiveHistory: [] };
+    });
+    const [tasksMap, setTasksMap] = useState({});
 
     useEffect(() => {
         const newTasksMap = {};
@@ -166,7 +165,7 @@ export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard) 
                         },
                     };
                 } else {
-                    const activeTask = activeColumn.tasks.find((task) => task.id === activeId);
+                    const activeTask = tasksMap[activeId]; // Use tasksMap to find the active task
                     const newActiveTasks = activeColumn.tasks.filter((task) => task.id !== activeId);
                     const newOverTasks = [...overColumn.tasks];
                     const overIndex = overColumn.tasks.findIndex((task) => task.id === overId);
@@ -188,8 +187,63 @@ export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard) 
                 }
             });
         },
-        [findColumn]
+        [findColumn, tasksMap]
     );
+
+    const handleArchiveTask = useCallback(
+        (taskId) => {
+            setBoardData((prev) => {
+                const taskToArchive = tasksMap[taskId];
+                if (!taskToArchive) {
+                    return prev;
+                }
+
+                const today = dayjs().format('YYYY-MM-DD');
+                const updatedTask = { ...taskToArchive, archivedAt: today };
+
+                const newArchiveHistory = addTaskToArchive(prev.archiveHistory || [], updatedTask, today);
+                const newColumns = removeTaskFromColumns(prev.columns, taskId);
+
+                return {
+                    ...prev,
+                    columns: newColumns,
+                    archiveHistory: newArchiveHistory,
+                };
+            });
+        },
+        [tasksMap]
+    );
+
+    const handleArchiveColumn = useCallback((columnId) => {
+        setBoardData((prev) => {
+            const today = dayjs().format('YYYY-MM-DD');
+            const { updatedColumns, updatedArchiveHistory } = archiveColumnTasks(
+                prev.columns,
+                prev.archiveHistory || [],
+                columnId,
+                today
+            );
+
+            // The column should remain, but its tasks should be moved to archive.
+            // updatedColumns already contains the column with an empty tasks array.
+            // We just need to ensure the columnOrder is not modified for this column.
+            return {
+                ...prev,
+                columns: updatedColumns, // updatedColumns already has the column with empty tasks
+                archiveHistory: updatedArchiveHistory,
+            };
+        });
+    }, []);
+
+    const updateInternalBoardData = useCallback((newBoardData) => {
+        setBoardData(newBoardData);
+    }, []);
+
+    useEffect(() => {
+        if (onBoardDataChange) {
+            onBoardDataChange(boardData);
+        }
+    }, [boardData, onBoardDataChange]);
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -211,5 +265,8 @@ export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard) 
         handleCreateFromTemplate,
         updateBoardDataForColumnReorder,
         updateBoardDataForTaskMove,
+        handleArchiveTask,
+        handleArchiveColumn,
+        updateInternalBoardData,
     };
 };

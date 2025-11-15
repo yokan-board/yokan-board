@@ -18,6 +18,8 @@ import DragHandleIcon from '@mui/icons-material/DragHandle'; // Import a drag ha
 import PaletteIcon from '@mui/icons-material/Palette'; // Import PaletteIcon
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import ArchiveIcon from '@mui/icons-material/Archive'; // Import ArchiveIcon
+import DeleteConfirmationDialog from './DeleteConfirmationDialog'; // Import DeleteConfirmationDialog
 import Task from './Task';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -41,6 +43,8 @@ function Column({
     onUpdateColumn,
     tasksMap,
     isFirst,
+    onArchiveColumn,
+    onArchiveTask,
 }) {
     const theme = useTheme();
     const [newTaskContent, setNewTaskContent] = useState('');
@@ -58,6 +62,7 @@ function Column({
     const { setNodeRef: setDroppableNodeRef, isOver } = useDroppable({ id: column.id });
 
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+    const [openArchiveConfirm, setOpenArchiveConfirm] = useState(false); // New state for archive confirmation
 
     const handleDeleteColumnClick = () => {
         setOpenDeleteConfirm(true);
@@ -70,6 +75,19 @@ function Column({
 
     const handleCancelDeleteColumn = () => {
         setOpenDeleteConfirm(false);
+    };
+
+    const handleArchiveColumnClick = () => {
+        setOpenArchiveConfirm(true);
+    };
+
+    const handleConfirmArchiveColumn = () => {
+        onArchiveColumn(column.id);
+        setOpenArchiveConfirm(false);
+    };
+
+    const handleCancelArchiveColumn = () => {
+        setOpenArchiveConfirm(false);
     };
 
     const handleToggleMinimize = () => {
@@ -218,6 +236,9 @@ function Column({
                     >
                         <PaletteIcon fontSize="small" />
                     </IconButton>
+                    <IconButton size="small" onClick={handleArchiveColumnClick} disabled={column.tasks.length === 0}>
+                        <ArchiveIcon fontSize="small" />
+                    </IconButton>
                     <IconButton size="small" onClick={handleDeleteColumnClick}>
                         <DeleteIcon fontSize="small" />
                     </IconButton>
@@ -265,6 +286,7 @@ function Column({
                                 boardId={boardId}
                                 getParentDisplayId={getParentDisplayId}
                                 onDelete={onDeleteTask}
+                                onArchiveTask={onArchiveTask}
                                 highlightColor={column.highlightColor}
                                 tasksMap={tasksMap}
                             />
@@ -358,6 +380,15 @@ function Column({
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <DeleteConfirmationDialog
+                open={openArchiveConfirm}
+                onClose={handleCancelArchiveColumn}
+                onConfirm={handleConfirmArchiveColumn}
+                title="Confirm Column Archival"
+                message="Are you sure you want to archive all tasks in this column? The column will remain, but its tasks will be moved to the archive. This action is not reversible."
+                confirmButtonText="Confirm Archival"
+            />
         </Paper>
     );
 }

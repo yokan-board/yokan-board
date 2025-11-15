@@ -3,18 +3,36 @@ import { Paper, Typography, IconButton, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit'; // Import EditIcon
 import DragHandleIcon from '@mui/icons-material/DragHandle'; // Import DragHandleIcon
+import ArchiveIcon from '@mui/icons-material/Archive'; // Import ArchiveIcon
+import DeleteConfirmationDialog from './DeleteConfirmationDialog'; // Import DeleteConfirmationDialog
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-function Task({ task, boardId, getParentDisplayId, onDelete, highlightColor, tasksMap }) {
+function Task({ task, boardId, getParentDisplayId, onDelete, onArchiveTask, highlightColor, tasksMap }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: task.id });
     const theme = useTheme();
     const navigate = useNavigate();
 
+    const [openArchiveConfirm, setOpenArchiveConfirm] = React.useState(false);
+
     const handleNavigateToEdit = () => {
         navigate(`/task/edit/${boardId}/${task.id}`);
+    };
+
+    const handleArchiveTaskClick = (e) => {
+        e.stopPropagation(); // Prevent task click from navigating
+        setOpenArchiveConfirm(true);
+    };
+
+    const handleConfirmArchiveTask = () => {
+        onArchiveTask(task.id);
+        setOpenArchiveConfirm(false);
+    };
+
+    const handleCancelArchiveTask = () => {
+        setOpenArchiveConfirm(false);
     };
 
     const parentDisplayId = task.parentId ? getParentDisplayId(task.parentId) : null;
@@ -48,9 +66,11 @@ function Task({ task, boardId, getParentDisplayId, onDelete, highlightColor, tas
                 },
             }}
             {...attributes}
-            onClick={handleNavigateToEdit}
         >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Box
+                sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
+                onClick={handleNavigateToEdit} // Add onClick here
+            >
                 <Typography variant="body1" sx={{ flexGrow: 1 }}>
                     {task.content}
                 </Typography>
@@ -119,6 +139,12 @@ function Task({ task, boardId, getParentDisplayId, onDelete, highlightColor, tas
                 </IconButton>
                 <IconButton
                     size="small"
+                    onClick={handleArchiveTaskClick}
+                >
+                    <ArchiveIcon fontSize="small" />
+                </IconButton>
+                <IconButton
+                    size="small"
                     onClick={(e) => {
                         e.stopPropagation();
                         onDelete(task.id);
@@ -127,6 +153,14 @@ function Task({ task, boardId, getParentDisplayId, onDelete, highlightColor, tas
                     <DeleteIcon fontSize="small" />
                 </IconButton>
             </Box>
+            <DeleteConfirmationDialog
+                open={openArchiveConfirm}
+                onClose={handleCancelArchiveTask}
+                onConfirm={handleConfirmArchiveTask}
+                title="Confirm Task Archival"
+                message="Are you sure you want to archive this task? It will be removed from the board and moved to the archive. This action is not reversible."
+                confirmButtonText="Confirm Archival"
+            />
         </Paper>
     );
 }

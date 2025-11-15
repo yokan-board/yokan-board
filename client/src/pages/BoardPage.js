@@ -13,7 +13,9 @@ import {
     TextField,
     Tooltip,
     Typography,
+    Tab, // Import Tab
 } from '@mui/material';
+import { TabContext, TabList, TabPanel } from '@mui/lab'; // Import TabContext, TabList, TabPanel
 
 import DownloadIcon from '@mui/icons-material/Download'; // Import DownloadIcon
 import AddIcon from '@mui/icons-material/Add'; // Import AddIcon
@@ -23,6 +25,7 @@ import Board from '../components/Board';
 import boardService from '../services/boardService';
 import SettingsMenu from '../components/SettingsMenu'; // Import SettingsMenu
 import EditBoardDialog from '../components/EditBoardDialog'; // Import EditBoardDialog
+import ArchiveHistoryDisplay from '../components/ArchiveHistoryDisplay'; // Import ArchiveHistoryDisplay
 import { v4 as uuidv4 } from 'uuid';
 import { getRandomColor } from '../services/colorService';
 import { useAuth } from '../contexts/AuthContext'; // Import useAuth
@@ -30,7 +33,7 @@ import { useBoards } from '../contexts/BoardContext'; // Import useBoards
 
 function BoardPage() {
     const { id } = useParams(); // This is the boardId
-    const [boardData, setBoardData] = useState(null);
+    const [initialBoardDataForHook, setInitialBoardDataForHook] = useState(null); // New state for initial data for useBoardData
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [openAddColumnDialog, setOpenAddColumnDialog] = useState(false);
@@ -43,6 +46,17 @@ function BoardPage() {
     // New state for inline editing board name
     const [isEditingBoardName, setIsEditingBoardName] = useState(false);
     const [editedBoardName, setEditedBoardName] = useState('');
+    const [selectedTab, setSelectedTab] = useState('board'); // New state for tab selection
+    const [currentBoardData, setCurrentBoardData] = useState(null); // New state to hold the latest board data from useBoardData
+
+    const handleTabChange = (event, newValue) => {
+        setSelectedTab(newValue);
+    };
+
+    const handleBoardDataChange = useCallback((newBoardData) => {
+        setCurrentBoardData(newBoardData);
+        setInitialBoardDataForHook(newBoardData); // Update initialBoardDataForHook as well
+    }, []);
 
     const fetchBoard = useCallback(
         async (noCache = false) => {
@@ -50,26 +64,25 @@ function BoardPage() {
                 setLoading(true);
                 const data = await boardService.getBoard(id, noCache);
                 if (data) {
-                    // Ensure data.data is an object, parse if it's a string
                     if (data.data) {
                         if (typeof data.data === 'string') {
                             data.data = JSON.parse(data.data);
                         }
-                        // Ensure columns is an object, even if it's an empty array from old data
-                        // or if it doesn't exist at all.
                         if (!data.data.columns || Array.isArray(data.data.columns)) {
                             data.data.columns = {};
                         }
                     } else {
-                        data.data = { columns: {} }; // Default to an object with empty columns if data.data is null/undefined
+                        data.data = { columns: {} };
                     }
-                    setBoardData(data);
+                    return data; // RETURN THE FETCHED DATA
                 } else {
                     setError('Board not found');
+                    return null;
                 }
             } catch (err) {
                 console.error('Error fetching board:', err);
                 setError('Failed to load board');
+                return null;
             } finally {
                 setLoading(false);
             }
@@ -77,15 +90,30 @@ function BoardPage() {
         [id]
     );
 
-    useEffect(() => {
-        fetchBoard();
-    }, [fetchBoard]);
+    const handleArchiveTask = useCallback(async (taskId) => {
+        if (boardRef.current && boardRef.current.handleArchiveTask) {
+            boardRef.current.handleArchiveTask(taskId);
+            // The onSaveBoard in useBoardData will handle persistence
+        }
+    }, []);
+
+    const handleArchiveColumn = useCallback(async (columnId) => {
+        if (boardRef.current && boardRef.current.handleArchiveColumn) {
+            boardRef.current.handleArchiveColumn(columnId);
+            // The onSaveBoard in useBoardData will handle persistence
+        }
+    }, []);
 
     useEffect(() => {
-        if (boardData) {
-            setEditedBoardName(boardData.name);
-        }
-    }, [boardData]);
+        const loadBoard = async () => {
+            const fetchedData = await fetchBoard();
+            if (fetchedData) {
+                setInitialBoardDataForHook(fetchedData.data); // Pass data.data to useBoardData
+                setEditedBoardName(fetchedData.name); // Set initial edited name
+            }
+        };
+        loadBoard();
+    }, [fetchBoard]);
 
     const handleSaveBoard = useCallback(
         async (updatedBoardData) => {
@@ -100,28 +128,31 @@ function BoardPage() {
     );
 
     const handleSaveBoardName = async () => {
-        if (editedBoardName.trim() !== '' && editedBoardName !== boardData.name) {
+        const currentBoardState = boardRef.current ? boardRef.current.getBoardData() : currentBoardData;
+        if (!currentBoardState) return;
+
+        if (editedBoardName.trim() !== '' && editedBoardName !== currentBoardState.name) {
             try {
-                await boardService.updateBoard(id, editedBoardName, boardData.data);
-                setBoardData((prev) => ({ ...prev, name: editedBoardName }));
+                await boardService.updateBoard(id, editedBoardName, currentBoardState);
+                // setBoardData((prev) => ({ ...prev, name: editedBoardName })); // REMOVE THIS
                 fetchBoards(); // Refetch all boards to update sidebar/dashboard
             } catch (err) {
                 console.error('Error saving board name:', err);
                 setError('Failed to save board name');
             }
         } else {
-            setEditedBoardName(boardData.name); // Revert if empty or unchanged
+            setEditedBoardName(currentBoardState.name); // Revert if empty or unchanged
         }
         setIsEditingBoardName(false);
     };
 
     const handleSaveEditedBoard = async (boardId, newName, newDescription) => {
         try {
-            const currentBoardData = boardRef.current ? boardRef.current.getBoardData() : boardData.data;
+            const currentBoardData = boardRef.current ? boardRef.current.getBoardData() : currentBoardData;
             const updatedData = { ...currentBoardData, description: newDescription };
             await boardService.updateBoard(boardId, newName, updatedData);
             // Refresh the board data to show the new name and description
-            fetchBoard(true); // Use noCache to get fresh data
+            // fetchBoard(true); // REMOVE THIS
             fetchBoards(); // Refetch all boards to update sidebar/dashboard
             setOpenEditDialog(false);
         } catch (err) {
@@ -140,45 +171,41 @@ function BoardPage() {
     const handleAddColumn = async () => {
         if (newColumnTitle.trim() === '') return;
 
-        // Save any pending changes from the Board component first
-        let latestBoardData = boardData.data; // Initialize with current page state
-        if (boardRef.current && boardRef.current.getBoardData) {
-            const currentBoardState = boardRef.current.getBoardData();
-            await handleSaveBoard({ name: boardData.name, data: currentBoardState });
-            latestBoardData = currentBoardState; // Use the saved state for further modifications
-        }
-
-        const newColumnId = uuidv4();
-        const existingColors = Object.values(latestBoardData.columns).map((col) => col.highlightColor);
-        let newHighlightColor = getRandomColor();
-        while (existingColors.includes(newHighlightColor)) {
-            newHighlightColor = getRandomColor();
-        }
-
-        const updatedBoardData = {
-            ...latestBoardData,
-            columns: {
-                ...latestBoardData.columns,
-                [newColumnId]: {
-                    id: newColumnId,
-                    title: newColumnTitle,
-                    tasks: [],
-                    highlightColor: newHighlightColor,
-                },
-            },
-            columnOrder: [...(latestBoardData.columnOrder || []), newColumnId],
-        };
-
-        try {
-            await boardService.updateBoard(id, boardData.name, updatedBoardData);
-            setBoardData((prev) => ({ ...prev, data: updatedBoardData }));
-            setNewColumnTitle('');
-            setOpenAddColumnDialog(false);
-        } catch (err) {
-            console.error('Error adding column:', err);
-            setError('Failed to add column');
-        }
-    };
+                // Save any pending changes from the Board component first
+                let latestBoardData = boardRef.current ? boardRef.current.getBoardData() : currentBoardData; // Use currentBoardData from useBoardData
+                if (!latestBoardData) return;
+        
+                const newColumnId = uuidv4();
+                const existingColors = Object.values(latestBoardData.columns).map((col) => col.highlightColor);
+                let newHighlightColor = getRandomColor();
+                while (existingColors.includes(newHighlightColor)) {
+                    newHighlightColor = getRandomColor();
+                }
+        
+                const updatedBoardData = {
+                    ...latestBoardData,
+                    columns: {
+                        ...latestBoardData.columns,
+                        [newColumnId]: {
+                            id: newColumnId,
+                            title: newColumnTitle,
+                            tasks: [],
+                            highlightColor: newHighlightColor,
+                        },
+                    },
+                    columnOrder: [...(latestBoardData.columnOrder || []), newColumnId],
+                };
+        
+                try {
+                    await boardService.updateBoard(id, editedBoardName, updatedBoardData); // Use editedBoardName for board name
+                    // setBoardData((prev) => ({ ...prev, data: updatedBoardData })); // REMOVE THIS
+                    // The useBoardData hook will update its internal state and propagate via onBoardDataChange
+                    setNewColumnTitle('');
+                    setOpenAddColumnDialog(false);
+                } catch (err) {
+                    console.error('Error adding column:', err);
+                    setError('Failed to add column');
+                }    };
 
     const handleExportJson = async () => {
         try {
@@ -206,20 +233,22 @@ function BoardPage() {
 
     const handleExportMarkdown = () => {
         try {
-            let boardToExport = boardData.data;
-            if (boardRef.current && boardRef.current.getBoardData) {
-                boardToExport = boardRef.current.getBoardData();
-            }
+            let boardToExport = boardRef.current ? boardRef.current.getBoardData() : currentBoardData;
+            if (!boardToExport) return;
             const boardDescription = boardToExport.description;
-            boardService.exportBoardMarkdown(boardData.name, boardDescription, boardToExport);
+            boardService.exportBoardMarkdown(editedBoardName, boardDescription, boardToExport); // Use editedBoardName
             console.log('Markdown export initiated.');
         } catch (err) {
             console.error('Error exporting Markdown:', err);
         }
     };
 
-    const handleRefresh = () => {
-        fetchBoard(true); // Pass true to bypass cache
+    const handleRefresh = async () => {
+        const fetchedData = await fetchBoard(true); // Pass true to bypass cache
+        if (fetchedData && boardRef.current && boardRef.current.updateInternalBoardData) {
+            boardRef.current.updateInternalBoardData(fetchedData.data);
+            setEditedBoardName(fetchedData.name); // Update edited name as well
+        }
     };
 
     const settingsMenuItems = [
@@ -245,7 +274,7 @@ function BoardPage() {
         );
     }
 
-    if (!boardData) {
+    if (!initialBoardDataForHook) {
         return (
             <Box sx={{ p: 3 }}>
                 <Alert severity="info">Board data is empty.</Alert>
@@ -308,21 +337,40 @@ function BoardPage() {
                     <SettingsMenu menuItems={settingsMenuItems} />
                 </Box>
             </Box>
-            {boardData && boardData.data && (
-                <Board
-                    ref={boardRef}
-                    initialBoardData={boardData.data}
-                    boardName={boardData.name}
-                    boardId={id}
-                    onSaveBoard={handleSaveBoard}
-                />
-            )}
 
-            {boardData && (
+            <TabContext value={selectedTab}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <TabList onChange={handleTabChange} aria-label="board tabs">
+                        <Tab label="Board" value="board" />
+                        <Tab label="Archive" value="archive" />
+                    </TabList>
+                </Box>
+                <TabPanel value="board" sx={{ p: 0 }}>
+                    {initialBoardDataForHook && (
+                        <Board
+                            ref={boardRef}
+                            initialBoardData={initialBoardDataForHook}
+                            boardName={editedBoardName} // Use editedBoardName
+                            boardId={id}
+                            onSaveBoard={handleSaveBoard}
+                            onArchiveColumn={handleArchiveColumn}
+                            onArchiveTask={handleArchiveTask}
+                            onBoardDataChange={handleBoardDataChange}
+                        />
+                    )}
+                </TabPanel>
+                <TabPanel value="archive" sx={{ p: 0 }}>
+                    {currentBoardData && (
+                        <ArchiveHistoryDisplay archiveHistory={currentBoardData.archiveHistory} />
+                    )}
+                </TabPanel>
+            </TabContext>
+
+            {initialBoardDataForHook && (
                 <EditBoardDialog
                     open={openEditDialog}
                     onClose={() => setOpenEditDialog(false)}
-                    board={boardData}
+                    board={{ name: editedBoardName, data: initialBoardDataForHook }} // Pass name and data separately
                     onSave={handleSaveEditedBoard}
                 />
             )}
