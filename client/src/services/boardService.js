@@ -137,6 +137,40 @@ const generateBoardMarkdown = (boardName, boardDescription, boardData) => {
             }
         });
     }
+
+    if (boardData.archiveHistory && boardData.archiveHistory.length > 0) {
+        markdown += `## Archived Tasks\n\n`;
+        boardData.archiveHistory.forEach((archiveEntry) => {
+            markdown += `### ${archiveEntry.date}\n\n`;
+            archiveEntry.tasks.forEach((task) => {
+                const isCompleted = task.completed ? 'x' : ' ';
+                markdown += `- [${isCompleted}] **${task.content}** (#${task.displayId})\n`;
+                if (task.columnTitle) {
+                    markdown += `  - **Original Column:** ${task.columnTitle}\n`;
+                }
+                if (task.dueDate) {
+                    const date = new Date(task.dueDate).toISOString().split('T')[0];
+                    markdown += `  - **Due:** ${date}\n`;
+                }
+                if (task.description) {
+                    const description = task.description.replace(/\n/g, '\n    > ');
+                    markdown += `  - **Description:**\n    > ${description}\n`;
+                }
+                if (task.subtasks && task.subtasks.length > 0) {
+                    markdown += `  - **Subtasks:**\n`;
+                    task.subtasks.forEach((subtaskId) => {
+                        const subtask = tasksMap[subtaskId];
+                        if (subtask) {
+                            const isSubtaskCompleted = subtask.completed ? 'x' : ' ';
+                            markdown += `    - [${isSubtaskCompleted}] ${subtask.content} (#${subtask.displayId})\n`;
+                        }
+                    });
+                }
+                markdown += '\n';
+            });
+        });
+    }
+
     return markdown;
 };
 
