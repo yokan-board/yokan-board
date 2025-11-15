@@ -24,6 +24,7 @@ Yokan aims to provide a straightforward, privacy-focused alternative to complex 
 - **User Authentication**: Secure login and registration system with password protection
 - **Personalized Boards**: Create multiple boards for different projects or contexts
 - **Customizable Boards**:
+    - Group boards into named collections for better organization
     - Gradient color customization for boards, including copy/paste functionality and a color picker for fine-tuning
     - Inline editing of board names directly from the board page
 - **Customizable Columns**:
@@ -126,6 +127,7 @@ INITIAL_USER_ID=user
 INITIAL_USER_PASSWORD=password
 JWT_SECRET=your_secret_key_here
 PORT=3001
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001
 ```
 
 You can generate a strong JWT_SECRET by using the output of `openssl rand -base64 32`, for example.
@@ -184,7 +186,7 @@ For the fastest setup using Docker:
 3. **Start the services:** From the project root directory, run:
     ```bash
     cp docker-compose.yml.example docker-compose.yml
-    vi docker-compose.yml  # update values
+    vi docker-compose.yml  # update values, including ALLOWED_ORIGINS for the server service
     docker compose up -d
     ```
 4.  **Access the application:**
@@ -273,7 +275,7 @@ Please make sure to update tests as appropriate and follow the existing code sty
 
 ## 🏗️ Tech Stack
 
-- **Frontend**: React v19.2.0, Material-UI v7.3.4, React Router v7.9.4, @dnd-kit, @mui/x-date-pickers, Prettier
+- **Frontend**: React v19.2.0, Material-UI v7.3.4, React Router v7.9.4, @dnd-kit, @mui/x-date-pickers, jszip, Prettier
 - **Backend**: Node.js, Express.js v5.1.0
 - **Database**: SQLite3
 - **Authentication**: JWT with bcrypt hashing
