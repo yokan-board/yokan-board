@@ -4,6 +4,7 @@
 
 ### Features
 
+- **User Preference: Hide Unnamed Collection Heading Label**: Added a user preference to hide the "Boards" section heading on the dashboard when no collection is assigned, reducing visual clutter.
 - **Board Collections**: Implemented the ability to group Kanban boards into named collections for better organization.
   - Server-side: Added `collection` column to boards, updated API for CRUD operations, and added server-side validation.
   - Client-side: Added "Collection" comboboxes to board creation/editing forms, and grouped boards by collection on the dashboard.

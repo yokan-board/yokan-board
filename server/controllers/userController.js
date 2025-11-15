@@ -7,26 +7,9 @@ const userModel = require('../models/user');
 const bcrypt = require('bcrypt');
 const { AppError, BadRequestError, UnauthorizedError } = require('../utils/appError');
 
-function isObject(item) {
-    return item && typeof item === 'object' && !Array.isArray(item);
-}
-
-function deepMerge(target, source) {
-    const output = { ...target };
-    if (isObject(target) && isObject(source)) {
-        Object.keys(source).forEach((key) => {
-            if (isObject(source[key])) {
-                if (!(key in target)) {
-                    Object.assign(output, { [key]: source[key] });
-                } else {
-                    output[key] = deepMerge(target[key], source[key]);
-                }
-            } else {
-                Object.assign(output, { [key]: source[key] });
-            }
-        });
-    }
-    return output;
+// Simplified merge for preferences, as they are expected to be a flat object
+function mergePreferences(existing, newPrefs) {
+    return { ...existing, ...newPrefs };
 }
 
 /**
@@ -132,6 +115,10 @@ exports.updatePassword = async (req, res, next /* eslint-disable-line no-unused-
 exports.getPreferences = async (req, res, next /* eslint-disable-line no-unused-vars */) => {
     try {
         const preferences = req.user.preferences ? JSON.parse(req.user.preferences) : {};
+        // Ensure default value for hideUnnamedCollectionHeading
+        if (typeof preferences.hideUnnamedCollectionHeading === 'undefined') {
+            preferences.hideUnnamedCollectionHeading = false;
+        }
         res.status(200).json(preferences);
     } catch (err) {
         next(new AppError(err.message, 400));
@@ -152,7 +139,7 @@ exports.updatePreferences = async (req, res, next /* eslint-disable-line no-unus
     try {
         const existingPreferences = req.user.preferences ? JSON.parse(req.user.preferences) : {};
 
-        const mergedPreferences = deepMerge(existingPreferences, newPreferences);
+        const mergedPreferences = mergePreferences(existingPreferences, newPreferences);
 
         await userModel.updateUser(userId, { preferences: JSON.stringify(mergedPreferences) });
 

@@ -9,12 +9,15 @@ import {
     Radio,
     CircularProgress,
     Alert,
+    Switch,
+    FormGroup,
 } from '@mui/material';
 import { useThemeContext } from '../../contexts/ThemeContext';
 import userService from '../../services/userService';
 
 function PreferencesSettings() {
     const { mode, setMode } = useThemeContext();
+    const [hideUnnamedCollectionHeading, setHideUnnamedCollectionHeading] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -23,8 +26,13 @@ function PreferencesSettings() {
         userService
             .getPreferences()
             .then((prefs) => {
-                if (prefs && prefs.theme) {
-                    setMode(prefs.theme);
+                if (prefs) {
+                    if (prefs.theme) {
+                        setMode(prefs.theme);
+                    }
+                    if (typeof prefs.hideUnnamedCollectionHeading !== 'undefined') {
+                        setHideUnnamedCollectionHeading(prefs.hideUnnamedCollectionHeading);
+                    }
                 }
             })
             .catch(() => setError('Failed to load preferences.'))
@@ -41,6 +49,19 @@ function PreferencesSettings() {
             setSuccess('Theme updated successfully!');
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to save theme preference.');
+        }
+    };
+
+    const handleHideUnnamedCollectionHeadingChange = async (event) => {
+        const newValue = event.target.checked;
+        setHideUnnamedCollectionHeading(newValue);
+        setError('');
+        setSuccess('');
+        try {
+            await userService.updatePreferences({ hideUnnamedCollectionHeading: newValue });
+            setSuccess('Preference updated successfully!');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to save preference.');
         }
     };
 
@@ -63,6 +84,20 @@ function PreferencesSettings() {
                         <FormControlLabel value="dark" control={<Radio />} label="Dark" />
                     </RadioGroup>
                 </FormControl>
+            </Box>
+            <Box sx={{ mt: 2 }}>
+                <FormGroup>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={hideUnnamedCollectionHeading}
+                                onChange={handleHideUnnamedCollectionHeadingChange}
+                                name="hideUnnamedCollectionHeading"
+                            />
+                        }
+                        label="Hide unnamed collection heading label"
+                    />
+                </FormGroup>
             </Box>
         </Box>
     );

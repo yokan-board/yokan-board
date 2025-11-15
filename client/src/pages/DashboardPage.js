@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Box, Typography, Tooltip, IconButton, Divider } from '@mui/material';
 import { Add as AddIcon, Upload as UploadIcon, Download as DownloadIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import SettingsMenu from '../components/SettingsMenu';
 import { useAuth } from '../contexts/AuthContext';
 import { useBoards } from '../contexts/BoardContext';
 import boardService from '../services/boardService';
+import userService from '../services/userService'; // Import userService
 import { generateRandomGradientColors } from '../services/colorService';
 
 import BoardList from '../components/BoardList';
@@ -28,6 +29,21 @@ function DashboardPage() {
     const [editingBoard, setEditingBoard] = useState(null);
     const [deletingBoardId, setDeletingBoardId] = useState(null);
     const [copiedGradient, setCopiedGradient] = useState(null);
+    const [hideUnnamedCollectionHeading, setHideUnnamedCollectionHeading] = useState(false); // New state for preference
+
+    useEffect(() => {
+        const fetchPreferences = async () => {
+            try {
+                const prefs = await userService.getPreferences();
+                if (prefs && typeof prefs.hideUnnamedCollectionHeading !== 'undefined') {
+                    setHideUnnamedCollectionHeading(prefs.hideUnnamedCollectionHeading);
+                }
+            } catch (error) {
+                console.error('Error fetching user preferences:', error);
+            }
+        };
+        fetchPreferences();
+    }, []); // Fetch preferences on component mount
 
     const handleCreateBoard = async (name, description, columns, collection) => {
         try {
@@ -202,10 +218,14 @@ function DashboardPage() {
 
             {Object.entries(groupedBoards).map(([collectionName, boardsInCollection]) => (
                 <Box key={collectionName} sx={{ mb: 4 }}>
-                    <Typography variant="h5" gutterBottom sx={{ mt: 2, mb: 1 }}>
-                        {collectionName === 'Default' ? 'Boards' : collectionName}
-                    </Typography>
-                    <Divider sx={{ mb: 2 }} />
+                    {!(collectionName === 'Default' && hideUnnamedCollectionHeading) && (
+                        <>
+                            <Typography variant="h5" gutterBottom sx={{ mt: 2, mb: 1 }}>
+                                {collectionName === 'Default' ? 'Boards' : collectionName}
+                            </Typography>
+                            <Divider sx={{ mb: 2 }} />
+                        </>
+                    )}
                     <BoardList
                         boards={boardsInCollection}
                         onEdit={handleEditBoard}
