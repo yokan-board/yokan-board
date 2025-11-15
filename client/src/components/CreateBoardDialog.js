@@ -41,7 +41,8 @@ function CreateBoardDialog({ open, onClose, onCreateBoard }) {
     const handleCreate = () => {
         if (newBoardName.trim() === '') return;
         const columns = createColumnsFromTemplate(newBoardTemplate);
-        onCreateBoard(newBoardName, newBoardDescription, columns, newBoardCollection); // Pass newBoardCollection
+        const collectionToSend = newBoardCollection === '' ? null : newBoardCollection;
+        onCreateBoard(newBoardName, newBoardDescription, columns, collectionToSend); // Pass newBoardCollection
         setNewBoardName('');
         setNewBoardDescription('');
         setNewBoardTemplate('None');

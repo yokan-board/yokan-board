@@ -46,7 +46,8 @@ function EditBoardDialog({ open, onClose, board, onSave }) {
     }, [open, user, board]); // Add board to dependency array to re-run when board changes
 
     const handleSave = () => {
-        onSave(board.id, editedBoardName, editedBoardDescription, editedBoardCollection); // Pass editedBoardCollection
+        const collectionToSend = editedBoardCollection === '' ? null : editedBoardCollection;
+        onSave(board.id, editedBoardName, editedBoardDescription, collectionToSend); // Pass editedBoardCollection
         onClose(); // Call onClose after successful save
     };
 

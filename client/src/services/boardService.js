@@ -32,12 +32,20 @@ const getBoard = async (boardId, noCache = false) => {
 };
 
 const createBoard = async (userId, name, data, collection) => {
-    const response = await api.post(`/boards`, { user_id: userId, name, data: data, collection: collection });
+    const payload = { user_id: userId, name, data: data };
+    if (collection !== null) {
+        payload.collection = collection;
+    }
+    const response = await api.post(`/boards`, payload);
     return response.data.data;
 };
 
 const updateBoard = async (boardId, name, data, collection) => {
-    const response = await api.put(`/boards/${boardId}`, { name, data: data, collection: collection });
+    const payload = { name, data: data };
+    if (collection !== null) {
+        payload.collection = collection;
+    }
+    const response = await api.put(`/boards/${boardId}`, payload);
     return response.data.data;
 };
 
