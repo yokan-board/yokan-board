@@ -214,7 +214,7 @@ export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard, 
                 };
             });
         },
-        [tasksMap]
+        [tasksMap, findColumn] // Added findColumn to dependency array
     );
 
     const handleArchiveColumn = useCallback((columnId) => {

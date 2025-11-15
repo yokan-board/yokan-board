@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import {
@@ -168,44 +169,45 @@ function BoardPage() {
         }
     };
 
-    const handleAddColumn = async () => {
+    const handleAddColumn = useCallback(async () => {
         if (newColumnTitle.trim() === '') return;
 
-                // Save any pending changes from the Board component first
-                let latestBoardData = boardRef.current ? boardRef.current.getBoardData() : currentBoardData; // Use currentBoardData from useBoardData
-                if (!latestBoardData) return;
-        
-                const newColumnId = uuidv4();
-                const existingColors = Object.values(latestBoardData.columns).map((col) => col.highlightColor);
-                let newHighlightColor = getRandomColor();
-                while (existingColors.includes(newHighlightColor)) {
-                    newHighlightColor = getRandomColor();
-                }
-        
-                const updatedBoardData = {
-                    ...latestBoardData,
-                    columns: {
-                        ...latestBoardData.columns,
-                        [newColumnId]: {
-                            id: newColumnId,
-                            title: newColumnTitle,
-                            tasks: [],
-                            highlightColor: newHighlightColor,
-                        },
-                    },
-                    columnOrder: [...(latestBoardData.columnOrder || []), newColumnId],
-                };
-        
-                try {
-                    await boardService.updateBoard(id, editedBoardName, updatedBoardData); // Use editedBoardName for board name
-                    // setBoardData((prev) => ({ ...prev, data: updatedBoardData })); // REMOVE THIS
-                    // The useBoardData hook will update its internal state and propagate via onBoardDataChange
-                    setNewColumnTitle('');
-                    setOpenAddColumnDialog(false);
-                } catch (err) {
-                    console.error('Error adding column:', err);
-                    setError('Failed to add column');
-                }    };
+        // Save any pending changes from the Board component first
+        let latestBoardData = boardRef.current ? boardRef.current.getBoardData() : currentBoardData; // Use currentBoardData from useBoardData
+        if (!latestBoardData) return;
+
+        const newColumnId = uuidv4();
+        const existingColors = Object.values(latestBoardData.columns).map((col) => col.highlightColor);
+        let newHighlightColor = getRandomColor();
+        while (existingColors.includes(newHighlightColor)) {
+            newHighlightColor = getRandomColor();
+        }
+
+        const updatedBoardData = {
+            ...latestBoardData,
+            columns: {
+                ...latestBoardData.columns,
+                [newColumnId]: {
+                    id: newColumnId,
+                    title: newColumnTitle,
+                    tasks: [],
+                    highlightColor: newHighlightColor,
+                },
+            },
+            columnOrder: [...(latestBoardData.columnOrder || []), newColumnId],
+        };
+
+        try {
+            await boardService.updateBoard(id, editedBoardName, updatedBoardData); // Use editedBoardName for board name
+            // setBoardData((prev) => ({ ...prev, data: updatedBoardData })); // REMOVE THIS
+            // The useBoardData hook will update its internal state and propagate via onBoardDataChange
+            setNewColumnTitle('');
+            setOpenAddColumnDialog(false);
+        } catch (err) {
+            console.error('Error adding column:', err);
+            setError('Failed to add column');
+        }
+    }, [newColumnTitle, currentBoardData, editedBoardName, id]);
 
     const handleExportJson = async () => {
         try {

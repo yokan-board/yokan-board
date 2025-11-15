@@ -1,13 +1,8 @@
 import React, { useState } from 'react'; // Import useState
-import { Box, Typography, Divider } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import dayjs from 'dayjs';
 import { marked } from 'marked'; // Import marked
-
-function MarkdownPreview({ markdown }) {
-    const html = marked.parse(markdown || '');
-    return <Box dangerouslySetInnerHTML={{ __html: html }} sx={{ p: 1, maxWidth: 300 }} />;
-}
 
 function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) { // Add tasksMap prop
     const theme = useTheme();
@@ -34,7 +29,9 @@ function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) { // Add tasksMap p
                     <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
                         {dayjs(entry.date).format('MMMM D, YYYY')}
                     </Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}> {/* Changed gap to 0 */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                        {' '}
+                        {/* Changed gap to 0 */}
                         {entry.tasks.map((task, index) => (
                             <Box
                                 key={task.id}
@@ -47,7 +44,8 @@ function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) { // Add tasksMap p
                                     flexDirection: 'column', // Changed to column to stack details
                                     alignItems: 'flex-start',
                                     cursor: 'pointer', // Indicate clickable
-                                    '&:hover': { // Add hover effect
+                                    '&:hover': {
+                                        // Add hover effect
                                         backgroundColor: 'action.hover',
                                     },
                                 }}
@@ -78,12 +76,22 @@ function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) { // Add tasksMap p
                                         #{task.displayId}
                                     </Typography>
                                     <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                            }}
+                                        >
                                             <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
                                                 {task.content}
                                             </Typography>
                                             {task.dueDate && (
-                                                <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0, ml: 1 }}>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    sx={{ flexShrink: 0, ml: 1 }}
+                                                >
                                                     Due: {dayjs(task.dueDate).format('MMMM D, YYYY')}
                                                 </Typography>
                                             )}
@@ -102,24 +110,40 @@ function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) { // Add tasksMap p
                                 </Box>
 
                                 {expandedTaskId === task.id && (
-                                    <Box sx={{ mt: 2, width: '100%' }}> {/* Added width: '100%' */}
+                                    <Box sx={{ mt: 2, width: '100%' }}>
+                                        {' '}
+                                        {/* Added width: '100%' */}
                                         {task.columnTitle && (
-                                            <Typography variant="caption" color="text.secondary" sx={{ mb: 1, ml: '82px' }}> {/* Added ml */}
+                                            <Typography
+                                                variant="caption"
+                                                color="text.secondary"
+                                                sx={{ mb: 1, ml: '82px' }}
+                                            >
+                                                {' '}
+                                                {/* Added ml */}
                                                 Original Column: {task.columnTitle}
                                             </Typography>
                                         )}
                                         {task.description && (
-                                            <Box sx={{ mt: 1, ml: '82px' }}> {/* Removed width */}
-                                                <Typography variant="subtitle2" gutterBottom>Description:</Typography>
-                                                <Box dangerouslySetInnerHTML={{ __html: marked.parse(task.description) }} sx={{
-                                                    py: 1, px: 2, // Increased horizontal padding
-                                                    border: `1px solid ${theme.palette.divider}`,
-                                                    borderRadius: 1,
-                                                    backgroundColor: theme.palette.common.white, // Set background to white
-                                                    color: '#222', // Set text color
-                                                    maxHeight: '200px',
-                                                    overflowY: 'auto',
-                                                }} />
+                                            <Box sx={{ mt: 1, ml: '82px' }}>
+                                                {' '}
+                                                {/* Removed width */}
+                                                <Typography variant="subtitle2" gutterBottom>
+                                                    Description:
+                                                </Typography>
+                                                <Box
+                                                    dangerouslySetInnerHTML={{ __html: marked.parse(task.description) }}
+                                                    sx={{
+                                                        py: 1,
+                                                        px: 2, // Increased horizontal padding
+                                                        border: `1px solid ${theme.palette.divider}`,
+                                                        borderRadius: 1,
+                                                        backgroundColor: theme.palette.common.white, // Set background to white
+                                                        color: '#222', // Set text color
+                                                        maxHeight: '200px',
+                                                        overflowY: 'auto',
+                                                    }}
+                                                />
                                             </Box>
                                         )}
                                     </Box>

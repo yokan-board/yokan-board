@@ -137,10 +137,7 @@ function Task({ task, boardId, getParentDisplayId, onDelete, onArchiveTask, high
                 >
                     <EditIcon fontSize="small" />
                 </IconButton>
-                <IconButton
-                    size="small"
-                    onClick={handleArchiveTaskClick}
-                >
+                <IconButton size="small" onClick={handleArchiveTaskClick}>
                     <ArchiveIcon fontSize="small" />
                 </IconButton>
                 <IconButton

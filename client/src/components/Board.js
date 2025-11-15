@@ -34,10 +34,10 @@ const Board = forwardRef(
 
         useImperativeHandle(ref, () => ({
             getBoardData: () => boardData,
-                    handleArchiveTask: handleArchiveTask,
-                    handleArchiveColumn: handleArchiveColumn,
-                    updateInternalBoardData: updateInternalBoardData,
-                }));
+            handleArchiveTask: handleArchiveTask,
+            handleArchiveColumn: handleArchiveColumn,
+            updateInternalBoardData: updateInternalBoardData,
+        }));
         const activeTask = activeId ? tasksMap[activeId] : null;
         const hasColumns = Object.keys(boardData.columns).length > 0;
 
