@@ -67,12 +67,13 @@ exports.getBoardById = (id) => {
  * @param {number} user_id - The ID of the user who owns the board.
  * @param {string} name - The name of the board.
  * @param {object} data - The JSON data structure of the board (e.g., columns, tasks).
+ * @param {string} [collection] - The optional collection name for the board.
  * @returns {Promise<object>} A promise that resolves with the ID of the newly created board.
  */
-exports.createBoard = (user_id, name, data) => {
+exports.createBoard = (user_id, name, data, collection) => {
     return new Promise((resolve, reject) => {
-        const insert = 'INSERT INTO boards (user_id, name, data) VALUES (?,?,?)';
-        db.run(insert, [user_id, name, JSON.stringify(data)], function (err) {
+        const insert = 'INSERT INTO boards (user_id, name, data, collection) VALUES (?,?,?,?)';
+        db.run(insert, [user_id, name, JSON.stringify(data), collection], function (err) {
             if (err) {
                 reject(err);
             } else {
@@ -87,15 +88,17 @@ exports.createBoard = (user_id, name, data) => {
  * @param {number} id - The ID of the board to update.
  * @param {string} name - The new name of the board.
  * @param {object} data - The new JSON data structure of the board.
+ * @param {string} [collection] - The optional new collection name for the board.
  * @returns {Promise<object>} A promise that resolves with the updated board's ID and the number of changes made.
  */
-exports.updateBoard = (id, name, data) => {
+exports.updateBoard = (id, name, data, collection) => {
     return new Promise((resolve, reject) => {
         const update = `UPDATE boards set 
            name = COALESCE(?,name), 
-           data = COALESCE(?,data) 
+           data = COALESCE(?,data),
+           collection = COALESCE(?,collection)
            WHERE id = ?`;
-        db.run(update, [name, JSON.stringify(data), id], function (err) {
+        db.run(update, [name, JSON.stringify(data), collection, id], function (err) {
             if (err) {
                 reject(err);
             } else {

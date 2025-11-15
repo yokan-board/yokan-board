@@ -60,7 +60,7 @@ exports.getBoardById = async (req, res, next) => {
  * @returns {Promise<void>}
  */
 exports.createBoard = async (req, res, next) => {
-    const { user_id, name } = req.body;
+    const { user_id, name, collection } = req.body;
     const providedData = req.body.data || {};
 
     if (!user_id || !name) {
@@ -81,7 +81,7 @@ exports.createBoard = async (req, res, next) => {
     }
 
     try {
-        const newBoard = await boardModel.createBoard(user_id, name, data);
+        const newBoard = await boardModel.createBoard(user_id, name, data, collection);
         res.status(201).json({
             message: 'success',
             data: newBoard,
@@ -100,10 +100,10 @@ exports.createBoard = async (req, res, next) => {
  */
 exports.updateBoard = async (req, res, next) => {
     const { id } = req.params;
-    const { name, data } = req.body;
+    const { name, data, collection } = req.body;
 
     try {
-        const updatedBoard = await boardModel.updateBoard(id, name, data);
+        const updatedBoard = await boardModel.updateBoard(id, name, data, collection);
         res.json({
             message: 'success',
             data: {

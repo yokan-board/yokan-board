@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Button,
     TextField,
@@ -10,21 +10,42 @@ import {
     InputLabel,
     Select,
     MenuItem,
+    Autocomplete, // Import Autocomplete
 } from '@mui/material';
 import { createColumnsFromTemplate } from '../services/templateService';
+import boardService from '../services/boardService'; // Import boardService
+import { useAuth } from '../contexts/AuthContext'; // Import useAuth
 
 function CreateBoardDialog({ open, onClose, onCreateBoard }) {
+    const { user } = useAuth(); // Get user from useAuth
     const [newBoardName, setNewBoardName] = useState('');
     const [newBoardDescription, setNewBoardDescription] = useState('');
     const [newBoardTemplate, setNewBoardTemplate] = useState('None');
+    const [newBoardCollection, setNewBoardCollection] = useState(null); // New state for collection
+    const [collectionOptions, setCollectionOptions] = useState([]); // State for autocomplete options
+
+    useEffect(() => {
+        if (open && user) {
+            const fetchCollections = async () => {
+                try {
+                    const collections = await boardService.getUniqueCollections(user.id);
+                    setCollectionOptions(collections);
+                } catch (error) {
+                    console.error('Error fetching unique collections:', error);
+                }
+            };
+            fetchCollections();
+        }
+    }, [open, user]);
 
     const handleCreate = () => {
         if (newBoardName.trim() === '') return;
         const columns = createColumnsFromTemplate(newBoardTemplate);
-        onCreateBoard(newBoardName, newBoardDescription, columns);
+        onCreateBoard(newBoardName, newBoardDescription, columns, newBoardCollection); // Pass newBoardCollection
         setNewBoardName('');
         setNewBoardDescription('');
         setNewBoardTemplate('None');
+        setNewBoardCollection(null); // Reset collection
         onClose(); // Call onClose after successful creation
     };
 
@@ -42,6 +63,29 @@ function CreateBoardDialog({ open, onClose, onCreateBoard }) {
                     value={newBoardName}
                     onChange={(e) => setNewBoardName(e.target.value)}
                     sx={{ mb: 2 }}
+                />
+                <Autocomplete
+                    freeSolo
+                    options={collectionOptions}
+                    value={newBoardCollection}
+                    onChange={(event, newValue) => {
+                        setNewBoardCollection(newValue);
+                    }}
+                    onInputChange={(event, newInputValue) => {
+                        setNewBoardCollection(newInputValue);
+                    }}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            margin="dense"
+                            label="Collection"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                            sx={{ mb: 2 }}
+                        />
+                    )}
+                    sx={{ mt: 1, mb: 2 }}
                 />
                 <TextField
                     margin="dense"

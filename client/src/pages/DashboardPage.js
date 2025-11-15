@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Box, Typography, Tooltip, IconButton } from '@mui/material';
+import React, { useState, useMemo } from 'react';
+import { Box, Typography, Tooltip, IconButton, Divider } from '@mui/material';
 import { Add as AddIcon, Upload as UploadIcon, Download as DownloadIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -29,15 +29,20 @@ function DashboardPage() {
     const [deletingBoardId, setDeletingBoardId] = useState(null);
     const [copiedGradient, setCopiedGradient] = useState(null);
 
-    const handleCreateBoard = async (name, description, columns) => {
+    const handleCreateBoard = async (name, description, columns, collection) => {
         try {
             const newGradientColors = generateRandomGradientColors();
-            await boardService.createBoard(user.id, name, {
-                columns,
-                gradientColors: newGradientColors,
-                description: description,
-                columnOrder: Object.keys(columns),
-            });
+            await boardService.createBoard(
+                user.id,
+                name,
+                {
+                    columns,
+                    gradientColors: newGradientColors,
+                    description: description,
+                    columnOrder: Object.keys(columns),
+                },
+                collection
+            );
             fetchBoards();
         } catch (error) {
             console.error('Error creating board:', error);
@@ -49,12 +54,12 @@ function DashboardPage() {
         setOpenEditDialog(true);
     };
 
-    const handleSaveBoard = async (id, name, description) => {
+    const handleSaveBoard = async (id, name, description, collection) => {
         try {
             const boardToUpdate = boards.find((board) => board.id === id);
             if (boardToUpdate) {
                 const updatedData = { ...boardToUpdate.data, description: description };
-                await boardService.updateBoard(id, name, updatedData);
+                await boardService.updateBoard(id, name, updatedData, collection);
                 fetchBoards();
             }
         } catch (error) {
@@ -149,6 +154,32 @@ function DashboardPage() {
         { text: 'Export all boards as Markdown ZIP', icon: <DownloadIcon />, onClick: handleExportAllBoards },
     ];
 
+    const groupedBoards = useMemo(() => {
+        const groups = { Default: [] }; // Use 'Default' as a key for boards without a collection
+
+        boards.forEach((board) => {
+            const collectionName = board.collection || 'Default';
+            if (!groups[collectionName]) {
+                groups[collectionName] = [];
+            }
+            groups[collectionName].push(board);
+        });
+
+        // Sort collection names alphabetically, with 'Default' always first
+        const sortedCollectionNames = Object.keys(groups).sort((a, b) => {
+            if (a === 'Default') return -1;
+            if (b === 'Default') return 1;
+            return a.localeCompare(b);
+        });
+
+        const sortedGroups = {};
+        sortedCollectionNames.forEach((name) => {
+            sortedGroups[name] = groups[name];
+        });
+
+        return sortedGroups;
+    }, [boards]);
+
     return (
         <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -169,17 +200,25 @@ function DashboardPage() {
                 </Box>
             </Box>
 
-            <BoardList
-                boards={boards}
-                onEdit={handleEditBoard}
-                onDelete={handleDeleteBoard}
-                onCopyGradient={handleCopyGradient}
-                onPasteGradient={handlePasteGradient}
-                onChangeGradient={handleChangeGradient}
-                onLongPressChangeGradient={handleLongPressChangeGradient}
-                copiedGradient={copiedGradient}
-                onNavigateToBoard={handleNavigateToBoard}
-            />
+            {Object.entries(groupedBoards).map(([collectionName, boardsInCollection]) => (
+                <Box key={collectionName} sx={{ mb: 4 }}>
+                    <Typography variant="h5" gutterBottom sx={{ mt: 2, mb: 1 }}>
+                        {collectionName === 'Default' ? 'Boards' : collectionName}
+                    </Typography>
+                    <Divider sx={{ mb: 2 }} />
+                    <BoardList
+                        boards={boardsInCollection}
+                        onEdit={handleEditBoard}
+                        onDelete={handleDeleteBoard}
+                        onCopyGradient={handleCopyGradient}
+                        onPasteGradient={handlePasteGradient}
+                        onChangeGradient={handleChangeGradient}
+                        onLongPressChangeGradient={handleLongPressChangeGradient}
+                        copiedGradient={copiedGradient}
+                        onNavigateToBoard={handleNavigateToBoard}
+                    />
+                </Box>
+            ))}
 
             <CreateBoardDialog
                 open={openCreateDialog}

@@ -90,9 +90,39 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
                             return;
                         }
 
+                        // Check and add columns if they don't exist for backward compatibility
+                        db.all('PRAGMA table_info(boards)', (errPragma, rows) => {
+                            if (errPragma) {
+                                console.error(
+                                    'Error checking boards table info:',
+                                    errPragma.message
+                                );
+                                return;
+                            }
+                            const boardColumns = rows.map((col) => col.name);
+
+                            if (!boardColumns.includes('collection')) {
+                                db.run(
+                                    `ALTER TABLE boards ADD COLUMN collection TEXT`,
+                                    (errAlter) => {
+                                        if (errAlter) {
+                                            console.error(
+                                                'Error adding collection column to boards table:',
+                                                errAlter.message
+                                            );
+                                        } else {
+                                            console.log('Added collection column to boards table.');
+                                        }
+                                    }
+                                );
+                            }
+                        });
+
                         const INITIAL_USER_ID = process.env.INITIAL_USER_ID || 'user';
-                        const INITIAL_USER_PASSWORD = process.env.INITIAL_USER_PASSWORD || 'password';
-                        const INITIAL_USER_EMAIL = process.env.INITIAL_USER_EMAIL || 'yokan.board@gmail.com';
+                        const INITIAL_USER_PASSWORD =
+                            process.env.INITIAL_USER_PASSWORD || 'password';
+                        const INITIAL_USER_EMAIL =
+                            process.env.INITIAL_USER_EMAIL || 'yokan.board@gmail.com';
 
                         db.get(
                             `SELECT COUNT(*) as count FROM users WHERE username = ?`,

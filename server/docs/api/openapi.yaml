@@ -113,6 +113,11 @@ components:
                     description: Milk, eggs, bread
                     parentId: null
                     subtasks: []
+        collection:
+          type: string
+          nullable: true
+          description: Optional name of the collection the board belongs to.
+          example: My Projects
     Error:
       type: object
       properties:
@@ -520,6 +525,11 @@ paths:
                         id: col1
                         title: To Do
                         tasks: []
+                collection:
+                  type: string
+                  nullable: true
+                  description: Optional name of the collection the board belongs to.
+                  example: My Projects
       responses:
         '201':
           description: Board successfully created
@@ -632,6 +642,11 @@ paths:
                         id: col1
                         title: Updated To Do
                         tasks: []
+                collection:
+                  type: string
+                  nullable: true
+                  description: Optional new name of the collection the board belongs to.
+                  example: My Projects
       responses:
         '200':
           description: Board successfully updated

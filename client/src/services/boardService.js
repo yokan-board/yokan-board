@@ -31,13 +31,13 @@ const getBoard = async (boardId, noCache = false) => {
     return parseBoardData(response.data.data);
 };
 
-const createBoard = async (userId, name, data) => {
-    const response = await api.post(`/boards`, { user_id: userId, name, data: data });
+const createBoard = async (userId, name, data, collection) => {
+    const response = await api.post(`/boards`, { user_id: userId, name, data: data, collection: collection });
     return response.data.data;
 };
 
-const updateBoard = async (boardId, name, data) => {
-    const response = await api.put(`/boards/${boardId}`, { name, data: data });
+const updateBoard = async (boardId, name, data, collection) => {
+    const response = await api.put(`/boards/${boardId}`, { name, data: data, collection: collection });
     return response.data.data;
 };
 
@@ -186,6 +186,17 @@ const exportAllBoardsMarkdownAsZip = async (userId) => {
     }
 };
 
+const getUniqueCollections = async (userId) => {
+    const allBoards = await getBoards(userId);
+    const collections = new Set();
+    allBoards.forEach((board) => {
+        if (board.collection) {
+            collections.add(board.collection);
+        }
+    });
+    return Array.from(collections).sort();
+};
+
 const boardService = {
     getBoards,
     getBoard,
@@ -198,6 +209,7 @@ const boardService = {
     importBoardJson,
     importBoardCsv,
     exportAllBoardsMarkdownAsZip,
+    getUniqueCollections,
 };
 
 export default boardService;
