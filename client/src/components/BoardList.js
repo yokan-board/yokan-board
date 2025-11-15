@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import BoardCard from './BoardCard';
 
 function BoardList({
@@ -13,10 +13,6 @@ function BoardList({
     copiedGradient,
     onNavigateToBoard,
 }) {
-    if (boards.length === 0) {
-        return <Typography>No boards found. Create one to get started!</Typography>;
-    }
-
     return (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
             {boards.map((board) => (
