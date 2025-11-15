@@ -26,13 +26,25 @@ app.use(
             // Allow requests with no origin (like mobile apps or curl requests)
             if (!origin) return callback(null, true);
 
-            // Define allowed patterns for local development and local network
-            const allowedOrigins = [
-                /^http:\/\/localhost(:\d+)?$/,
-                /^http:\/\/127\.0\.0\.1(:\d+)?$/,
-                /^http:\/\/192\.168\.29\.\d+(:\d+)?$/,
-                /^http:\/\/macbook-pro-2018\.fairway17(:\d+)?$/,
-            ];
+            const allowedOriginsEnv = process.env.ALLOWED_ORIGINS;
+            let allowedOrigins = [];
+
+            if (allowedOriginsEnv) {
+                allowedOrigins = allowedOriginsEnv
+                    .split(',')
+                    .map(
+                        (o) =>
+                            new RegExp(
+                                `^${o.trim().replace(/\./g, '\\.').replace(/\*/g, '.*')}(:\\d+)?$`
+                            )
+                    );
+            } else {
+                // Default allowed patterns for local development and local network if not specified in .env
+                allowedOrigins = [
+                    /^http:\/\/localhost(:\d+)?$/,
+                    /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+                ];
+            }
 
             const isAllowed = allowedOrigins.some((pattern) => pattern.test(origin));
 
