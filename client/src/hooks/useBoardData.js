@@ -3,7 +3,13 @@ import dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
 import { arrayMove } from '@dnd-kit/sortable';
 import { createColumnsFromTemplate } from '../services/templateService';
-import { addTaskToArchive, removeTaskFromColumns, archiveColumnTasks } from '../utils/archiveUtils';
+import {
+    addTaskToArchive,
+    removeTaskFromColumns,
+    archiveColumnTasks,
+    updateParentWithArchivedLog,
+    updateParentsWithArchivedLogs,
+} from '../utils/archiveUtils';
 import { useTheme } from '@mui/material/styles';
 
 export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard, onBoardDataChange) => {
@@ -190,36 +196,52 @@ export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard, 
         [findColumn, tasksMap]
     );
 
-    const handleArchiveTask = useCallback(
-        (taskId) => {
-            setBoardData((prev) => {
-                const taskToArchive = tasksMap[taskId];
-                if (!taskToArchive) {
-                    return prev;
-                }
+    const handleArchiveTask = useCallback((taskId) => {
+        setBoardData((prev) => {
+            const taskToArchive = prev.columns
+                ? Object.values(prev.columns)
+                      .flatMap((col) => col.tasks)
+                      .find((task) => task.id === taskId)
+                : null;
 
-                const columnOfTask = findColumn(taskId); // Find the column the task belongs to
-                const columnTitle = columnOfTask ? columnOfTask.title : 'Unknown Column'; // Get column title
+            if (!taskToArchive) {
+                return prev;
+            }
 
-                const today = dayjs().format('YYYY-MM-DD');
-                const updatedTask = { ...taskToArchive, archivedAt: today, columnTitle: columnTitle }; // Add columnTitle
+            const columnOfTask = Object.values(prev.columns).find((col) =>
+                col.tasks.some((task) => task.id === taskId)
+            );
+            const columnTitle = columnOfTask ? columnOfTask.title : 'Unknown Column';
 
-                const newArchiveHistory = addTaskToArchive(prev.archiveHistory || [], updatedTask, today);
-                const newColumns = removeTaskFromColumns(prev.columns, taskId);
+            const today = dayjs().format('YYYY-MM-DD');
+            const updatedTask = { ...taskToArchive, archivedAt: today, columnTitle: columnTitle };
 
-                return {
-                    ...prev,
-                    columns: newColumns,
-                    archiveHistory: newArchiveHistory,
-                };
-            });
-        },
-        [tasksMap, findColumn] // Added findColumn to dependency array
-    );
+            // Step 1: Standard archival
+            const newArchiveHistory = addTaskToArchive(prev.archiveHistory || [], updatedTask, today);
+            const columnsAfterRemoval = removeTaskFromColumns(prev.columns, taskId);
+
+            // Step 2: Update parent if necessary
+            const finalColumns = updateParentWithArchivedLog(columnsAfterRemoval, updatedTask, today);
+
+            // Step 3: Return final state
+            return {
+                ...prev,
+                columns: finalColumns,
+                archiveHistory: newArchiveHistory,
+            };
+        });
+    }, []);
 
     const handleArchiveColumn = useCallback((columnId) => {
         setBoardData((prev) => {
+            const columnToArchive = prev.columns[columnId];
+            if (!columnToArchive || columnToArchive.tasks.length === 0) {
+                return prev;
+            }
+            const tasksToArchive = columnToArchive.tasks;
             const today = dayjs().format('YYYY-MM-DD');
+
+            // Step 1: Standard column archival
             const { updatedColumns, updatedArchiveHistory } = archiveColumnTasks(
                 prev.columns,
                 prev.archiveHistory || [],
@@ -227,12 +249,13 @@ export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard, 
                 today
             );
 
-            // The column should remain, but its tasks should be moved to archive.
-            // updatedColumns already contains the column with an empty tasks array.
-            // We just need to ensure the columnOrder is not modified for this column.
+            // Step 2: Update parents if necessary
+            const finalColumns = updateParentsWithArchivedLogs(updatedColumns, tasksToArchive, today);
+
+            // Step 3: Return final state
             return {
                 ...prev,
-                columns: updatedColumns, // updatedColumns already has the column with empty tasks
+                columns: finalColumns,
                 archiveHistory: updatedArchiveHistory,
             };
         });
