@@ -247,9 +247,10 @@ function BoardPage() {
     };
 
     const handleRefresh = async () => {
+        setSelectedTab('board'); // Reset to board view to ensure Board component is mounted
         const fetchedData = await fetchBoard(true); // Pass true to bypass cache
-        if (fetchedData && boardRef.current && boardRef.current.updateInternalBoardData) {
-            boardRef.current.updateInternalBoardData(fetchedData.data);
+        if (fetchedData) {
+            setInitialBoardDataForHook(fetchedData.data); // Update the state that initializes the Board component
             setEditedBoardName(fetchedData.name); // Update edited name as well
         }
     };
