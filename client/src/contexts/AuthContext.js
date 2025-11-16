@@ -25,10 +25,10 @@ export function AuthProvider({ children }) {
         setLoading(false);
     }, []);
 
-    const logout = useCallback(() => {
+    const logout = useCallback((fromInactivity = false) => {
         authService.logout();
         setUser(null);
-        navigate('/login');
+        navigate('/login', { state: { fromInactivity } });
     }, [navigate]);
 
     useEffect(() => {
@@ -57,7 +57,7 @@ export function AuthProvider({ children }) {
                         setUser(newUserData);
                     })
                     .catch((err) => {
-                        logout();
+                        logout(true); // Pass true to indicate logout due to inactivity
                     });
             }
         }, 60 * 1000); // Check every minute

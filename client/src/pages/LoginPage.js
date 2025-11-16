@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Box, Typography, TextField, Button, Alert, Container } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
+import { useLocation } from 'react-router-dom'; // Import useLocation
 
 function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const { login } = useAuth();
+    const location = useLocation(); // Get location object
+    const fromInactivity = location.state?.fromInactivity; // Check for inactivity flag
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -56,6 +59,11 @@ function LoginPage() {
                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                         Sign In
                     </Button>
+                    {fromInactivity && (
+                        <Alert severity="info" sx={{ mt: 2, width: '100%' }}>
+                            For security, you have been logged out due to inactivity. Please sign in again.
+                        </Alert>
+                    )}
                 </Box>
             </Box>
         </Container>
