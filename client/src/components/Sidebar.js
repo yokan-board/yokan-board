@@ -314,7 +314,7 @@ const Sidebar = ({ open, setOpen }) => {
                     <MenuItem
                         onClick={() => {
                             handleCloseUserMenu();
-                            logout();
+                            logout(false);
                         }}
                     >
                         <Typography textAlign="center">Logout</Typography>

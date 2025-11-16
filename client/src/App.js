@@ -75,7 +75,7 @@ function AppContent() {
                             <IconButton sx={{ ml: 1, mr: 1 }} onClick={toggleColorMode} color="inherit">
                                 {mode === 'dark' ? <LightModeIcon /> : <NightlightRoundIcon />}
                             </IconButton>
-                            <IconButton color="inherit" onClick={logout}>
+                            <IconButton color="inherit" onClick={() => logout(false)}>
                                 <ExitToAppIcon />
                             </IconButton>
                         </>
