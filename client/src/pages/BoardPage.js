@@ -106,6 +106,7 @@ function BoardPage() {
     }, []);
 
     useEffect(() => {
+        setSelectedTab('board');
         const loadBoard = async () => {
             const fetchedData = await fetchBoard();
             if (fetchedData) {

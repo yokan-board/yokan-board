@@ -1,5 +1,5 @@
 import React, { useState, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useParams, useLocation } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Box, CircularProgress } from '@mui/material';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import NightlightRoundIcon from '@mui/icons-material/NightlightRound';
@@ -26,6 +26,12 @@ function PrivateRoute({ children }) {
 
     return isAuthenticated ? children : <Navigate to="/login" />;
 }
+
+const BoardPageWithKey = () => {
+    const { id } = useParams();
+    const location = useLocation();
+    return <BoardPage key={`${id}-${location.key}`} />;
+};
 
 function AppContent() {
     const { mode, toggleColorMode } = useThemeContext();
@@ -95,7 +101,7 @@ function AppContent() {
                             path="/board/:id"
                             element={
                                 <PrivateRoute>
-                                    <BoardPage />
+                                    <BoardPageWithKey />
                                 </PrivateRoute>
                             }
                         />
