@@ -36,8 +36,8 @@ Yokan aims to provide a straightforward, privacy-focused alternative to complex 
 - **Gravatar Integration**: Personalized avatars based on your email address
 - **Nested Tasks Support**: Support for parent-child relationships and subtasks
 - **Task Details**: Due dates and descriptions for tasks (supporting Markdown)
-- **Task and Column Archival**: Archive individual tasks or entire columns to keep boards clean while retaining a historical record. Archived tasks are moved to a dedicated "ARCHIVE" tab, preserving their original column's highlight color.
-- **Data Export/Import**: Export boards in JSON or CSV formats for backup or migration
+- **Task and Column Archival**: Archive individual tasks or entire columns to keep boards clean while retaining a historical record. Archived tasks are moved to a dedicated "ARCHIVE" tab, preserving their original column's highlight color. Additionally, when a subtask is archived, its details are appended to its parent task's description for a comprehensive historical log.
+- **Data Export/Import**: Export boards in JSON, CSV, or Markdown formats for backup or migration, now including archived tasks for a complete data record.
 - **Automatic Session Management**: Your session is automatically renewed as long as you are active, preventing unexpected logouts during work
 - **Self-Hosted Control**: Complete ownership of your data with no external dependencies
 - **Responsive Design**: Works well on various screen sizes and devices
