@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Typography, TextField, Button, Alert, Container } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
-import { useLocation } from 'react-router-dom'; // Import useLocation
+import { useLocation, useNavigate } from 'react-router-dom'; // Import useLocation and useNavigate
 
 function LoginPage() {
     const [username, setUsername] = useState('');
@@ -9,13 +9,16 @@ function LoginPage() {
     const [error, setError] = useState(null);
     const { login } = useAuth();
     const location = useLocation(); // Get location object
+    const navigate = useNavigate();
     const fromInactivity = location.state?.fromInactivity; // Check for inactivity flag
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setError(null);
         const result = await login(username, password);
-        if (!result.success) {
+        if (result.success) {
+            navigate('/dashboard');
+        } else {
             setError(result.error);
         }
     };

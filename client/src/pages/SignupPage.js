@@ -3,6 +3,7 @@ import { Box, Typography, TextField, Button, Alert, Container, InputAdornment, I
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 function SignupPage() {
     const [username, setUsername] = useState('');
@@ -17,6 +18,7 @@ function SignupPage() {
     const [emailError, setEmailError] = useState('');
 
     const { signup } = useAuth();
+    const navigate = useNavigate();
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
     const handleMouseDownPassword = (event) => {
@@ -79,7 +81,9 @@ function SignupPage() {
         }
 
         const result = await signup(username, password, email);
-        if (!result.success) {
+        if (result.success) {
+            navigate('/login');
+        } else {
             setError(result.error);
         }
     };

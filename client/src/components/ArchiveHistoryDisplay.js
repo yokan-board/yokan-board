@@ -4,7 +4,8 @@ import { useTheme } from '@mui/material/styles';
 import dayjs from 'dayjs';
 import { marked } from 'marked'; // Import marked
 
-function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) { // Add tasksMap prop
+function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) {
+    // Add tasksMap prop
     const theme = useTheme();
     const [expandedTaskId, setExpandedTaskId] = useState(null);
 

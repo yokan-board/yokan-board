@@ -1,5 +1,5 @@
 /* eslint-disable no-use-before-define */
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     Box,
@@ -27,6 +27,7 @@ import boardService from '../services/boardService';
 import SettingsMenu from '../components/SettingsMenu'; // Import SettingsMenu
 import EditBoardDialog from '../components/EditBoardDialog'; // Import EditBoardDialog
 import ArchiveHistoryDisplay from '../components/ArchiveHistoryDisplay'; // Import ArchiveHistoryDisplay
+import BoardNotesPage from './BoardNotesPage'; // Import BoardNotesPage
 import { v4 as uuidv4 } from 'uuid';
 import { getRandomColor } from '../services/colorService';
 import { useAuth } from '../contexts/AuthContext'; // Import useAuth
@@ -50,6 +51,20 @@ function BoardPage() {
     const [selectedTab, setSelectedTab] = useState('board'); // New state for tab selection
     const [currentBoardData, setCurrentBoardData] = useState(null); // New state to hold the latest board data from useBoardData
 
+    const tasksMap = useMemo(() => {
+        const map = {};
+        if (currentBoardData && currentBoardData.columns) {
+            Object.values(currentBoardData.columns).forEach((column) => {
+                if (column.tasks) {
+                    column.tasks.forEach((task) => {
+                        map[task.id] = task;
+                    });
+                }
+            });
+        }
+        return map;
+    }, [currentBoardData]);
+
     const handleTabChange = (event, newValue) => {
         setSelectedTab(newValue);
     };
@@ -71,6 +86,9 @@ function BoardPage() {
                         }
                         if (!data.data.columns || Array.isArray(data.data.columns)) {
                             data.data.columns = {};
+                        }
+                        if (!data.data.bookmarks || !Array.isArray(data.data.bookmarks)) {
+                            data.data.bookmarks = [];
                         }
                     } else {
                         data.data = { columns: {} };
@@ -122,12 +140,21 @@ function BoardPage() {
             try {
                 await boardService.updateBoard(id, updatedBoardData.name, updatedBoardData.data);
                 fetchBoards(); // Refetch all boards to update sidebar/dashboard
+                handleBoardDataChange(updatedBoardData.data);
             } catch (err) {
                 console.error('Error saving board:', err);
             }
         },
-        [id, fetchBoards]
+        [id, fetchBoards, handleBoardDataChange]
     );
+
+    const handleSaveBookmarks = async (newBookmarks) => {
+        const updatedBoardData = {
+            ...currentBoardData,
+            bookmarks: newBookmarks,
+        };
+        await handleSaveBoard({ name: editedBoardName, data: updatedBoardData });
+    };
 
     const handleSaveBoardName = async () => {
         const currentBoardState = boardRef.current ? boardRef.current.getBoardData() : currentBoardData;
@@ -346,6 +373,7 @@ function BoardPage() {
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <TabList onChange={handleTabChange} aria-label="board tabs">
                         <Tab label="Board" value="board" />
+                        <Tab label="Notes" value="notes" />
                         <Tab label="Archive" value="archive" />
                     </TabList>
                 </Box>
@@ -363,12 +391,14 @@ function BoardPage() {
                         />
                     )}
                 </TabPanel>
+                <TabPanel value="notes" sx={{ p: 0 }}>
+                    {currentBoardData && (
+                        <BoardNotesPage bookmarks={currentBoardData.bookmarks} onSave={handleSaveBookmarks} />
+                    )}
+                </TabPanel>
                 <TabPanel value="archive" sx={{ p: 0 }}>
-                    {currentBoardData && boardRef.current && (
-                        <ArchiveHistoryDisplay
-                            archiveHistory={currentBoardData.archiveHistory}
-                            tasksMap={boardRef.current.tasksMap}
-                        />
+                    {currentBoardData && (
+                        <ArchiveHistoryDisplay archiveHistory={currentBoardData.archiveHistory} tasksMap={tasksMap} />
                     )}
                 </TabPanel>
             </TabContext>

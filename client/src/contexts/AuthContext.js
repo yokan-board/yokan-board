@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import authService from '../services/authService';
 import userService from '../services/userService';
-import { useNavigate } from 'react-router-dom';
 import { setLogoutCallback } from '../utils/authUtils'; // Import setLogoutCallback
 import { jwtDecode } from 'jwt-decode';
 
@@ -12,7 +11,6 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
     const lastActivity = useRef(Date.now());
     const events = useMemo(() => ['mousemove', 'keydown', 'click', 'scroll'], []);
 
@@ -28,8 +26,7 @@ export function AuthProvider({ children }) {
     const logout = useCallback((fromInactivity = false) => {
         authService.logout();
         setUser(null);
-        navigate('/login', { state: { fromInactivity } });
-    }, [navigate]);
+    }, []);
 
     useEffect(() => {
         const updateLastActivity = () => {
@@ -87,7 +84,6 @@ export function AuthProvider({ children }) {
             setUser(userToSet);
             localStorage.setItem('user', JSON.stringify(userToSet));
 
-            navigate('/dashboard');
             return { success: true };
         } catch (error) {
             // Clean up localStorage if any part of the process fails after the initial login
@@ -102,7 +98,6 @@ export function AuthProvider({ children }) {
             if (response.message === 'success') {
                 // Optionally log in the user immediately after signup
                 // await login(username, password);
-                navigate('/login'); // Redirect to login page after successful signup
                 return { success: true };
             } else {
                 return { success: false, error: response.error };

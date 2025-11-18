@@ -1,5 +1,5 @@
 import React, { useState, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useParams, useLocation } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Box, CircularProgress } from '@mui/material';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import NightlightRoundIcon from '@mui/icons-material/NightlightRound';
@@ -9,34 +9,16 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'; // Import useAut
 import { BoardProvider } from './contexts/BoardContext';
 import Sidebar from './components/Sidebar'; // Import the new Sidebar component
 
-const LoginPage = React.lazy(() => import('./pages/LoginPage'));
-const SignupPage = React.lazy(() => import('./pages/SignupPage'));
-const DashboardPage = React.lazy(() => import('./pages/DashboardPage'));
-const BoardPage = React.lazy(() => import('./pages/BoardPage'));
-const EditTaskPage = React.lazy(() => import('./pages/EditTaskPage'));
-const AccountPage = React.lazy(() => import('./pages/AccountPage'));
-const AboutPage = React.lazy(() => import('./pages/AboutPage'));
-
-function PrivateRoute({ children }) {
-    const { isAuthenticated, loading } = useAuth();
-
-    if (loading) {
-        return <CircularProgress />;
-    }
-
-    return isAuthenticated ? children : <Navigate to="/login" />;
-}
-
-const BoardPageWithKey = () => {
-    const { id } = useParams();
-    const location = useLocation();
-    return <BoardPage key={`${id}-${location.key}`} />;
-};
-
 function AppContent() {
     const { mode, toggleColorMode } = useThemeContext();
     const { isAuthenticated, logout } = useAuth(); // Get user from useAuth and logout function
     const [open, setOpen] = useState(true); // Manages the permanent state of the sidebar
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout(false);
+        navigate('/login');
+    };
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -75,7 +57,7 @@ function AppContent() {
                             <IconButton sx={{ ml: 1, mr: 1 }} onClick={toggleColorMode} color="inherit">
                                 {mode === 'dark' ? <LightModeIcon /> : <NightlightRoundIcon />}
                             </IconButton>
-                            <IconButton color="inherit" onClick={() => logout(false)}>
+                            <IconButton color="inherit" onClick={handleLogout}>
                                 <ExitToAppIcon />
                             </IconButton>
                         </>
@@ -86,51 +68,7 @@ function AppContent() {
             <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                 <Toolbar />
                 <Suspense fallback={<CircularProgress />}>
-                    <Routes>
-                        <Route path="/login" element={<LoginPage />} />
-                        <Route path="/signup" element={<SignupPage />} />
-                        <Route
-                            path="/dashboard"
-                            element={
-                                <PrivateRoute>
-                                    <DashboardPage />
-                                </PrivateRoute>
-                            }
-                        />
-                        <Route
-                            path="/board/:id"
-                            element={
-                                <PrivateRoute>
-                                    <BoardPageWithKey />
-                                </PrivateRoute>
-                            }
-                        />
-                        <Route
-                            path="/task/edit/:boardId/:taskId"
-                            element={
-                                <PrivateRoute>
-                                    <EditTaskPage />
-                                </PrivateRoute>
-                            }
-                        />
-                        <Route
-                            path="/account"
-                            element={
-                                <PrivateRoute>
-                                    <AccountPage />
-                                </PrivateRoute>
-                            }
-                        />
-                        <Route
-                            path="/about"
-                            element={
-                                <PrivateRoute>
-                                    <AboutPage />
-                                </PrivateRoute>
-                            }
-                        />
-                        <Route path="/" element={<Navigate to="/dashboard" />} /> {/* Default route to dashboard */}
-                    </Routes>
+                    <Outlet />
                 </Suspense>
             </Box>
         </Box>
@@ -139,13 +77,11 @@ function AppContent() {
 
 function App() {
     return (
-        <Router>
-            <AuthProvider>
-                <BoardProvider>
-                    <AppContent />
-                </BoardProvider>
-            </AuthProvider>
-        </Router>
+        <AuthProvider>
+            <BoardProvider>
+                <AppContent />
+            </BoardProvider>
+        </AuthProvider>
     );
 }
 
