@@ -5,7 +5,7 @@ import { useBlocker } from 'react-router-dom';
 import BookmarkItem from '../components/BookmarkItem';
 import NewBookmarkForm from '../components/NewBookmarkForm';
 
-function BoardNotesPage({ bookmarks: initialBookmarks, onSave }) {
+function BoardNotesPage({ bookmarks: initialBookmarks, onSave, onHasUnsavedChangesChange }) {
     const [localBookmarks, setLocalBookmarks] = useState(initialBookmarks);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
@@ -16,8 +16,12 @@ function BoardNotesPage({ bookmarks: initialBookmarks, onSave }) {
     useEffect(() => {
         const stringifiedLocal = JSON.stringify(localBookmarks);
         const stringifiedInitial = JSON.stringify(initialBookmarks);
-        setHasUnsavedChanges(stringifiedLocal !== stringifiedInitial);
-    }, [localBookmarks, initialBookmarks]);
+        const newHasUnsavedChanges = stringifiedLocal !== stringifiedInitial;
+        setHasUnsavedChanges(newHasUnsavedChanges);
+        if (onHasUnsavedChangesChange) {
+            onHasUnsavedChangesChange(newHasUnsavedChanges);
+        }
+    }, [localBookmarks, initialBookmarks, onHasUnsavedChangesChange]);
 
     const blocker = useBlocker(
         ({ currentLocation, nextLocation }) => hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname

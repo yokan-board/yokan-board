@@ -50,6 +50,7 @@ function BoardPage() {
     const [editedBoardName, setEditedBoardName] = useState('');
     const [selectedTab, setSelectedTab] = useState('board'); // New state for tab selection
     const [currentBoardData, setCurrentBoardData] = useState(null); // New state to hold the latest board data from useBoardData
+    const [notesHaveUnsavedChanges, setNotesHaveUnsavedChanges] = useState(false); // New state for unsaved changes in notes
 
     const tasksMap = useMemo(() => {
         const map = {};
@@ -66,6 +67,14 @@ function BoardPage() {
     }, [currentBoardData]);
 
     const handleTabChange = (event, newValue) => {
+        if (notesHaveUnsavedChanges) {
+            const confirmLeave = window.confirm(
+                'You have unsaved changes in Notes. Are you sure you want to leave without saving?'
+            );
+            if (!confirmLeave) {
+                return; // Prevent tab change
+            }
+        }
         setSelectedTab(newValue);
     };
 
@@ -393,7 +402,11 @@ function BoardPage() {
                 </TabPanel>
                 <TabPanel value="notes" sx={{ p: 0 }}>
                     {currentBoardData && (
-                        <BoardNotesPage bookmarks={currentBoardData.bookmarks} onSave={handleSaveBookmarks} />
+                        <BoardNotesPage
+                            bookmarks={currentBoardData.bookmarks}
+                            onSave={handleSaveBookmarks}
+                            onHasUnsavedChangesChange={setNotesHaveUnsavedChanges}
+                        />
                     )}
                 </TabPanel>
                 <TabPanel value="archive" sx={{ p: 0 }}>
