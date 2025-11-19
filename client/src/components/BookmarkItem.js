@@ -87,7 +87,17 @@ function BookmarkItem({ bookmark, onUpdate, onDelete }) {
         >
             <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                 <Typography>{bookmark.title}</Typography>
-                <Typography color="text.secondary">{bookmark.url}</Typography>
+                <Typography color="text.secondary">
+                    <a
+                        href={bookmark.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()} // Prevent parent Box's onClick
+                        style={{ color: 'inherit', textDecoration: 'underline', cursor: 'pointer' }}
+                    >
+                        {bookmark.url}
+                    </a>
+                </Typography>
             </Box>
             {isHovered && (
                 <IconButton onClick={handleDelete} size="small">
