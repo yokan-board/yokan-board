@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, Typography } from '@mui/material';
+import { Box, TextField, Typography, IconButton } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-function BookmarkItem({ bookmark, onUpdate }) {
+function BookmarkItem({ bookmark, onUpdate, onDelete }) {
     const [isEditing, setIsEditing] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
     const [editedBookmark, setEditedBookmark] = useState(bookmark);
 
     useEffect(() => {
@@ -18,6 +20,11 @@ function BookmarkItem({ bookmark, onUpdate }) {
         if (e.key === 'Enter') {
             handleUpdate();
         }
+    };
+
+    const handleDelete = (e) => {
+        e.stopPropagation(); // Prevent the click from triggering setIsEditing
+        onDelete(bookmark.id);
     };
 
     if (isEditing) {
@@ -62,22 +69,31 @@ function BookmarkItem({ bookmark, onUpdate }) {
     return (
         <Box
             onClick={() => setIsEditing(true)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
             sx={{
                 p: 1.5,
                 border: '1px solid',
                 borderColor: 'divider',
                 backgroundColor: 'background.paper',
                 display: 'flex',
-                flexDirection: 'column', // Stack vertically
-                gap: 0.5,
+                alignItems: 'center',
+                gap: 2,
                 cursor: 'pointer',
                 '&:hover': {
                     backgroundColor: 'action.hover',
                 },
             }}
         >
-            <Typography sx={{ flex: 1 }}>{bookmark.title}</Typography>
-            <Typography sx={{ flex: 1, color: 'text.secondary' }}>{bookmark.url}</Typography>
+            <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                <Typography>{bookmark.title}</Typography>
+                <Typography color="text.secondary">{bookmark.url}</Typography>
+            </Box>
+            {isHovered && (
+                <IconButton onClick={handleDelete} size="small">
+                    <DeleteIcon fontSize="small" />
+                </IconButton>
+            )}
         </Box>
     );
 }

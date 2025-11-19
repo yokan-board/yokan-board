@@ -4,10 +4,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { useBlocker } from 'react-router-dom';
 import BookmarkItem from '../components/BookmarkItem';
 import NewBookmarkForm from '../components/NewBookmarkForm';
+import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog';
 
 function BoardNotesPage({ bookmarks: initialBookmarks, onSave, onHasUnsavedChangesChange }) {
     const [localBookmarks, setLocalBookmarks] = useState(initialBookmarks);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [bookmarkToDelete, setBookmarkToDelete] = useState(null);
 
     useEffect(() => {
         setLocalBookmarks(initialBookmarks);
@@ -73,6 +76,18 @@ function BoardNotesPage({ bookmarks: initialBookmarks, onSave, onHasUnsavedChang
         setLocalBookmarks(updatedBookmarks);
     };
 
+    const handleDeleteBookmark = (bookmarkId) => {
+        setBookmarkToDelete(bookmarkId);
+        setIsDeleteConfirmOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        const updatedBookmarks = localBookmarks.filter((bookmark) => bookmark.id !== bookmarkToDelete);
+        onSave(updatedBookmarks);
+        setIsDeleteConfirmOpen(false);
+        setBookmarkToDelete(null);
+    };
+
     return (
         <Box sx={{ p: 3 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
@@ -81,7 +96,12 @@ function BoardNotesPage({ bookmarks: initialBookmarks, onSave, onHasUnsavedChang
 
             <Box>
                 {localBookmarks.map((bookmark) => (
-                    <BookmarkItem key={bookmark.id} bookmark={bookmark} onUpdate={handleUpdateBookmark} />
+                    <BookmarkItem
+                        key={bookmark.id}
+                        bookmark={bookmark}
+                        onUpdate={handleUpdateBookmark}
+                        onDelete={handleDeleteBookmark}
+                    />
                 ))}
             </Box>
 
@@ -95,6 +115,13 @@ function BoardNotesPage({ bookmarks: initialBookmarks, onSave, onHasUnsavedChang
                     Save Changes
                 </Button>
             </Box>
+
+            <DeleteConfirmationDialog
+                open={isDeleteConfirmOpen}
+                onClose={() => setIsDeleteConfirmOpen(false)}
+                onConfirm={handleConfirmDelete}
+                itemName="bookmark"
+            />
         </Box>
     );
 }
