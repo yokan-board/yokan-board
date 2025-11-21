@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
 import { arrayMove } from '@dnd-kit/sortable';
@@ -33,6 +33,26 @@ export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard, 
         return { columns: {}, archiveHistory: [] };
     });
     const [tasksMap, setTasksMap] = useState({});
+    const isUpdatingFromProps = useRef(false);
+
+    useEffect(() => {
+        if (initialBoardData) {
+            isUpdatingFromProps.current = true;
+            const columns = initialBoardData.columns || {};
+            const updatedColumns = Object.fromEntries(
+                Object.entries(columns).map(([id, column]) => [
+                    id,
+                    {
+                        ...column,
+                        tasks: Array.isArray(column.tasks) ? column.tasks : [],
+                        highlightColor: column.highlightColor || theme.palette.primary.main,
+                        minimized: column.minimized || false,
+                    },
+                ])
+            );
+            setBoardData({ ...initialBoardData, columns: updatedColumns });
+        }
+    }, [initialBoardData, theme.palette.primary.main]);
 
     useEffect(() => {
         const newTasksMap = {};
@@ -266,6 +286,11 @@ export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard, 
     }, []);
 
     useEffect(() => {
+        if (isUpdatingFromProps.current) {
+            isUpdatingFromProps.current = false;
+            return;
+        }
+
         if (onBoardDataChange) {
             onBoardDataChange(boardData);
         }

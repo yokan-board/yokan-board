@@ -236,7 +236,8 @@ function BoardPage() {
 
         try {
             await boardService.updateBoard(id, editedBoardName, updatedBoardData); // Use editedBoardName for board name
-            // setBoardData((prev) => ({ ...prev, data: updatedBoardData })); // REMOVE THIS
+            fetchBoards(); // Refetch all boards to update sidebar/dashboard
+            handleBoardDataChange(updatedBoardData);
             // The useBoardData hook will update its internal state and propagate via onBoardDataChange
             setNewColumnTitle('');
             setOpenAddColumnDialog(false);
@@ -244,7 +245,7 @@ function BoardPage() {
             console.error('Error adding column:', err);
             setError('Failed to add column');
         }
-    }, [newColumnTitle, currentBoardData, editedBoardName, id]);
+    }, [newColumnTitle, currentBoardData, editedBoardName, id, fetchBoards, handleBoardDataChange]);
 
     const handleExportJson = async () => {
         try {
