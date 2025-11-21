@@ -20,21 +20,37 @@ export const useBoardDnd = (boardData, updateBoardDataForColumnReorder, updateBo
         (event) => {
             const { active, over } = event;
 
-            if (!over) return;
+            setActiveId(null);
 
+            if (!over) return;
             if (active.id === over.id) return;
 
-            const activeIsColumn = active.id in boardData.columns;
-            const overIsColumn = over.id in boardData.columns;
+            const activeType = active.data.current?.type;
+            const overType = over.data.current?.type;
 
-            if (activeIsColumn && overIsColumn) {
-                updateBoardDataForColumnReorder(active.id, over.id);
-            } else {
+            // Dragging a Column
+            if (activeType === 'Column') {
+                // Dropping a column onto another column
+                if (overType === 'Column') {
+                    if (active.id !== over.id) {
+                        updateBoardDataForColumnReorder(active.id, over.id);
+                    }
+                }
+                // Dropping a column onto a task inside a column
+                else if (overType === 'Task') {
+                    const overColumnId = over.data.current?.columnId;
+                    if (overColumnId && active.id !== overColumnId) {
+                        updateBoardDataForColumnReorder(active.id, overColumnId);
+                    }
+                }
+            }
+
+            // Dragging a Task
+            if (activeType === 'Task') {
                 updateBoardDataForTaskMove(active.id, over.id);
             }
-            setActiveId(null);
         },
-        [boardData.columns, updateBoardDataForColumnReorder, updateBoardDataForTaskMove]
+        [updateBoardDataForColumnReorder, updateBoardDataForTaskMove]
     );
 
     const handleDragCancel = useCallback(() => {
