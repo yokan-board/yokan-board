@@ -264,11 +264,7 @@ function Column({
                 </Box>
             ) : (
                 <SortableContext
-<<<<<<< HEAD
                     items={column.tasks ? column.tasks.filter((task) => task && task.id).map((task) => task.id) : []}
-=======
-                    items={column.tasks ? column.tasks.filter(Boolean).map((task) => task.id) : []}
->>>>>>> refs/remotes/public/main
                     strategy={verticalListSortingStrategy}
                 >
                     <Box
@@ -286,7 +282,6 @@ function Column({
                     >
                         {' '}
                         {/* Added maxHeight and overflowY */}
-<<<<<<< HEAD
                         {(column.tasks || []).filter((task) => task && task.id).map((task) => (
                             <Task
                                 key={task.id}
@@ -300,24 +295,6 @@ function Column({
                                 tasksMap={tasksMap}
                             />
                         ))}
-=======
-                        {(column.tasks || []).map(
-                            (task) =>
-                                task && (
-                                    <Task
-                                        key={task.id}
-                                        task={task}
-                                        boardId={boardId}
-                                        columnId={column.id}
-                                        getParentDisplayId={getParentDisplayId}
-                                        onDelete={onDeleteTask}
-                                        onArchiveTask={onArchiveTask}
-                                        highlightColor={column.highlightColor}
-                                        tasksMap={tasksMap}
-                                    />
-                                )
-                        )}
->>>>>>> refs/remotes/public/main
                     </Box>
                 </SortableContext>
             )}
