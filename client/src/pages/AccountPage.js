@@ -3,6 +3,7 @@ import { Box, Typography, Tab, Tabs, Divider } from '@mui/material';
 import ProfileSettings from '../components/settings/ProfileSettings';
 import PasswordSettings from '../components/settings/PasswordSettings';
 import PreferencesSettings from '../components/settings/PreferencesSettings';
+import AdminSettings from '../components/settings/AdminSettings';
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -43,6 +44,7 @@ function AccountPage() {
                 <Tabs value={value} onChange={handleChange} aria-label="account settings tabs">
                     <Tab label="Profile" {...a11yProps(0)} />
                     <Tab label="Preferences" {...a11yProps(1)} />
+                    <Tab label="ADMIN" {...a11yProps(2)} />
                 </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
@@ -52,6 +54,9 @@ function AccountPage() {
             </TabPanel>
             <TabPanel value={value} index={1}>
                 <PreferencesSettings />
+            </TabPanel>
+            <TabPanel value={value} index={2}>
+                <AdminSettings />
             </TabPanel>
         </Box>
     );
