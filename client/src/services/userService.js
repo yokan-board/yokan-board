@@ -25,12 +25,18 @@ const updatePreferences = async (preferencesData) => {
     return response.data;
 };
 
+const getUsers = async () => {
+    const response = await api.get('/users');
+    return response.data;
+};
+
 const userService = {
     getUserProfile,
     updateUserProfile,
     updatePassword,
     getPreferences,
     updatePreferences,
+    getUsers, // Add the new function to the export
 };
 
 export default userService;

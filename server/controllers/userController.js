@@ -148,3 +148,21 @@ exports.updatePreferences = async (req, res, next /* eslint-disable-line no-unus
         next(new AppError(err.message, 400));
     }
 };
+
+/**
+ * Retrieves all users.
+ * @param {object} req - The Express request object.
+ * @param {object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ * @returns {Promise<void>}
+ */
+exports.getAllUsers = async (req, res, next /* eslint-disable-line no-unused-vars */) => {
+    try {
+        const users = await userModel.findAllUsers();
+        // Mask sensitive data like password if it were included (it shouldn't be by findAllUsers query)
+        res.status(200).json(users);
+    } catch (err) {
+        next(new AppError(err.message, 500));
+    }
+};
+

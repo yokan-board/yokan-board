@@ -12,6 +12,7 @@ const {
     updatePasswordValidation,
 } = require('../validation/userValidation');
 const { validate } = require('../middleware/validationMiddleware');
+const { isAdmin } = require('../middleware/authorizationMiddleware');
 
 /**
  * Route for getting the current user's profile.
@@ -66,5 +67,16 @@ router.get('/user/preferences', authenticateUser, userController.getPreferences)
  * @memberof module:routes/user
  */
 router.put('/user/preferences', authenticateUser, userController.updatePreferences);
+
+/**
+ * Route for getting all users (Admin only).
+ * @name GET /users
+ * @function
+ * @memberof module:routes/user
+ * @param {function} authenticateUser - Middleware to authenticate the user.
+ * @param {function} isAdmin - Middleware to check if the user is an administrator.
+ * @param {function} userController.getAllUsers - Controller function to get all users.
+ */
+router.get('/users', authenticateUser, isAdmin, userController.getAllUsers);
 
 module.exports = router;

@@ -106,3 +106,21 @@ exports.updateUser = (userId, userData) => {
         });
     });
 };
+
+/**
+ * Retrieves all users from the database.
+ * @returns {Promise<Array<object>>} A promise that resolves with an array of all user objects.
+ */
+exports.findAllUsers = () => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT id, username, display_name, email, enabled, last_login FROM users';
+        db.all(sql, [], (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+};
+

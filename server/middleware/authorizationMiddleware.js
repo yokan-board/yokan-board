@@ -25,4 +25,20 @@ const isOwner = (req, res, next) => {
     next();
 };
 
-module.exports = { isOwner };
+
+/**
+ * Middleware to check if the authenticated user is an administrator.
+ * Assumes user with ID 1 is the admin.
+ * @param {object} req - The Express request object, expected to have `req.user`.
+ * @param {object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ * @returns {void}
+ */
+const isAdmin = (req, res, next) => {
+    if (!req.user || Number(req.user.id) !== 1) {
+        return next(new ForbiddenError('Forbidden: You must be an administrator to access this resource.'));
+    }
+    next();
+};
+
+module.exports = { isOwner, isAdmin };

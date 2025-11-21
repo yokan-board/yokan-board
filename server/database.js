@@ -19,7 +19,9 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
             password TEXT,
             email TEXT UNIQUE,
             display_name TEXT,
-            preferences TEXT DEFAULT '{}'
+            preferences TEXT DEFAULT '{}',
+            enabled INTEGER DEFAULT 0,
+            last_login DATETIME
         )`,
             (err) => {
                 if (err) {
@@ -73,6 +75,34 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
                                 }
                             }
                         );
+                    }
+
+                    if (!columns.includes('enabled')) {
+                        db.run(`ALTER TABLE users ADD COLUMN enabled INTEGER DEFAULT 0`, (errAlter) => {
+                            if (errAlter) {
+                                console.error('Error adding enabled column:', errAlter.message);
+                            } else {
+                                console.log('Added enabled column to users table.');
+                                // Set existing users to enabled = 1
+                                db.run(`UPDATE users SET enabled = 1 WHERE enabled IS NULL`, (errUpdate) => {
+                                    if (errUpdate) {
+                                        console.error('Error setting default for enabled column:', errUpdate.message);
+                                    } else {
+                                        console.log('Set enabled=1 for existing users.');
+                                    }
+                                });
+                            }
+                        });
+                    }
+
+                    if (!columns.includes('last_login')) {
+                        db.run(`ALTER TABLE users ADD COLUMN last_login DATETIME`, (errAlter) => {
+                            if (errAlter) {
+                                console.error('Error adding last_login column:', errAlter.message);
+                            } else {
+                                console.log('Added last_login column to users table.');
+                            }
+                        });
                     }
                 });
 
@@ -145,7 +175,7 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
                                         `Hashed password for initial user: ${hashedPassword}`
                                     );
                                     db.run(
-                                        `INSERT INTO users (username, password, email) VALUES (?, ?, ?)`,
+                                        `INSERT INTO users (username, password, email, enabled) VALUES (?, ?, ?, 1)`,
                                         [INITIAL_USER_ID, hashedPassword, INITIAL_USER_EMAIL],
                                         function (err) {
                                             if (err) {

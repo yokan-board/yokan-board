@@ -1,0 +1,85 @@
+import React, { useState, useEffect } from 'react';
+import {
+    Box,
+    Typography,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    CircularProgress,
+    Alert,
+    Switch,
+} from '@mui/material';
+import userService from '../../services/userService';
+import dayjs from 'dayjs';
+
+function UsersTable() {
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const fetchedUsers = await userService.getUsers();
+                setUsers(fetchedUsers);
+            } catch (err) {
+                setError(err.response?.data?.message || 'Failed to fetch users.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUsers();
+    }, []);
+
+    if (loading) {
+        return <CircularProgress />;
+    }
+
+    if (error) {
+        return <Alert severity="error">{error}</Alert>;
+    }
+
+    return (
+        <Box sx={{ mt: 4 }}>
+            <Typography variant="h6" gutterBottom>
+                Users
+            </Typography>
+            <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label="users table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>ID</TableCell>
+                            <TableCell>DISPLAY NAME</TableCell>
+                            <TableCell>EMAIL</TableCell>
+                            <TableCell>ROLE</TableCell>
+                            <TableCell>ENABLED</TableCell>
+                            <TableCell>LAST LOGIN</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {users.map((user) => (
+                            <TableRow key={user.id}>
+                                <TableCell>{user.id}</TableCell>
+                                <TableCell>{user.display_name || user.username}</TableCell>
+                                <TableCell>{user.email}</TableCell>
+                                <TableCell>{user.id === 1 ? 'ADMIN' : 'USER'}</TableCell>
+                                <TableCell>
+                                    <Switch checked={user.enabled} disabled />
+                                </TableCell>
+                                <TableCell>
+                                    {user.last_login ? dayjs(user.last_login).format('YYYY-MM-DD HH:mm') : 'N/A'}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Box>
+    );
+}
+
+export default UsersTable;

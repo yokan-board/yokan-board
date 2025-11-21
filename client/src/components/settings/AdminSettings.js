@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
+import UsersTable from './UsersTable';
 
 function AdminSettings() {
     return (
@@ -10,6 +11,7 @@ function AdminSettings() {
             <Typography variant="body1">
                 Admin features will be added here in the future.
             </Typography>
+            <UsersTable />
         </Box>
     );
 }
