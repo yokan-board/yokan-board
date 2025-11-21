@@ -75,10 +75,23 @@ exports.login = async (req, res, next) => {
             return next(new UnauthorizedError('Incorrect password'));
         }
 
-        // Generate JWT
-        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-            expiresIn: '1h', // Token expires in 1 hour
-        });
+        // Add check for enabled field
+        if (user.enabled === 0) {
+            return next(new UnauthorizedError('Account is disabled'));
+        }
+
+        let token;
+        try {
+            token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+                expiresIn: '1h', // Token expires in 1 hour
+            });
+        } catch (jwtError) {
+            console.error('JWT Sign Error:', jwtError.message);
+            return next(new AppError(`Failed to generate token: ${jwtError.message}`, 500));
+        }
+
+        // Update last_login timestamp
+        await userModel.updateUser(user.id, { last_login: new Date().toISOString() });
 
         res.json({
             message: 'success',
