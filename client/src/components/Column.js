@@ -58,8 +58,11 @@ function Column({
         setNodeRef: setSortableNodeRef,
         transform,
         transition,
-    } = useSortable({ id: column.id });
-    const { setNodeRef: setDroppableNodeRef, isOver } = useDroppable({ id: column.id });
+    } = useSortable({ id: column.id, data: { type: 'Column' } });
+    const { setNodeRef: setDroppableNodeRef, isOver } = useDroppable({
+        id: column.id,
+        data: { type: 'Column', column: column },
+    });
 
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
     const [openArchiveConfirm, setOpenArchiveConfirm] = useState(false); // New state for archive confirmation
@@ -261,7 +264,7 @@ function Column({
                 </Box>
             ) : (
                 <SortableContext
-                    items={column.tasks ? column.tasks.map((task) => task.id) : []}
+                    items={column.tasks ? column.tasks.filter((task) => task && task.id).map((task) => task.id) : []}
                     strategy={verticalListSortingStrategy}
                 >
                     <Box
@@ -279,11 +282,12 @@ function Column({
                     >
                         {' '}
                         {/* Added maxHeight and overflowY */}
-                        {(column.tasks || []).map((task) => (
+                        {(column.tasks || []).filter((task) => task && task.id).map((task) => (
                             <Task
                                 key={task.id}
                                 task={task}
                                 boardId={boardId}
+                                columnId={column.id}
                                 getParentDisplayId={getParentDisplayId}
                                 onDelete={onDeleteTask}
                                 onArchiveTask={onArchiveTask}

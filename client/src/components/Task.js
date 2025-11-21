@@ -10,8 +10,14 @@ import { CSS } from '@dnd-kit/utilities';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
-function Task({ task, boardId, getParentDisplayId, onDelete, onArchiveTask, highlightColor, tasksMap }) {
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: task.id });
+function Task({ task, boardId, columnId, getParentDisplayId, onDelete, onArchiveTask, highlightColor, tasksMap }) {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+        id: task.id,
+        data: {
+            type: 'Task',
+            columnId: columnId,
+        },
+    });
     const theme = useTheme();
     const navigate = useNavigate();
 
