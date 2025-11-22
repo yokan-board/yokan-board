@@ -41,6 +41,8 @@ Thumbs.db
 # *.dockerignore
 
 # Database
+data/
+migrations/
 *.sqlite
 *.sqlite-journal
 
