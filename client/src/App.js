@@ -1,4 +1,4 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState, Suspense, useEffect } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Box, CircularProgress } from '@mui/material';
 import LightModeIcon from '@mui/icons-material/LightMode';
@@ -8,6 +8,7 @@ import { useThemeContext } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext'; // Import useAuth to get the logout function
 import { BoardProvider } from './contexts/BoardContext';
 import Sidebar from './components/Sidebar'; // Import the new Sidebar component
+import { setNavigateFunction } from './utils/authUtils'; // Import setNavigateFunction
 
 function AppContent() {
     const { mode, toggleColorMode } = useThemeContext();
@@ -15,8 +16,12 @@ function AppContent() {
     const [open, setOpen] = useState(true); // Manages the permanent state of the sidebar
     const navigate = useNavigate();
 
+    useEffect(() => {
+        setNavigateFunction(navigate);
+    }, [navigate]);
+
     const handleLogout = () => {
-        logout(false);
+        logout(); // No longer pass 'false'
         navigate('/login');
     };
 

@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
         setLoading(false);
     }, []);
 
-    const logout = useCallback((fromInactivity = false) => {
+    const logout = useCallback(() => {
         authService.logout();
         setUser(null);
     }, []);
@@ -40,6 +40,7 @@ export function AuthProvider({ children }) {
 
             const isInactive = Date.now() - lastActivity.current > 10 * 60 * 1000; // 10 minutes
             if (isInactive) {
+                logout(); // Logout on inactivity
                 return;
             }
 
@@ -54,7 +55,7 @@ export function AuthProvider({ children }) {
                         setUser(newUserData);
                     })
                     .catch((err) => {
-                        logout(true); // Pass true to indicate logout due to inactivity
+                        logout(); // Logout if refresh token fails
                     });
             }
         }, 60 * 1000); // Check every minute
@@ -67,26 +68,18 @@ export function AuthProvider({ children }) {
 
     const login = async (username, password) => {
         try {
-            // Step 1: Initial login to get the token. This also sets an incomplete user object
-            // in localStorage, which is necessary for the subsequent API call to be authenticated.
             const loginResponse = await authService.login(username, password);
             if (loginResponse.message !== 'success') {
                 return { success: false, error: loginResponse.error };
             }
 
-            // Step 2: Immediately fetch the full user profile to get all fields.
             const profile = await userService.getUserProfile();
-
-            // Step 3: Combine the full profile with the token from the initial login.
             const userToSet = { ...profile, token: loginResponse.token };
-
-            // Step 4: Set state and overwrite localStorage with the complete user object.
             setUser(userToSet);
             localStorage.setItem('user', JSON.stringify(userToSet));
 
             return { success: true };
         } catch (error) {
-            // Clean up localStorage if any part of the process fails after the initial login
             authService.logout();
             return { success: false, error: error.response?.data?.error || 'Login failed' };
         }
@@ -96,8 +89,6 @@ export function AuthProvider({ children }) {
         try {
             const response = await authService.signup(username, password, email);
             if (response.message === 'success') {
-                // Optionally log in the user immediately after signup
-                // await login(username, password);
                 return { success: true };
             } else {
                 return { success: false, error: response.error };
@@ -116,6 +107,7 @@ export function AuthProvider({ children }) {
     }, []);
 
     useEffect(() => {
+        // Set the logout callback for the axios interceptor
         setLogoutCallback(logout);
     }, [logout]);
 

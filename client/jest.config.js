@@ -9,8 +9,7 @@ module.exports = {
     '^.+\.(js|jsx|mjs|cjs|ts|tsx)$': '<rootDir>/node_modules/babel-jest',
   },
   transformIgnorePatterns: [
-    '/node_modules/',
-    '^.+\.module\.(css|sass|scss)$',
+    '/node_modules/(?!axios/)' // Specifically do not ignore axios
   ],
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
