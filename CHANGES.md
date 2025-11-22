@@ -4,6 +4,7 @@
 
 ### Features
 
+- **Admin User Management**: Enhanced administrative capabilities allow toggling user 'enabled' status (except for the main admin), with conditional display of the 'ADMIN' tab based on user role. The 'Users' table now includes Gravatar icons and usernames for better identification.
 - **Parent Task Update on Archival**: When a subtask is archived, its details are now appended to its parent task's description, creating a historical log. This is in addition to the task being added to the main archive.
 - **Enhanced Exports**: Markdown, JSON, and CSV exports have been updated to include archived tasks, providing a more complete data export.
 - **Task and Column Archival**: Implemented the ability to archive individual tasks or entire columns. Archived tasks are moved to a dedicated "ARCHIVE" tab, preserving their original column's highlight color, while archived columns remain on the board with their tasks removed.
@@ -26,4 +27,5 @@
 
 ### Documentation
 
+- Updated `openapi.yaml` to include new user administration endpoints and schemas.
 - Updated `README.md` to reflect new features, `ALLOWED_ORIGINS` environment variable, and `jszip` dependency.

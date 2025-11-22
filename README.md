@@ -42,9 +42,9 @@ Yokan aims to provide a straightforward, privacy-focused alternative to complex 
 - **Self-Hosted Control**: Complete ownership of your data with no external dependencies
 - **Responsive Design**: Works well on various screen sizes and devices
 - **Persistent Sidebar**: A navigation sidebar that can be pinned/unpinned, displaying a list of boards with task counts and quick access to settings and user information
-- **User Account Management**: A dedicated "Settings" page for managing your profile (display name, email, password) and preferences
+- **User Account Management**: A dedicated "Settings" page for managing your profile (display name, email, password) and preferences, including **Admin User Management** features for enabling/disabling users and displaying user Gravatars. The 'ADMIN' tab is now conditionally displayed only for administrative users.
 - **About Page**: Displays application version, author, and license information
-- **OpenAPI Specification**: Documented server API with Swagger UI
+- **OpenAPI Specification**: Documented server API with Swagger UI, including new user administration endpoints.
 - **MCP Server**: Use [**Yokan Board MCP**](https://github.com/yokan-board/yokan-board-mcp) to use AI agents to interact with your Kanban boards
 
 ## 🌟 What Makes Yokan Different
