@@ -48,6 +48,7 @@ function BoardPage() {
     // New state for inline editing board name
     const [isEditingBoardName, setIsEditingBoardName] = useState(false);
     const [editedBoardName, setEditedBoardName] = useState('');
+    const [boardCollectionName, setBoardCollectionName] = useState(null); // New state for collection name
     const [selectedTab, setSelectedTab] = useState('board'); // New state for tab selection
     const [currentBoardData, setCurrentBoardData] = useState(null); // New state to hold the latest board data from useBoardData
     const [notesHaveUnsavedChanges, setNotesHaveUnsavedChanges] = useState(false); // New state for unsaved changes in notes
@@ -139,6 +140,7 @@ function BoardPage() {
             if (fetchedData) {
                 setInitialBoardDataForHook(fetchedData.data); // Pass data.data to useBoardData
                 setEditedBoardName(fetchedData.name); // Set initial edited name
+                setBoardCollectionName(fetchedData.collection); // Set board collection name
             }
         };
         loadBoard();
@@ -326,40 +328,44 @@ function BoardPage() {
     return (
         <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                {isEditingBoardName ? (
-                    <TextField
-                        value={editedBoardName}
-                        onChange={(e) => setEditedBoardName(e.target.value)}
-                        onBlur={handleSaveBoardName}
-                        onKeyPress={handleBoardNameKeyPress}
-                        variant="standard"
-                        fullWidth
-                        autoFocus
-                        InputProps={{
-                            disableUnderline: true,
-                        }}
-                        sx={{
-                            '& .MuiInputBase-input': {
-                                padding: '4px 0',
-                                fontSize: '2.125rem',
-                                lineHeight: 1.235,
-                            },
-                            '& .MuiInputBase-root': {
-                                marginTop: 0,
-                                marginBottom: 0,
-                            },
-                        }}
-                    />
-                ) : (
-                    <Typography
-                        variant="h4"
-                        gutterBottom
-                        onClick={() => setIsEditingBoardName(true)}
-                        sx={{ cursor: 'pointer' }}
-                    >
-                        {editedBoardName}
+                <Box> {/* New Box to ensure vertical stacking of titles */}
+                    <Typography variant="h6" color="textSecondary" sx={{ mb: 0.5 }}>
+                        {boardCollectionName === 'Default' || !boardCollectionName ? 'Boards' : boardCollectionName}
                     </Typography>
-                )}
+                    {isEditingBoardName ? (
+                        <TextField
+                            value={editedBoardName}
+                            onChange={(e) => setEditedBoardName(e.target.value)}
+                            onBlur={handleSaveBoardName}
+                            onKeyPress={handleBoardNameKeyPress}
+                            variant="standard"
+                            fullWidth
+                            autoFocus
+                            InputProps={{
+                                disableUnderline: true,
+                            }}
+                            sx={{
+                                '& .MuiInputBase-input': {
+                                    padding: '4px 0',
+                                    fontSize: '2.125rem',
+                                    lineHeight: 1.235,
+                                },
+                                '& .MuiInputBase-root': {
+                                    marginTop: 0,
+                                    marginBottom: 0,
+                                },
+                            }}
+                        />
+                    ) : (
+                        <Typography
+                            variant="h4"
+                            onClick={() => setIsEditingBoardName(true)}
+                            sx={{ cursor: 'pointer' }}
+                        >
+                            {editedBoardName}
+                        </Typography>
+                    )}
+                </Box>
                 <Box sx={{ display: 'flex', gap: 1 }}>
                     <Tooltip title="Refresh board">
                         <IconButton aria-label="refresh board" onClick={handleRefresh} color="inherit">
