@@ -12,9 +12,11 @@ import {
     CircularProgress,
     Alert,
     Switch,
+    Avatar, // Import Avatar
 } from '@mui/material';
 import userService from '../../services/userService';
 import dayjs from 'dayjs';
+import { getGravatarUrl } from '../../utils/gravatar'; // Import Gravatar utility
 
 function UsersTable() {
     const [users, setUsers] = useState([]);
@@ -53,6 +55,7 @@ function UsersTable() {
                     <TableHead>
                         <TableRow>
                             <TableCell>ID</TableCell>
+                            <TableCell>USERNAME</TableCell>
                             <TableCell>DISPLAY NAME</TableCell>
                             <TableCell>EMAIL</TableCell>
                             <TableCell>ROLE</TableCell>
@@ -64,6 +67,16 @@ function UsersTable() {
                         {users.map((user) => (
                             <TableRow key={user.id}>
                                 <TableCell>{user.id}</TableCell>
+                                <TableCell>
+                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                        <Avatar
+                                            src={getGravatarUrl(user.email, 24)} // Adjust size as needed
+                                            alt={user.username}
+                                            sx={{ width: 24, height: 24, mr: 2 }}
+                                        />
+                                        {user.username}
+                                    </Box>
+                                </TableCell>
                                 <TableCell>{user.display_name || user.username}</TableCell>
                                 <TableCell>{user.email}</TableCell>
                                 <TableCell>{user.id === 1 ? 'ADMIN' : 'USER'}</TableCell>
