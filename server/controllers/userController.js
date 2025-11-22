@@ -166,3 +166,34 @@ exports.getAllUsers = async (req, res, next /* eslint-disable-line no-unused-var
     }
 };
 
+/**
+ * Updates a user's enabled status (Admin only).
+ * @param {object} req - The Express request object.
+ * @param {object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ * @returns {Promise<void>}
+ */
+exports.updateUserEnabledStatus = async (req, res, next /* eslint-disable-line no-unused-vars */) => {
+    const userId = parseInt(req.params.id, 10);
+    const { enabled } = req.body;
+
+    if (isNaN(userId)) {
+        return next(new BadRequestError('Invalid user ID.'));
+    }
+
+    if (userId === 1 && enabled === false) {
+        return next(new BadRequestError('The main admin user cannot be disabled.'));
+    }
+
+    try {
+        const updated = await userModel.updateUser(userId, { enabled });
+        if (!updated) {
+            return next(new AppError('User not found or status not changed.', 404));
+        }
+        res.status(200).json({ message: 'User enabled status updated successfully.' });
+    } catch (err) {
+        next(new AppError(err.message, 400));
+    }
+};
+
+

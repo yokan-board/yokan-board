@@ -68,7 +68,25 @@ function UsersTable() {
                                 <TableCell>{user.email}</TableCell>
                                 <TableCell>{user.id === 1 ? 'ADMIN' : 'USER'}</TableCell>
                                 <TableCell>
-                                    <Switch checked={user.enabled} disabled />
+                                    <Switch
+                                        checked={user.enabled}
+                                        onChange={async (event) => {
+                                            const newEnabledStatus = event.target.checked;
+                                            try {
+                                                await userService.updateUserEnabledStatus(user.id, newEnabledStatus);
+                                                setUsers((prevUsers) =>
+                                                    prevUsers.map((u) =>
+                                                        u.id === user.id ? { ...u, enabled: newEnabledStatus } : u
+                                                    )
+                                                );
+                                                // Clear any previous errors if successful
+                                                setError(null);
+                                            } catch (err) {
+                                                setError(err.response?.data?.message || 'Failed to update user status.');
+                                            }
+                                        }}
+                                        disabled={user.id === 1} // Disable for admin user
+                                    />
                                 </TableCell>
                                 <TableCell>
                                     {user.last_login ? dayjs(user.last_login).format('YYYY-MM-DD HH:mm') : 'N/A'}

@@ -30,13 +30,19 @@ const getUsers = async () => {
     return response.data;
 };
 
+const updateUserEnabledStatus = async (userId, enabled) => {
+    const response = await api.put(`/users/${userId}/enabled`, { enabled });
+    return response.data;
+};
+
 const userService = {
     getUserProfile,
     updateUserProfile,
     updatePassword,
     getPreferences,
     updatePreferences,
-    getUsers, // Add the new function to the export
+    getUsers,
+    updateUserEnabledStatus,
 };
 
 export default userService;

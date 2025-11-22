@@ -77,6 +77,26 @@ router.put('/user/preferences', authenticateUser, userController.updatePreferenc
  * @param {function} isAdmin - Middleware to check if the user is an administrator.
  * @param {function} userController.getAllUsers - Controller function to get all users.
  */
+/**
+ * Route for getting all users (Admin only).
+ * @name GET /users
+ * @function
+ * @memberof module:routes/user
+ * @param {function} authenticateUser - Middleware to authenticate the user.
+ * @param {function} isAdmin - Middleware to check if the user is an administrator.
+ * @param {function} userController.getAllUsers - Controller function to get all users.
+ */
 router.get('/users', authenticateUser, isAdmin, userController.getAllUsers);
+
+/**
+ * Route for updating a user's enabled status (Admin only).
+ * @name PUT /users/:id/enabled
+ * @function
+ * @memberof module:routes/user
+ * @param {function} authenticateUser - Middleware to authenticate the user.
+ * @param {function} isAdmin - Middleware to check if the user is an administrator.
+ * @param {function} userController.updateUserEnabledStatus - Controller function to update user enabled status.
+ */
+router.put('/users/:id/enabled', authenticateUser, isAdmin, userController.updateUserEnabledStatus);
 
 module.exports = router;
