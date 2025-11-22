@@ -1,6 +1,14 @@
 # CHANGES
 
-## v0.1.1 (Unreleased)
+## v0.1.1-alpha-3 (Pre-release)
+
+### Features
+
+- **Import Board Collection Assignment**: When importing a board from a JSON file, users can now assign it to an existing collection or create a new one, with "Imported Boards" as the default.
+- **Board Page Collection Display**: The collection name for the current board is now displayed above the board's name on the Board Page, using a smaller font size. If no collection is assigned, "Boards" is displayed as the default.
+- **Sidebar Board Grouping by Collection**: The sidebar now groups boards by their assigned collections, using collection names as separators. These separators are styled with a smaller, dimmer font. Boards without an explicit collection are grouped under a default "Boards" heading.
+
+## v0.1.1-alpha-2 (Pre-release)
 
 ### Features
 
@@ -29,3 +37,7 @@
 
 - Updated `openapi.yaml` to include new user administration endpoints and schemas.
 - Updated `README.md` to reflect new features, `ALLOWED_ORIGINS` environment variable, and `jszip` dependency.
+
+## v0.1.1-alpha-1 (Pre-release)
+
+- **Initial Release**: Yokan Board initial release with very basic functionalities.
