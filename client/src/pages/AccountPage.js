@@ -4,6 +4,7 @@ import ProfileSettings from '../components/settings/ProfileSettings';
 import PasswordSettings from '../components/settings/PasswordSettings';
 import PreferencesSettings from '../components/settings/PreferencesSettings';
 import AdminSettings from '../components/settings/AdminSettings';
+import { useAuth } from '../contexts/AuthContext'; // Import useAuth
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -29,11 +30,20 @@ function a11yProps(index) {
 }
 
 function AccountPage() {
+    const { user } = useAuth(); // Use AuthContext
     const [value, setValue] = useState(0);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
+
+    // If the ADMIN tab was selected and the user is no longer admin, switch to the first tab.
+    // This handles cases where a non-admin user might navigate directly to the admin tab index.
+    React.useEffect(() => {
+        if (value === 2 && (!user || user.id !== 1)) {
+            setValue(0);
+        }
+    }, [value, user]);
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -44,7 +54,7 @@ function AccountPage() {
                 <Tabs value={value} onChange={handleChange} aria-label="account settings tabs">
                     <Tab label="Profile" {...a11yProps(0)} />
                     <Tab label="Preferences" {...a11yProps(1)} />
-                    <Tab label="ADMIN" {...a11yProps(2)} />
+                    {user && user.id === 1 && <Tab label="ADMIN" {...a11yProps(2)} />}
                 </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
@@ -55,9 +65,11 @@ function AccountPage() {
             <TabPanel value={value} index={1}>
                 <PreferencesSettings />
             </TabPanel>
-            <TabPanel value={value} index={2}>
-                <AdminSettings />
-            </TabPanel>
+            {user && user.id === 1 && (
+                <TabPanel value={value} index={2}>
+                    <AdminSettings />
+                </TabPanel>
+            )}
         </Box>
     );
 }
