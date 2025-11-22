@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -87,6 +87,33 @@ const Sidebar = ({ open, setOpen }) => {
         ? `https://www.gravatar.com/avatar/${md5(user.email.trim().toLowerCase())}?d=identicon`
         : `https://www.gravatar.com/avatar/?d=identicon`;
 
+    const groupedBoards = useMemo(() => {
+        const groups = { 'Boards': [] }; // 'Boards' will be the default collection for unassigned boards
+
+        boards.forEach((board) => {
+            const collectionName = board.collection || 'Boards'; // Use 'Boards' as default
+            if (!groups[collectionName]) {
+                groups[collectionName] = [];
+            }
+            groups[collectionName].push(board);
+        });
+
+        // Sort collection names alphabetically, with 'Boards' always first
+        const sortedCollectionNames = Object.keys(groups).sort((a, b) => {
+            if (a === 'Boards') return -1;
+            if (b === 'Boards') return 1;
+            return a.localeCompare(b);
+        });
+
+        const sortedGroups = {};
+        sortedCollectionNames.forEach((name) => {
+            sortedGroups[name] = groups[name];
+        });
+
+        return sortedGroups;
+    }, [boards]);
+
+
     const drawerContent = (
         <>
             <Toolbar />
@@ -128,119 +155,128 @@ const Sidebar = ({ open, setOpen }) => {
                 </ListItem>
                 {boardsOpen && isDrawerOpen && (
                     <List component="div" disablePadding>
-                        {boards.map((board) => (
-                            <React.Fragment key={board.id}>
-                                {board.data?.description ? (
-                                    <Tooltip title={board.data.description} placement="right">
-                                        <ListItemButton
-                                            sx={{ pl: 4 }}
-                                            onClick={() => handleItemClick(`/board/${board.id}`)}
-                                        >
-                                            <ListItemIcon
-                                                sx={{
-                                                    minWidth: 0,
-                                                    mr: isDrawerOpen ? 3 : 'auto',
-                                                    justifyContent: 'center',
-                                                }}
-                                            >
-                                                <Box
-                                                    sx={{
-                                                        width: 24,
-                                                        height: 24,
-                                                        borderRadius: '4px',
-                                                        background:
-                                                            board.data?.gradientColors &&
-                                                            board.data.gradientColors.length >= 2
-                                                                ? `linear-gradient(45deg, ${board.data.gradientColors[0]}, ${board.data.gradientColors[1]})`
-                                                                : '#ccc',
-                                                    }}
-                                                />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                                primary={
-                                                    <Box
+                        {Object.entries(groupedBoards).map(([collectionName, boardsInCollection]) => (
+                            <React.Fragment key={collectionName}>
+                                <ListItem disablePadding sx={{ pl: 4, pt: 1, pb: 0.5 }}>
+                                    <Typography variant="subtitle2" color="textSecondary">
+                                        {collectionName}
+                                    </Typography>
+                                </ListItem>
+                                {boardsInCollection.map((board) => (
+                                    <React.Fragment key={board.id}>
+                                        {board.data?.description ? (
+                                            <Tooltip title={board.data.description} placement="right">
+                                                <ListItemButton
+                                                    sx={{ pl: 4 }}
+                                                    onClick={() => handleItemClick(`/board/${board.id}`)}
+                                                >
+                                                    <ListItemIcon
                                                         sx={{
-                                                            display: 'flex',
-                                                            justifyContent: 'space-between',
-                                                            alignItems: 'center',
+                                                            minWidth: 0,
+                                                            mr: isDrawerOpen ? 3 : 'auto',
+                                                            justifyContent: 'center',
                                                         }}
                                                     >
-                                                        <span>{board.name}</span>
-                                                        <Typography
-                                                            variant="caption"
+                                                        <Box
                                                             sx={{
-                                                                color:
-                                                                    board.taskCount === 0
-                                                                        ? 'text.disabled'
-                                                                        : 'text.secondary',
+                                                                width: 24,
+                                                                height: 24,
+                                                                borderRadius: '4px',
+                                                                background:
+                                                                    board.data?.gradientColors &&
+                                                                    board.data.gradientColors.length >= 2
+                                                                        ? `linear-gradient(45deg, ${board.data.gradientColors[0]}, ${board.data.gradientColors[1]})`
+                                                                        : '#ccc',
                                                             }}
-                                                        >
-                                                            {board.taskCount}
-                                                        </Typography>
-                                                    </Box>
-                                                }
-                                                sx={{
-                                                    opacity: isDrawerOpen ? 1 : 0,
-                                                    display: isDrawerOpen ? 'block' : 'none',
-                                                }}
-                                            />
-                                        </ListItemButton>
-                                    </Tooltip>
-                                ) : (
-                                    <ListItemButton
-                                        sx={{ pl: 4 }}
-                                        onClick={() => handleItemClick(`/board/${board.id}`)}
-                                    >
-                                        <ListItemIcon
-                                            sx={{
-                                                minWidth: 0,
-                                                mr: isDrawerOpen ? 3 : 'auto',
-                                                justifyContent: 'center',
-                                            }}
-                                        >
-                                            <Box
-                                                sx={{
-                                                    width: 24,
-                                                    height: 24,
-                                                    borderRadius: '4px',
-                                                    background:
-                                                        board.data?.gradientColors &&
-                                                        board.data.gradientColors.length >= 2
-                                                            ? `linear-gradient(45deg, ${board.data.gradientColors[0]}, ${board.data.gradientColors[1]})`
-                                                            : '#ccc',
-                                                }}
-                                            />
-                                        </ListItemIcon>
-                                        <ListItemText
-                                            primary={
-                                                <Box
+                                                        />
+                                                    </ListItemIcon>
+                                                    <ListItemText
+                                                        primary={
+                                                            <Box
+                                                                sx={{
+                                                                    display: 'flex',
+                                                                    justifyContent: 'space-between',
+                                                                    alignItems: 'center',
+                                                                }}
+                                                            >
+                                                                <span>{board.name}</span>
+                                                                <Typography
+                                                                    variant="caption"
+                                                                    sx={{
+                                                                        color:
+                                                                            board.taskCount === 0
+                                                                                ? 'text.disabled'
+                                                                                : 'text.secondary',
+                                                                    }}
+                                                                >
+                                                                    {board.taskCount}
+                                                                </Typography>
+                                                            </Box>
+                                                        }
+                                                        sx={{
+                                                            opacity: isDrawerOpen ? 1 : 0,
+                                                            display: isDrawerOpen ? 'block' : 'none',
+                                                        }}
+                                                    />
+                                                </ListItemButton>
+                                            </Tooltip>
+                                        ) : (
+                                            <ListItemButton
+                                                sx={{ pl: 4 }}
+                                                onClick={() => handleItemClick(`/board/${board.id}`)}
+                                            >
+                                                <ListItemIcon
                                                     sx={{
-                                                        display: 'flex',
-                                                        justifyContent: 'space-between',
-                                                        alignItems: 'center',
+                                                        minWidth: 0,
+                                                        mr: isDrawerOpen ? 3 : 'auto',
+                                                        justifyContent: 'center',
                                                     }}
                                                 >
-                                                    <span>{board.name}</span>
-                                                    <Typography
-                                                        variant="caption"
+                                                    <Box
                                                         sx={{
-                                                            color:
-                                                                board.taskCount === 0
-                                                                    ? 'text.disabled'
-                                                                    : 'text.secondary',
+                                                            width: 24,
+                                                            height: 24,
+                                                            borderRadius: '4px',
+                                                            background:
+                                                                board.data?.gradientColors &&
+                                                                board.data.gradientColors.length >= 2
+                                                                    ? `linear-gradient(45deg, ${board.data.gradientColors[0]}, ${board.data.gradientColors[1]})`
+                                                                    : '#ccc',
                                                         }}
-                                                    >
-                                                        {board.taskCount}
-                                                    </Typography>
-                                                </Box>
-                                            }
-                                            sx={{
-                                                opacity: isDrawerOpen ? 1 : 0,
-                                                display: isDrawerOpen ? 'block' : 'none',
-                                            }}
-                                        />
-                                    </ListItemButton>
-                                )}
+                                                    />
+                                                </ListItemIcon>
+                                                <ListItemText
+                                                    primary={
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                justifyContent: 'space-between',
+                                                                alignItems: 'center',
+                                                            }}
+                                                        >
+                                                            <span>{board.name}</span>
+                                                            <Typography
+                                                                variant="caption"
+                                                                sx={{
+                                                                    color:
+                                                                        board.taskCount === 0
+                                                                            ? 'text.disabled'
+                                                                            : 'text.secondary',
+                                                                }}
+                                                            >
+                                                                {board.taskCount}
+                                                            </Typography>
+                                                        </Box>
+                                                    }
+                                                    sx={{
+                                                        opacity: isDrawerOpen ? 1 : 0,
+                                                        display: isDrawerOpen ? 'block' : 'none',
+                                                    }}
+                                                />
+                                            </ListItemButton>
+                                        )}
+                                    </React.Fragment>
+                                ))}
                             </React.Fragment>
                         ))}
                     </List>
