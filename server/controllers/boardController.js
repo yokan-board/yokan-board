@@ -290,7 +290,7 @@ exports.exportBoardCsv = async (req, res, next) => {
  * @returns {Promise<void>}
  */
 exports.importBoardJson = async (req, res, next) => {
-    const { name, data } = req.body;
+    const { name, data, collection } = req.body; // Add collection
     const user_id = req.user.id;
 
     if (!name || !data) {
@@ -298,7 +298,7 @@ exports.importBoardJson = async (req, res, next) => {
     }
 
     try {
-        const newBoard = await boardModel.importBoard(user_id, name, data);
+        const newBoard = await boardModel.importBoard(user_id, name, data, collection); // Pass collection
         res.status(201).json({
             message: 'success',
             data: newBoard,

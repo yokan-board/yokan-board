@@ -191,10 +191,17 @@ const exportBoardMarkdown = (boardName, boardDescription, boardData) => {
     downloadMarkdownFile(markdownContent, boardName);
 };
 
-const importBoardJson = async (boardData, userId) => {
-    const response = await api.post(`/boards/import/json`, boardData, {
-        // headers: { 'x-user-id': userId }, // x-user-id removed
-    });
+const importBoardJson = async (boardData, userId, collection) => {
+    const { name, data } = boardData; // Extract name and data from the imported JSON
+    const payload = {
+        name,
+        data,
+        user_id: userId, // Backend expects user_id, not userId
+    };
+    if (collection) {
+        payload.collection = collection;
+    }
+    const response = await api.post(`/boards/import/json`, payload);
     return response.data;
 };
 

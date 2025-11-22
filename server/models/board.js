@@ -151,11 +151,11 @@ exports.getBoardForExport = (id, user_id) => {
  * @param {object} data - The JSON data structure of the imported board.
  * @returns {Promise<object>} A promise that resolves with the ID, name, and data of the newly imported board.
  */
-exports.importBoard = (user_id, name, data) => {
+exports.importBoard = (user_id, name, data, collection) => {
     return runTransaction(async () => {
-        const insertBoardSql = 'INSERT INTO boards (user_id, name, data) VALUES (?,?,?)';
+        const insertBoardSql = 'INSERT INTO boards (user_id, name, data, collection) VALUES (?,?,?,?)'; // Add collection column
         const newBoardId = await new Promise((resolve, reject) => {
-            db.run(insertBoardSql, [user_id, name, JSON.stringify(data)], function (err) {
+            db.run(insertBoardSql, [user_id, name, JSON.stringify(data), collection], function (err) { // Add collection parameter
                 if (err) {
                     reject(err);
                 } else {
@@ -167,6 +167,7 @@ exports.importBoard = (user_id, name, data) => {
             id: newBoardId,
             name: name,
             data: data,
+            collection: collection, // Also return collection
         };
     });
 };

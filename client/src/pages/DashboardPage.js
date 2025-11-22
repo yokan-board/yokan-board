@@ -143,9 +143,9 @@ function DashboardPage() {
         }
     };
 
-    const handleImport = async (boardData) => {
+    const handleImport = async (boardData, collection) => {
         try {
-            await boardService.importBoardJson(boardData, user.id);
+            await boardService.importBoardJson(boardData, user.id, collection);
             fetchBoards();
         } catch (error) {
             console.error('Error importing board:', error);
