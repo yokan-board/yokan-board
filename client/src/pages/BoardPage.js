@@ -28,6 +28,7 @@ import SettingsMenu from '../components/SettingsMenu'; // Import SettingsMenu
 import EditBoardDialog from '../components/EditBoardDialog'; // Import EditBoardDialog
 import ArchiveHistoryDisplay from '../components/ArchiveHistoryDisplay'; // Import ArchiveHistoryDisplay
 import BoardNotesPage from './BoardNotesPage'; // Import BoardNotesPage
+import BoardSettingsPage from './BoardSettingsPage'; // Import BoardSettingsPage
 import { v4 as uuidv4 } from 'uuid';
 import { getRandomColor } from '../services/colorService';
 import { useAuth } from '../contexts/AuthContext'; // Import useAuth
@@ -68,7 +69,7 @@ function BoardPage() {
     }, [currentBoardData]);
 
     const handleTabChange = (event, newValue) => {
-        if (notesHaveUnsavedChanges) {
+        if (notesHaveUnsavedChanges && newValue !== selectedTab) {
             const confirmLeave = window.confirm(
                 'You have unsaved changes in Notes. Are you sure you want to leave without saving?'
             );
@@ -386,11 +387,21 @@ function BoardPage() {
             </Box>
 
             <TabContext value={selectedTab}>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex' }}>
                     <TabList onChange={handleTabChange} aria-label="board tabs">
                         <Tab label="Board" value="board" />
                         <Tab label="Notes" value="notes" />
                         <Tab label="Archive" value="archive" />
+                        <Tab
+                            label="Settings"
+                            value="settings"
+                            sx={{
+                                marginLeft: 'auto',
+                                '&.Mui-selected': {
+                                    color: 'primary.main',
+                                },
+                            }}
+                        />
                     </TabList>
                 </Box>
                 <TabPanel value="board" sx={{ p: 0 }}>
@@ -419,6 +430,11 @@ function BoardPage() {
                 <TabPanel value="archive" sx={{ p: 0 }}>
                     {currentBoardData && (
                         <ArchiveHistoryDisplay archiveHistory={currentBoardData.archiveHistory} tasksMap={tasksMap} />
+                    )}
+                </TabPanel>
+                <TabPanel value="settings" sx={{ p: 0 }}>
+                    {currentBoardData && ( // You might not need currentBoardData for settings, but following pattern
+                        <BoardSettingsPage boardId={id} />
                     )}
                 </TabPanel>
             </TabContext>
