@@ -44,10 +44,22 @@ const authenticateUser = async (req, res, next) => {
             return next(new UnauthorizedError('Invalid token'));
         }
         if (err.name === 'TokenExpiredError') {
-            return next(new UnauthorizedError('Token expired'));
+            // Special handling for refresh token requests
+            if (req.originalUrl === '/api/refresh-token') { // Assuming '/api' is the base path
+                const decodedExpired = jwt.decode(token); // Decode the expired token to get user ID
+                if (decodedExpired && decodedExpired.id) {
+                    const currentUser = await userModel.findUserById(decodedExpired.id);
+                    if (currentUser) {
+                        req.user = currentUser; // Attach user even with an expired token for refresh
+                        return next(); // Proceed to authController.refreshToken
+                    }
+                }
+            }
+            return next(new UnauthorizedError('Token expired')); // For all other requests, expired token is unauthorized
         }
         next(new UnauthorizedError('Invalid token'));
     }
 };
+
 
 module.exports = authenticateUser;

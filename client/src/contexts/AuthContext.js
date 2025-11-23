@@ -32,20 +32,26 @@ export function AuthProvider({ children }) {
         const updateLastActivity = () => {
             lastActivity.current = Date.now();
         };
-        events.forEach((event) => window.addEventListener(event, updateLastActivity));
+        // Attach event listeners to the document body in the capturing phase
+        events.forEach((event) => document.body.addEventListener(event, updateLastActivity, true)); // true for capturing phase
 
         const interval = setInterval(() => {
             const user = JSON.parse(localStorage.getItem('user'));
-            if (!user || !user.token) return;
+            if (!user || !user.token) {
+                return;
+            }
 
-            const isInactive = Date.now() - lastActivity.current > 10 * 60 * 1000; // 10 minutes
+            const now = Date.now();
+            const timeSinceLastActivity = now - lastActivity.current;
+            const isInactive = timeSinceLastActivity > 10 * 60 * 1000; // 10 minutes
+
             if (isInactive) {
                 logout(); // Logout on inactivity
                 return;
             }
 
             const tokenExpiration = jwtDecode(user.token).exp * 1000;
-            const timeToExpiry = tokenExpiration - Date.now();
+            const timeToExpiry = tokenExpiration - now;
             const refreshThreshold = 5 * 60 * 1000; // 5 minutes
 
             if (timeToExpiry < refreshThreshold) {
@@ -61,7 +67,8 @@ export function AuthProvider({ children }) {
         }, 60 * 1000); // Check every minute
 
         return () => {
-            events.forEach((event) => window.removeEventListener(event, updateLastActivity));
+            // Clean up event listeners from the document body, also in the capturing phase
+            events.forEach((event) => document.body.removeEventListener(event, updateLastActivity, true)); // true for capturing phase
             clearInterval(interval);
         };
     }, [events, logout]);
