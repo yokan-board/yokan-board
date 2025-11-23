@@ -388,7 +388,7 @@ function BoardPage() {
 
             <TabContext value={selectedTab}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex' }}>
-                    <TabList onChange={handleTabChange} aria-label="board tabs">
+                    <TabList onChange={handleTabChange} aria-label="board tabs" sx={{ flexGrow: 1 }}>
                         <Tab label="Board" value="board" />
                         <Tab label="Notes" value="notes" />
                         <Tab label="Archive" value="archive" />
