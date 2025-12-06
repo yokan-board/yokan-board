@@ -11,7 +11,6 @@ function BoardList({
     onChangeGradient,
     onLongPressChangeGradient,
     copiedGradient,
-    onNavigateToBoard,
 }) {
     return (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
@@ -26,7 +25,6 @@ function BoardList({
                     onChangeGradientClick={onChangeGradient}
                     onLongPressChangeGradient={onLongPressChangeGradient}
                     copiedGradient={copiedGradient}
-                    onNavigateToBoard={onNavigateToBoard}
                 />
             ))}
         </Box>

@@ -10,19 +10,25 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    Autocomplete, // Import Autocomplete
+    Autocomplete,
+    Box,
+    Typography,
 } from '@mui/material';
 import { createColumnsFromTemplate } from '../services/templateService';
-import boardService from '../services/boardService'; // Import boardService
-import { useAuth } from '../contexts/AuthContext'; // Import useAuth
+import boardService from '../services/boardService';
+import { useAuth } from '../contexts/AuthContext';
 
 function CreateBoardDialog({ open, onClose, onCreateBoard }) {
-    const { user } = useAuth(); // Get user from useAuth
+    const { user } = useAuth();
     const [newBoardName, setNewBoardName] = useState('');
     const [newBoardDescription, setNewBoardDescription] = useState('');
     const [newBoardTemplate, setNewBoardTemplate] = useState('None');
-    const [newBoardCollection, setNewBoardCollection] = useState(null); // New state for collection
-    const [collectionOptions, setCollectionOptions] = useState([]); // State for autocomplete options
+    const [newBoardCollection, setNewBoardCollection] = useState(null);
+    const [collectionOptions, setCollectionOptions] = useState([]);
+    const [orgShortName, setOrgShortName] = useState('');
+    const [orgFullName, setOrgFullName] = useState('');
+    const [orgUrl, setOrgUrl] = useState('');
+    const [orgLogo, setOrgLogo] = useState('');
 
     useEffect(() => {
         if (open && user) {
@@ -38,20 +44,61 @@ function CreateBoardDialog({ open, onClose, onCreateBoard }) {
         }
     }, [open, user]);
 
-    const handleCreate = () => {
-        if (newBoardName.trim() === '') return;
-        const columns = createColumnsFromTemplate(newBoardTemplate);
-        const collectionToSend = newBoardCollection === '' ? null : newBoardCollection;
-        onCreateBoard(newBoardName, newBoardDescription, columns, collectionToSend); // Pass newBoardCollection
+    const handleLogoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setOrgLogo(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const resetForm = () => {
         setNewBoardName('');
         setNewBoardDescription('');
         setNewBoardTemplate('None');
-        setNewBoardCollection(null); // Reset collection
-        onClose(); // Call onClose after successful creation
+        setNewBoardCollection(null);
+        setOrgShortName('');
+        setOrgFullName('');
+        setOrgUrl('');
+        setOrgLogo('');
+    };
+
+    const handleCreate = () => {
+        if (newBoardName.trim() === '') return;
+
+        const columns = createColumnsFromTemplate(newBoardTemplate);
+        const collectionToSend = newBoardCollection === '' ? null : newBoardCollection;
+
+        const orgData = {
+            short_name: orgShortName,
+            full_name: orgFullName,
+            url: orgUrl,
+            logo: orgLogo,
+        };
+
+        // Only include the org object if at least one of its fields is populated
+        const data = {
+            columns,
+            description: newBoardDescription,
+            columnOrder: Object.keys(columns),
+            ...(Object.values(orgData).some((val) => val) && { org: orgData }),
+        };
+
+        onCreateBoard(newBoardName, data, collectionToSend);
+        resetForm();
+        onClose();
+    };
+
+    const handleClose = () => {
+        resetForm();
+        onClose();
     };
 
     return (
-        <Dialog open={open} onClose={onClose}>
+        <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Create New Board</DialogTitle>
             <DialogContent>
                 <TextField
@@ -98,7 +145,56 @@ function CreateBoardDialog({ open, onClose, onCreateBoard }) {
                     variant="outlined"
                     value={newBoardDescription}
                     onChange={(e) => setNewBoardDescription(e.target.value)}
+                    sx={{ mb: 2 }}
                 />
+
+                <Box sx={{ mt: 2, mb: 2 }}>
+                    <Typography variant="h6" gutterBottom>
+                        Organization (Optional)
+                    </Typography>
+                    <TextField
+                        margin="dense"
+                        label="Short Name"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={orgShortName}
+                        onChange={(e) => setOrgShortName(e.target.value)}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Full Name"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={orgFullName}
+                        onChange={(e) => setOrgFullName(e.target.value)}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="URL"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={orgUrl}
+                        onChange={(e) => setOrgUrl(e.target.value)}
+                    />
+                    <Box sx={{ mt: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
+                        <Button variant="contained" component="label">
+                            Upload Logo
+                            <input type="file" hidden accept="image/png" onChange={handleLogoChange} />
+                        </Button>
+                        <Button variant="outlined" onClick={() => setOrgLogo('')} disabled={!orgLogo}>
+                            Clear Logo
+                        </Button>
+                    </Box>
+                    {orgLogo && (
+                        <Box sx={{ mt: 2, textAlign: 'center' }}>
+                            <img src={orgLogo} alt="Logo Preview" style={{ maxWidth: '100px', maxHeight: '100px' }} />
+                        </Box>
+                    )}
+                </Box>
+
                 <FormControl fullWidth margin="dense" sx={{ mt: 2 }}>
                     <InputLabel id="new-board-template-label">Template</InputLabel>
                     <Select
@@ -114,10 +210,10 @@ function CreateBoardDialog({ open, onClose, onCreateBoard }) {
                         <MenuItem value="Standard 4 columns">Standard 4 columns</MenuItem>
                         <MenuItem value="Standard 5 columns">Standard 5 columns</MenuItem>
                     </Select>
-                </FormControl>{' '}
+                </FormControl>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>Cancel</Button>
+                <Button onClick={handleClose}>Cancel</Button>
                 <Button onClick={handleCreate}>Create</Button>
             </DialogActions>
         </Dialog>

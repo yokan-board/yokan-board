@@ -6,23 +6,33 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    Autocomplete, // Import Autocomplete
+    Autocomplete,
+    Box,
+    Typography,
 } from '@mui/material';
-import boardService from '../services/boardService'; // Import boardService
-import { useAuth } from '../contexts/AuthContext'; // Import useAuth
+import boardService from '../services/boardService';
+import { useAuth } from '../contexts/AuthContext';
 
 function EditBoardDialog({ open, onClose, board, onSave }) {
-    const { user } = useAuth(); // Get user from useAuth
+    const { user } = useAuth();
     const [editedBoardName, setEditedBoardName] = useState('');
     const [editedBoardDescription, setEditedBoardDescription] = useState('');
-    const [editedBoardCollection, setEditedBoardCollection] = useState(null); // New state for collection
-    const [collectionOptions, setCollectionOptions] = useState([]); // State for autocomplete options
+    const [editedBoardCollection, setEditedBoardCollection] = useState(null);
+    const [collectionOptions, setCollectionOptions] = useState([]);
+    const [orgShortName, setOrgShortName] = useState('');
+    const [orgFullName, setOrgFullName] = useState('');
+    const [orgUrl, setOrgUrl] = useState('');
+    const [orgLogo, setOrgLogo] = useState('');
 
     useEffect(() => {
         if (board) {
             setEditedBoardName(board.name);
             setEditedBoardDescription(board.data.description || '');
-            setEditedBoardCollection(board.collection || null); // Pre-populate collection
+            setEditedBoardCollection(board.collection || null);
+            setOrgShortName(board.data.org?.short_name || '');
+            setOrgFullName(board.data.org?.full_name || '');
+            setOrgUrl(board.data.org?.url || '');
+            setOrgLogo(board.data.org?.logo || '');
         }
     }, [board]);
 
@@ -34,7 +44,7 @@ function EditBoardDialog({ open, onClose, board, onSave }) {
                     let updatedOptions = [...collections];
                     if (board && board.collection && !collections.includes(board.collection)) {
                         updatedOptions.push(board.collection);
-                        updatedOptions.sort(); // Keep sorted
+                        updatedOptions.sort();
                     }
                     setCollectionOptions(updatedOptions);
                 } catch (error) {
@@ -43,12 +53,36 @@ function EditBoardDialog({ open, onClose, board, onSave }) {
             };
             fetchCollections();
         }
-    }, [open, user, board]); // Add board to dependency array to re-run when board changes
+    }, [open, user, board]);
+
+    const handleLogoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setOrgLogo(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleSave = () => {
         const collectionToSend = editedBoardCollection === '' ? null : editedBoardCollection;
-        onSave(board.id, editedBoardName, editedBoardDescription, collectionToSend); // Pass editedBoardCollection
-        onClose(); // Call onClose after successful save
+        const orgData = {
+            short_name: orgShortName,
+            full_name: orgFullName,
+            url: orgUrl,
+            logo: orgLogo,
+        };
+
+        const updatedData = {
+            ...board.data,
+            description: editedBoardDescription,
+            ...(Object.values(orgData).some((val) => val) && { org: orgData }),
+        };
+
+        onSave(board.id, editedBoardName, updatedData, collectionToSend);
+        onClose();
     };
 
     return (
@@ -99,7 +133,55 @@ function EditBoardDialog({ open, onClose, board, onSave }) {
                     variant="outlined"
                     value={editedBoardDescription}
                     onChange={(e) => setEditedBoardDescription(e.target.value)}
+                    sx={{ mb: 2 }}
                 />
+
+                <Box sx={{ mt: 2, mb: 2 }}>
+                    <Typography variant="h6" gutterBottom>
+                        Organization (Optional)
+                    </Typography>
+                    <TextField
+                        margin="dense"
+                        label="Short Name"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={orgShortName}
+                        onChange={(e) => setOrgShortName(e.target.value)}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Full Name"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={orgFullName}
+                        onChange={(e) => setOrgFullName(e.target.value)}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="URL"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        value={orgUrl}
+                        onChange={(e) => setOrgUrl(e.target.value)}
+                    />
+                    <Box sx={{ mt: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
+                        <Button variant="contained" component="label">
+                            Upload Logo
+                            <input type="file" hidden accept="image/png" onChange={handleLogoChange} />
+                        </Button>
+                        <Button variant="outlined" onClick={() => setOrgLogo('')} disabled={!orgLogo}>
+                            Clear Logo
+                        </Button>
+                    </Box>
+                    {orgLogo && (
+                        <Box sx={{ mt: 2, textAlign: 'center' }}>
+                            <img src={orgLogo} alt="Logo Preview" style={{ maxWidth: '100px', maxHeight: '100px' }} />
+                        </Box>
+                    )}
+                </Box>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Cancel</Button>

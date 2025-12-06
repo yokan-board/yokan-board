@@ -7,7 +7,7 @@ import {
     ContentCopy,
     ContentPaste,
 } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles'; // Import useTheme
 import { useNavigate } from 'react-router-dom';
 
 function BoardCard({
@@ -20,7 +20,7 @@ function BoardCard({
     onLongPressChangeGradient,
     copiedGradient,
 }) {
-    const theme = useTheme();
+    const theme = useTheme(); // Use the theme hook
     const navigate = useNavigate();
     const longPressTimer = useRef(null);
 
@@ -34,6 +34,8 @@ function BoardCard({
     const secondaryTextColor = hasGradient ? 'rgba(255, 255, 255, 0.8)' : theme.palette.text.secondary;
     const iconColor = hasGradient ? 'rgba(255, 255, 255, 0.7)' : '#9e9e9e';
     const iconHoverColor = hasGradient ? '#fff' : theme.palette.text.primary;
+
+    const org = board.data.org;
 
     return (
         <ListItem
@@ -63,8 +65,39 @@ function BoardCard({
                 alignItems: 'center',
                 padding: theme.spacing(2),
                 color: textColor, // Set the default text color for the card
+                position: 'relative', // Needed for positioning the org logo/name
             }}
         >
+            {org && (
+                <Box sx={{ position: 'absolute', top: 16, left: 16 }}>
+                    {org.logo ? (
+                        <Box
+                            sx={{
+                                width: '64px',
+                                height: '64px',
+                                borderRadius: '8px', // Slightly rounded corners for the container
+                                backgroundColor: theme.palette.background.paper, // Background from theme
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <img
+                                src={org.logo}
+                                alt={org.short_name || 'Organization Logo'}
+                                style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }}
+                            />
+                        </Box>
+                    ) : (
+                        org.short_name && (
+                            <Typography variant="h6" sx={{ color: textColor, fontWeight: 'bold' }}>
+                                {org.short_name}
+                            </Typography>
+                        )
+                    )}
+                </Box>
+            )}
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', gap: '4px' }}>
                 <IconButton
                     aria-label="copy gradient"

@@ -433,8 +433,11 @@ function BoardPage() {
                     )}
                 </TabPanel>
                 <TabPanel value="settings" sx={{ p: 0 }}>
-                    {currentBoardData && ( // You might not need currentBoardData for settings, but following pattern
-                        <BoardSettingsPage boardId={id} />
+                    {currentBoardData && (
+                        <BoardSettingsPage
+                            boardData={currentBoardData}
+                            onSaveBoard={(updatedData) => handleSaveBoard({ name: editedBoardName, data: updatedData })}
+                        />
                     )}
                 </TabPanel>
             </TabContext>

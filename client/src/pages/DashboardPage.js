@@ -45,20 +45,14 @@ function DashboardPage() {
         fetchPreferences();
     }, []); // Fetch preferences on component mount
 
-    const handleCreateBoard = async (name, description, columns, collection) => {
+    const handleCreateBoard = async (name, data, collection) => {
         try {
             const newGradientColors = generateRandomGradientColors();
-            await boardService.createBoard(
-                user.id,
-                name,
-                {
-                    columns,
-                    gradientColors: newGradientColors,
-                    description: description,
-                    columnOrder: Object.keys(columns),
-                },
-                collection
-            );
+            const finalData = {
+                ...data,
+                gradientColors: newGradientColors,
+            };
+            await boardService.createBoard(user.id, name, finalData, collection);
             fetchBoards();
         } catch (error) {
             console.error('Error creating board:', error);
@@ -70,14 +64,10 @@ function DashboardPage() {
         setOpenEditDialog(true);
     };
 
-    const handleSaveBoard = async (id, name, description, collection) => {
+    const handleSaveBoard = async (id, name, data, collection) => {
         try {
-            const boardToUpdate = boards.find((board) => board.id === id);
-            if (boardToUpdate) {
-                const updatedData = { ...boardToUpdate.data, description: description };
-                await boardService.updateBoard(id, name, updatedData, collection);
-                fetchBoards();
-            }
+            await boardService.updateBoard(id, name, data, collection);
+            fetchBoards();
         } catch (error) {
             console.error('Error saving edited board:', error);
         }
@@ -235,7 +225,6 @@ function DashboardPage() {
                         onChangeGradient={handleChangeGradient}
                         onLongPressChangeGradient={handleLongPressChangeGradient}
                         copiedGradient={copiedGradient}
-                        onNavigateToBoard={handleNavigateToBoard}
                     />
                 </Box>
             ))}

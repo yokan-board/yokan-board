@@ -15,7 +15,12 @@ const { check } = require('express-validator');
 exports.createBoardValidation = [
     check('user_id', 'User ID is required').not().isEmpty().isInt(),
     check('name', 'Board name is required').not().isEmpty(),
-    check('collection', 'Collection name must be a string').optional().isString().not().isEmpty(),
+    check('collection', 'Collection name must be a string').optional().isString(),
+    check('data.org').optional().isObject().withMessage('org must be an object'),
+    check('data.org.short_name').optional().isString().withMessage('short_name must be a string'),
+    check('data.org.full_name').optional().isString().withMessage('full_name must be a string'),
+    check('data.org.logo').optional().isString().withMessage('logo must be a string (URL or Base64)'),
+    check('data.org.url').optional().isURL().withMessage('url must be a valid URL'),
 ];
 
 /**
@@ -30,5 +35,10 @@ exports.updateBoardValidation = [
     check('name', 'Board name must not be empty').optional().not().isEmpty(),
     // Removed isJSON() check as data is expected to be an object, not a JSON string
     check('data', 'Board data must be a valid object').optional(),
-    check('collection', 'Collection name must be a string').optional().isString().not().isEmpty(),
+    check('collection', 'Collection name must be a string').optional().isString(),
+    check('data.org').optional().isObject().withMessage('org must be an object'),
+    check('data.org.short_name').optional().isString().withMessage('short_name must be a string'),
+    check('data.org.full_name').optional().isString().withMessage('full_name must be a string'),
+    check('data.org.logo').optional().isString().withMessage('logo must be a string (URL or Base64)'),
+    check('data.org.url').optional().isURL().withMessage('url must be a valid URL'),
 ];

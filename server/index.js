@@ -19,7 +19,7 @@ const { errorHandler } = require('./middleware/errorHandler');
 const { AppError } = require('./utils/appError');
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
 app.use(
     cors({
         origin: (origin, callback) => {
