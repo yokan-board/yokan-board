@@ -289,6 +289,21 @@ exports.exportBoardCsv = async (req, res, next) => {
             );
         });
 
+        if (boardContent.contacts && boardContent.contacts.length > 0) {
+            csvRows.push(''); // Empty line as separator
+            csvRows.push('--- CONTACTS ---');
+            csvRows.push('Name,Title,Company,Email,Phone,Status');
+            boardContent.contacts.forEach((contact) => {
+                const name = `"${(contact.name || '').replace(/"/g, '""')}"`;
+                const title = `"${(contact.title || '').replace(/"/g, '""')}"`;
+                const company = `"${(contact.company || '').replace(/"/g, '""')}"`;
+                const email = `"${(contact.email || '').replace(/"/g, '""')}"`;
+                const phone = `"${(contact.phone || '').replace(/"/g, '""')}"`;
+                const status = `"${(contact.status || '').replace(/"/g, '""')}"`;
+                csvRows.push([name, title, company, email, phone, status].join(','));
+            });
+        }
+
         const filename = `${boardName.replace(/[^a-z0-9]/gi, '_')}-export-${new Date().toISOString().slice(0, 10)}.csv`;
 
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);

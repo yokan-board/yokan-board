@@ -188,6 +188,23 @@ const generateBoardMarkdown = (boardName, boardDescription, boardData) => {
         });
     }
 
+    if (boardData.contacts && boardData.contacts.length > 0) {
+        markdown += `## Contacts\n\n`;
+        boardData.contacts.forEach((contact) => {
+            markdown += `### ${contact.name}\n`;
+            if (contact.title || contact.company) {
+                markdown += `- **Title/Company:** ${contact.title || ''}${contact.title && contact.company ? ' at ' : ''}${contact.company || ''}\n`;
+            }
+            if (contact.email) {
+                markdown += `- **Email:** ${contact.email}\n`;
+            }
+            if (contact.phone) {
+                markdown += `- **Phone:** ${contact.phone}\n`;
+            }
+            markdown += `- **Status:** ${contact.status}\n\n`;
+        });
+    }
+
     return markdown;
 };
 
