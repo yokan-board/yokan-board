@@ -134,7 +134,11 @@ function ContactCard({ contact, onUpdate, onDelete, dragHandleProps }) {
             display: 'flex',
             flexDirection: 'column',
             position: 'relative',
-            borderRadius: '8px'
+            borderRadius: '8px',
+            '&:hover .action-buttons': {
+                visibility: 'visible',
+                opacity: 1,
+            }
         }}>
             <CardContent sx={{ flexGrow: 1, overflowY: 'auto' }}>
                 <Box sx={{ display: 'flex', gap: 2 }}>
@@ -160,7 +164,13 @@ function ContactCard({ contact, onUpdate, onDelete, dragHandleProps }) {
                             )}
                         </Box>
                     </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Box className="action-buttons" sx={{ 
+                        display: 'flex', 
+                        flexDirection: 'column',
+                        visibility: 'hidden',
+                        opacity: 0,
+                        transition: 'opacity 0.2s'
+                    }}>
                         {dragHandleProps && (
                             <IconButton size="small" {...dragHandleProps} sx={{ cursor: 'grab' }}>
                                 <DragHandleIcon fontSize="small" />
