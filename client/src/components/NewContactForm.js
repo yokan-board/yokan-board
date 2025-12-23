@@ -12,6 +12,7 @@ function NewContactForm({ onAdd }) {
         company: '',
         email: '',
         phone: '',
+        avatarUrl: '',
         status: 'ACTIVE'
     });
 
@@ -28,6 +29,7 @@ function NewContactForm({ onAdd }) {
                 company: '',
                 email: '',
                 phone: '',
+                avatarUrl: '',
                 status: 'ACTIVE'
             });
             setIsExpanded(false);
@@ -42,6 +44,7 @@ function NewContactForm({ onAdd }) {
             company: '',
             email: '',
             phone: '',
+            avatarUrl: '',
             status: 'ACTIVE'
         });
     };
@@ -61,6 +64,14 @@ function NewContactForm({ onAdd }) {
                 <Paper sx={{ p: 2 }}>
                     <Typography variant="subtitle1" gutterBottom>Add New Contact</Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <TextField
+                            label="Avatar URL"
+                            value={contact.avatarUrl}
+                            onChange={handleChange('avatarUrl')}
+                            size="small"
+                            fullWidth
+                            placeholder="https://example.com/avatar.png"
+                        />
                         <TextField
                             label="Full Name"
                             value={contact.name}

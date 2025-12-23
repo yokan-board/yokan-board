@@ -45,10 +45,18 @@ function ContactCard({ contact, onUpdate, onDelete }) {
                 <CardContent>
                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
                         <Avatar
-                            src={getGravatarUrl(editedContact.email)}
+                            src={editedContact.avatarUrl || getGravatarUrl(editedContact.email)}
                             sx={{ width: 56, height: 56 }}
                         />
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, flexGrow: 1 }}>
+                            <TextField
+                                label="Avatar URL"
+                                value={editedContact.avatarUrl || ''}
+                                onChange={(e) => setEditedContact({ ...editedContact, avatarUrl: e.target.value })}
+                                size="small"
+                                fullWidth
+                                placeholder="https://example.com/avatar.png"
+                            />
                             <TextField
                                 label="Full Name"
                                 value={editedContact.name}
@@ -110,7 +118,7 @@ function ContactCard({ contact, onUpdate, onDelete }) {
             <CardContent>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                     <Avatar
-                        src={getGravatarUrl(contact.email)}
+                        src={contact.avatarUrl || getGravatarUrl(contact.email)}
                         sx={{ width: 56, height: 56 }}
                     />
                     <Box sx={{ flexGrow: 1 }}>
