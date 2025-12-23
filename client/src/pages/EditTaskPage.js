@@ -6,11 +6,14 @@ import boardService from '../services/boardService';
 import TaskForm from '../components/TaskForm';
 import SubtaskManager from '../components/SubtaskManager';
 import ParentTaskDisplay from '../components/ParentTaskDisplay';
+import TaskComments from '../components/TaskComments';
 import { useTaskRelationships } from '../hooks/useTaskRelationships';
+import { useAuth } from '../contexts/AuthContext';
 
 function EditTaskPage() {
     const { boardId, taskId } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [task, setTask] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -19,6 +22,7 @@ function EditTaskPage() {
     const [dueDate, setDueDate] = useState('');
     const [description, setDescription] = useState('');
     const [subtasks, setSubtasks] = useState([]);
+    const [comments, setComments] = useState([]);
     const [allTasks, setAllTasks] = useState([]);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [isEditingTaskTitle, setIsEditingTaskTitle] = useState(false);
@@ -69,6 +73,7 @@ function EditTaskPage() {
                     setDueDate(foundTask.dueDate ? foundTask.dueDate.split('T')[0] : '');
                     setDescription(foundTask.description || '');
                     setSubtasks(foundTask.subtasks || []);
+                    setComments(foundTask.comments || []);
                 } else {
                     setError('Task not found');
                 }
@@ -93,18 +98,25 @@ function EditTaskPage() {
             const initialDueDate = task.dueDate ? task.dueDate.split('T')[0] : '';
             const initialDescription = task.description || '';
             const initialSubtasks = task.subtasks || [];
+            const initialComments = task.comments || [];
 
             const contentChanged = initialContent !== content;
             const dueDateChanged = initialDueDate !== dueDate;
             const descriptionChanged = initialDescription !== description;
             const subtasksChanged = JSON.stringify(initialSubtasks.sort()) !== JSON.stringify(subtasks.sort());
+            const commentsChanged = JSON.stringify(initialComments) !== JSON.stringify(comments);
             const columnChanged = originalColumnId !== selectedColumnId;
 
             setHasUnsavedChanges(
-                contentChanged || dueDateChanged || descriptionChanged || subtasksChanged || columnChanged
+                contentChanged ||
+                    dueDateChanged ||
+                    descriptionChanged ||
+                    subtasksChanged ||
+                    commentsChanged ||
+                    columnChanged
             );
         }
-    }, [content, dueDate, description, subtasks, task, originalColumnId, selectedColumnId]);
+    }, [content, dueDate, description, subtasks, comments, task, originalColumnId, selectedColumnId]);
 
     const handleSave = async (event) => {
         if (event) event.preventDefault();
@@ -138,6 +150,7 @@ function EditTaskPage() {
                     dueDate: dueDate || null,
                     description: description,
                     subtasks: subtasks,
+                    comments: comments,
                 };
 
                 // Add the task to the new column or update it in the original column
@@ -350,6 +363,13 @@ function EditTaskPage() {
                                 allTasks={allTasks}
                                 boardId={boardId}
                                 onNavigate={handleNavigation}
+                            />
+                        </Box>
+                        <Box sx={{ mb: 3 }}>
+                            <TaskComments
+                                comments={comments}
+                                setComments={setComments}
+                                currentUser={user}
                             />
                         </Box>
                     </>
