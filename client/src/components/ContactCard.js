@@ -48,7 +48,8 @@ function ContactCard({ contact, onUpdate, onDelete }) {
                 mb: 2, 
                 position: 'relative',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                borderRadius: '8px'
             }}>
                 <CardContent sx={{ flexGrow: 1, overflowY: 'auto' }}>
                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
@@ -131,7 +132,8 @@ function ContactCard({ contact, onUpdate, onDelete }) {
             transition: 'opacity 0.3s',
             display: 'flex',
             flexDirection: 'column',
-            position: 'relative'
+            position: 'relative',
+            borderRadius: '8px'
         }}>
             <CardContent sx={{ flexGrow: 1, overflowY: 'auto' }}>
                 <Box sx={{ display: 'flex', gap: 2 }}>
