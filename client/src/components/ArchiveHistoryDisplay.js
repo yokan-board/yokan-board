@@ -3,6 +3,7 @@ import { Box, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import dayjs from 'dayjs';
 import { marked } from 'marked'; // Import marked
+import TaskComments from './TaskComments';
 
 function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) {
     // Add tasksMap prop
@@ -144,6 +145,16 @@ function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) {
                                                         maxHeight: '200px',
                                                         overflowY: 'auto',
                                                     }}
+                                                />
+                                            </Box>
+                                        )}
+                                        {task.comments && task.comments.length > 0 && (
+                                            <Box sx={{ mt: 2, ml: '82px' }}>
+                                                <TaskComments
+                                                    comments={task.comments}
+                                                    readOnly={true}
+                                                    setComments={() => {}}
+                                                    currentUser={null}
                                                 />
                                             </Box>
                                         )}

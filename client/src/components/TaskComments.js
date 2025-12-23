@@ -19,7 +19,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(relativeTime);
 
-function TaskComments({ comments, setComments, currentUser }) {
+function TaskComments({ comments, setComments, currentUser, readOnly = false }) {
     const [newComment, setNewComment] = useState('');
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editContent, setEditContent] = useState('');
@@ -96,31 +96,33 @@ function TaskComments({ comments, setComments, currentUser }) {
             </Typography>
 
             {/* Add Comment Section */}
-            <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
-                <Avatar
-                    src={getGravatarUrl(currentUser?.email)}
-                    alt={currentUser?.username || 'User'}
-                />
-                <Box sx={{ flexGrow: 1 }}>
-                    <TextField
-                        fullWidth
-                        multiline
-                        rows={2}
-                        placeholder="Write a comment..."
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        variant="outlined"
-                        sx={{ mb: 1 }}
+            {!readOnly && (
+                <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
+                    <Avatar
+                        src={getGravatarUrl(currentUser?.email)}
+                        alt={currentUser?.username || 'User'}
                     />
-                    <Button
-                        variant="contained"
-                        disabled={!newComment.trim()}
-                        onClick={handleAddComment}
-                    >
-                        Comment
-                    </Button>
+                    <Box sx={{ flexGrow: 1 }}>
+                        <TextField
+                            fullWidth
+                            multiline
+                            rows={2}
+                            placeholder="Write a comment..."
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            variant="outlined"
+                            sx={{ mb: 1 }}
+                        />
+                        <Button
+                            variant="contained"
+                            disabled={!newComment.trim()}
+                            onClick={handleAddComment}
+                        >
+                            Comment
+                        </Button>
+                    </Box>
                 </Box>
-            </Box>
+            )}
 
             {/* Comments List */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -155,7 +157,7 @@ function TaskComments({ comments, setComments, currentUser }) {
                                             {comment.updatedAt && ' (edited)'}
                                         </Typography>
                                     </Box>
-                                    {(currentUser?.id === comment.userId || currentUser?.isAdmin) && (
+                                    {!readOnly && (currentUser?.id === comment.userId || currentUser?.isAdmin) && (
                                         <IconButton
                                             size="small"
                                             onClick={(e) => handleMenuOpen(e, comment.id)}
