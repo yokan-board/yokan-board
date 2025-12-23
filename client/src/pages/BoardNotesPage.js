@@ -1,30 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, Button, Divider } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import { useBlocker } from 'react-router-dom';
 import BookmarkItem from '../components/BookmarkItem';
 import NewBookmarkForm from '../components/NewBookmarkForm';
+import ContactCard from '../components/ContactCard';
+import NewContactForm from '../components/NewContactForm';
 import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog';
 
-function BoardNotesPage({ bookmarks: initialBookmarks, onSave, onHasUnsavedChangesChange }) {
+function BoardNotesPage({ bookmarks: initialBookmarks = [], contacts: initialContacts = [], onSave, onHasUnsavedChangesChange }) {
     const [localBookmarks, setLocalBookmarks] = useState(initialBookmarks);
+    const [localContacts, setLocalContacts] = useState(initialContacts);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-    const [bookmarkToDelete, setBookmarkToDelete] = useState(null);
+    const [itemToDelete, setItemToDelete] = useState(null);
+    const [deleteType, setDeleteType] = useState(null); // 'bookmark' or 'contact'
 
     useEffect(() => {
-        setLocalBookmarks(initialBookmarks);
-    }, [initialBookmarks]);
+        setLocalBookmarks(initialBookmarks || []);
+        setLocalContacts(initialContacts || []);
+    }, [initialBookmarks, initialContacts]);
 
     useEffect(() => {
-        const stringifiedLocal = JSON.stringify(localBookmarks);
-        const stringifiedInitial = JSON.stringify(initialBookmarks);
-        const newHasUnsavedChanges = stringifiedLocal !== stringifiedInitial;
+        const stringifiedLocalBookmarks = JSON.stringify(localBookmarks);
+        const stringifiedInitialBookmarks = JSON.stringify(initialBookmarks || []);
+        const stringifiedLocalContacts = JSON.stringify(localContacts);
+        const stringifiedInitialContacts = JSON.stringify(initialContacts || []);
+        
+        const bookmarksChanged = stringifiedLocalBookmarks !== stringifiedInitialBookmarks;
+        const contactsChanged = stringifiedLocalContacts !== stringifiedInitialContacts;
+        
+        const newHasUnsavedChanges = bookmarksChanged || contactsChanged;
         setHasUnsavedChanges(newHasUnsavedChanges);
         if (onHasUnsavedChangesChange) {
             onHasUnsavedChangesChange(newHasUnsavedChanges);
         }
-    }, [localBookmarks, initialBookmarks, onHasUnsavedChangesChange]);
+    }, [localBookmarks, initialBookmarks, localContacts, initialContacts, onHasUnsavedChangesChange]);
 
     const blocker = useBlocker(
         ({ currentLocation, nextLocation }) => hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname
@@ -44,7 +55,6 @@ function BoardNotesPage({ bookmarks: initialBookmarks, onSave, onHasUnsavedChang
         const handleBeforeUnload = (event) => {
             if (hasUnsavedChanges) {
                 event.preventDefault();
-                // Chrome requires returnValue to be set
                 event.returnValue = '';
             }
         };
@@ -57,13 +67,15 @@ function BoardNotesPage({ bookmarks: initialBookmarks, onSave, onHasUnsavedChang
     }, [hasUnsavedChanges]);
 
     const handleSaveChanges = () => {
-        onSave(localBookmarks);
+        onSave({ bookmarks: localBookmarks, contacts: localContacts });
     };
 
     const handleClearChanges = () => {
-        setLocalBookmarks(initialBookmarks);
+        setLocalBookmarks(initialBookmarks || []);
+        setLocalContacts(initialContacts || []);
     };
 
+    // Bookmark Handlers
     const handleAddBookmark = (newBookmark) => {
         const bookmarkWithId = { ...newBookmark, id: uuidv4() };
         setLocalBookmarks([...localBookmarks, bookmarkWithId]);
@@ -77,19 +89,64 @@ function BoardNotesPage({ bookmarks: initialBookmarks, onSave, onHasUnsavedChang
     };
 
     const handleDeleteBookmark = (bookmarkId) => {
-        setBookmarkToDelete(bookmarkId);
+        setItemToDelete(bookmarkId);
+        setDeleteType('bookmark');
+        setIsDeleteConfirmOpen(true);
+    };
+
+    // Contact Handlers
+    const handleAddContact = (newContact) => {
+        const contactWithId = { ...newContact, id: uuidv4() };
+        setLocalContacts([...localContacts, contactWithId]);
+    };
+
+    const handleUpdateContact = (updatedContact) => {
+        const updatedContacts = localContacts.map((contact) =>
+            contact.id === updatedContact.id ? updatedContact : contact
+        );
+        setLocalContacts(updatedContacts);
+    };
+
+    const handleDeleteContact = (contactId) => {
+        setItemToDelete(contactId);
+        setDeleteType('contact');
         setIsDeleteConfirmOpen(true);
     };
 
     const handleConfirmDelete = () => {
-        const updatedBookmarks = localBookmarks.filter((bookmark) => bookmark.id !== bookmarkToDelete);
-        onSave(updatedBookmarks);
+        if (deleteType === 'bookmark') {
+            const updatedBookmarks = localBookmarks.filter((bookmark) => bookmark.id !== itemToDelete);
+            setLocalBookmarks(updatedBookmarks);
+        } else if (deleteType === 'contact') {
+            const updatedContacts = localContacts.filter((contact) => contact.id !== itemToDelete);
+            setLocalContacts(updatedContacts);
+        }
         setIsDeleteConfirmOpen(false);
-        setBookmarkToDelete(null);
+        setItemToDelete(null);
+        setDeleteType(null);
     };
 
     return (
         <Box sx={{ p: 3 }}>
+            {/* Contacts Section */}
+            <Typography variant="h5" sx={{ mb: 2 }}>
+                Contacts
+            </Typography>
+            <Box sx={{ mb: 4 }}>
+                {localContacts.map((contact) => (
+                    <ContactCard
+                        key={contact.id}
+                        contact={contact}
+                        onUpdate={handleUpdateContact}
+                        onDelete={handleDeleteContact}
+                    />
+                ))}
+                <NewContactForm onAdd={handleAddContact} />
+            </Box>
+
+            <Divider sx={{ mb: 4 }} />
+
+            {/* Bookmarks Section */}
             <Typography variant="h5" sx={{ mb: 2 }}>
                 Bookmarks
             </Typography>
@@ -120,7 +177,7 @@ function BoardNotesPage({ bookmarks: initialBookmarks, onSave, onHasUnsavedChang
                 open={isDeleteConfirmOpen}
                 onClose={() => setIsDeleteConfirmOpen(false)}
                 onConfirm={handleConfirmDelete}
-                itemName="bookmark"
+                itemName={deleteType || 'item'}
             />
         </Box>
     );
