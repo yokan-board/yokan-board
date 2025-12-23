@@ -132,6 +132,15 @@ const generateBoardMarkdown = (boardName, boardDescription, boardData) => {
                             }
                         });
                     }
+
+                    if (task.comments && task.comments.length > 0) {
+                        markdown += `  - **Comments:**\n`;
+                        task.comments.forEach((comment) => {
+                            const date = new Date(comment.createdAt).toISOString().split('T')[0];
+                            const content = comment.content.replace(/\n/g, ' '); // Replace newlines in comments for list format
+                            markdown += `    - **${comment.username} (${date}):** ${content}\n`;
+                        });
+                    }
                     markdown += '\n';
                 });
             }
@@ -164,6 +173,14 @@ const generateBoardMarkdown = (boardName, boardDescription, boardData) => {
                             const isSubtaskCompleted = subtask.completed ? 'x' : ' ';
                             markdown += `    - [${isSubtaskCompleted}] ${subtask.content} (#${subtask.displayId})\n`;
                         }
+                    });
+                }
+                if (task.comments && task.comments.length > 0) {
+                    markdown += `  - **Comments:**\n`;
+                    task.comments.forEach((comment) => {
+                        const date = new Date(comment.createdAt).toISOString().split('T')[0];
+                        const content = comment.content.replace(/\n/g, ' ');
+                        markdown += `    - **${comment.username} (${date}):** ${content}\n`;
                     });
                 }
                 markdown += '\n';

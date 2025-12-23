@@ -202,6 +202,7 @@ exports.exportBoardCsv = async (req, res, next) => {
             'Parent Task ID',
             'Archived',
             'Archive Date',
+            'Comments',
         ];
         csvRows.push(headers.join(','));
 
@@ -218,6 +219,7 @@ exports.exportBoardCsv = async (req, res, next) => {
                             dueDate: task.dueDate || null,
                             isArchived: false,
                             archiveDate: null,
+                            comments: task.comments || [],
                         });
                     });
                 }
@@ -234,6 +236,7 @@ exports.exportBoardCsv = async (req, res, next) => {
                         dueDate: task.dueDate || null,
                         isArchived: true,
                         archiveDate: archiveEntry.date,
+                        comments: task.comments || [],
                     });
                 });
             });
@@ -258,6 +261,19 @@ exports.exportBoardCsv = async (req, res, next) => {
             const archiveDate = task.archiveDate
                 ? `"${new Date(task.archiveDate).toISOString().slice(0, 10)}"`
                 : '""';
+
+            let commentsStr = '';
+            if (task.comments && task.comments.length > 0) {
+                commentsStr = task.comments
+                    .map((c) => {
+                        const date = new Date(c.createdAt).toISOString().slice(0, 10);
+                        const content = c.content.replace(/"/g, "'"); // Replace double quotes in content to single quotes to avoid CSV issues
+                        return `${c.username} (${date}): ${content}`;
+                    })
+                    .join('; ');
+            }
+            const comments = `"${commentsStr.replace(/"/g, '""')}"`;
+
             csvRows.push(
                 [
                     taskId,
@@ -268,6 +284,7 @@ exports.exportBoardCsv = async (req, res, next) => {
                     parentTaskId,
                     isArchived,
                     archiveDate,
+                    comments,
                 ].join(',')
             );
         });
