@@ -18,7 +18,7 @@ const userRoutes = require('./routes/user');
 const contactRoutes = require('./routes/contacts');
 const { errorHandler } = require('./middleware/errorHandler');
 const { AppError } = require('./utils/appError');
-const { isAuthenticated } = require('./middleware/authMiddleware');
+const isAuthenticated = require('./middleware/authMiddleware');
 
 const app = express();
 app.use(express.json({ limit: '5mb' }));
