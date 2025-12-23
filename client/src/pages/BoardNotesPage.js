@@ -2,11 +2,51 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, Divider } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import { useBlocker } from 'react-router-dom';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragOverlay,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import BookmarkItem from '../components/BookmarkItem';
 import NewBookmarkForm from '../components/NewBookmarkForm';
 import ContactCard from '../components/ContactCard';
 import NewContactForm from '../components/NewContactForm';
 import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog';
+
+function SortableContactCard({ contact, onUpdate, onDelete }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id: contact.id,
+    });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+    };
+
+    return (
+        <div ref={setNodeRef} style={style} {...attributes}>
+            <ContactCard
+                contact={contact}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                dragHandleProps={listeners}
+            />
+        </div>
+    );
+}
 
 function BoardNotesPage({ bookmarks: initialBookmarks = [], contacts: initialContacts = [], onSave, onHasUnsavedChangesChange }) {
     const [localBookmarks, setLocalBookmarks] = useState(initialBookmarks);
@@ -15,11 +55,38 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contacts: initialCon
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
     const [deleteType, setDeleteType] = useState(null); // 'bookmark' or 'contact'
+    const [activeContactId, setActiveContactId] = useState(null);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     useEffect(() => {
         setLocalBookmarks(initialBookmarks || []);
         setLocalContacts(initialContacts || []);
     }, [initialBookmarks, initialContacts]);
+
+    const handleDragStart = (event) => {
+        setActiveContactId(event.active.id);
+    };
+
+    const handleDragEnd = (event) => {
+        const { active, over } = event;
+
+        if (active.id !== over?.id) {
+            setLocalContacts((items) => {
+                const oldIndex = items.findIndex((item) => item.id === active.id);
+                const newIndex = items.findIndex((item) => item.id === over.id);
+
+                return arrayMove(items, oldIndex, newIndex);
+            });
+        }
+
+        setActiveContactId(null);
+    };
 
     useEffect(() => {
         const stringifiedLocalBookmarks = JSON.stringify(localBookmarks);
@@ -133,16 +200,34 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contacts: initialCon
                 Contacts
             </Typography>
             <Box sx={{ mb: 4 }}>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '16px', mb: 2 }}>
-                    {localContacts.map((contact) => (
-                        <ContactCard
-                            key={contact.id}
-                            contact={contact}
-                            onUpdate={handleUpdateContact}
-                            onDelete={handleDeleteContact}
-                        />
-                    ))}
-                </Box>
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                >
+                    <SortableContext items={localContacts.map((c) => c.id)} strategy={rectSortingStrategy}>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '16px', mb: 2 }}>
+                            {localContacts.map((contact) => (
+                                <SortableContactCard
+                                    key={contact.id}
+                                    contact={contact}
+                                    onUpdate={handleUpdateContact}
+                                    onDelete={handleDeleteContact}
+                                />
+                            ))}
+                        </Box>
+                    </SortableContext>
+                    <DragOverlay>
+                        {activeContactId ? (
+                            <ContactCard
+                                contact={localContacts.find((c) => c.id === activeContactId)}
+                                onUpdate={() => {}}
+                                onDelete={() => {}}
+                            />
+                        ) : null}
+                    </DragOverlay>
+                </DndContext>
                 <Box sx={{ width: '24rem' }}>
                     <NewContactForm onAdd={handleAddContact} />
                 </Box>

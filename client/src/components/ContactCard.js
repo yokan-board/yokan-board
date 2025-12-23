@@ -4,9 +4,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
+import DragHandleIcon from '@mui/icons-material/DragHandle';
 import { getGravatarUrl } from '../utils/gravatar';
 
-function ContactCard({ contact, onUpdate, onDelete }) {
+function ContactCard({ contact, onUpdate, onDelete, dragHandleProps }) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedContact, setEditedContact] = useState(contact);
 
@@ -160,6 +161,11 @@ function ContactCard({ contact, onUpdate, onDelete }) {
                         </Box>
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        {dragHandleProps && (
+                            <IconButton size="small" {...dragHandleProps} sx={{ cursor: 'grab' }}>
+                                <DragHandleIcon fontSize="small" />
+                            </IconButton>
+                        )}
                         <IconButton size="small" onClick={() => setIsEditing(true)}>
                             <EditIcon fontSize="small" />
                         </IconButton>
