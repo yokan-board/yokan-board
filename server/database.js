@@ -148,6 +148,21 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
                             }
                         });
 
+                        db.run(`CREATE TABLE IF NOT EXISTS contacts (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            user_id INTEGER NOT NULL,
+                            name TEXT NOT NULL,
+                            title TEXT,
+                            company TEXT,
+                            email TEXT,
+                            phone TEXT,
+                            avatarUrl TEXT,
+                            status TEXT DEFAULT 'ACTIVE',
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                            UNIQUE(user_id, email)
+                        )`);
+
                         const INITIAL_USER_ID = process.env.INITIAL_USER_ID || 'user';
                         const INITIAL_USER_PASSWORD =
                             process.env.INITIAL_USER_PASSWORD || 'password';

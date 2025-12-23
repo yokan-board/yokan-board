@@ -3,6 +3,7 @@ import { Box, Typography, Tab, Tabs, Divider } from '@mui/material';
 import ProfileSettings from '../components/settings/ProfileSettings';
 import PasswordSettings from '../components/settings/PasswordSettings';
 import PreferencesSettings from '../components/settings/PreferencesSettings';
+import ContactsSettings from '../components/settings/ContactsSettings';
 import AdminSettings from '../components/settings/AdminSettings';
 import { useAuth } from '../contexts/AuthContext'; // Import useAuth
 
@@ -40,7 +41,7 @@ function AccountPage() {
     // If the ADMIN tab was selected and the user is no longer admin, switch to the first tab.
     // This handles cases where a non-admin user might navigate directly to the admin tab index.
     React.useEffect(() => {
-        if (value === 2 && (!user || user.id !== 1)) {
+        if (value === 3 && (!user || user.id !== 1)) {
             setValue(0);
         }
     }, [value, user]);
@@ -53,8 +54,9 @@ function AccountPage() {
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={value} onChange={handleChange} aria-label="account settings tabs">
                     <Tab label="Profile" {...a11yProps(0)} />
-                    <Tab label="Preferences" {...a11yProps(1)} />
-                    {user && user.id === 1 && <Tab label="ADMIN" {...a11yProps(2)} />}
+                    <Tab label="Contacts" {...a11yProps(1)} />
+                    <Tab label="Preferences" {...a11yProps(2)} />
+                    {user && user.id === 1 && <Tab label="ADMIN" {...a11yProps(3)} />}
                 </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
@@ -63,10 +65,13 @@ function AccountPage() {
                 <PasswordSettings />
             </TabPanel>
             <TabPanel value={value} index={1}>
+                <ContactsSettings />
+            </TabPanel>
+            <TabPanel value={value} index={2}>
                 <PreferencesSettings />
             </TabPanel>
             {user && user.id === 1 && (
-                <TabPanel value={value} index={2}>
+                <TabPanel value={value} index={3}>
                     <AdminSettings />
                 </TabPanel>
             )}

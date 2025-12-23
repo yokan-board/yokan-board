@@ -14,9 +14,11 @@ const swaggerDocument = YAML.load('./docs/api/openapi.yaml'); // Load your OpenA
 const authRoutes = require('./routes/auth');
 const boardRoutes = require('./routes/boards');
 const aboutRoutes = require('./routes/about');
-const userRoutes = require('./routes/user'); // Add this line
+const userRoutes = require('./routes/user');
+const contactRoutes = require('./routes/contacts');
 const { errorHandler } = require('./middleware/errorHandler');
 const { AppError } = require('./utils/appError');
+const { isAuthenticated } = require('./middleware/authMiddleware');
 
 const app = express();
 app.use(express.json({ limit: '5mb' }));
@@ -81,15 +83,19 @@ module.exports = { app, startServer };
 // Serve OpenAPI documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Auth routes
+// API v1.1 Routes
+app.use('/api/v1.1/auth', authRoutes);
+app.use('/api/v1.1/boards', isAuthenticated, boardRoutes);
+app.use('/api/v1.1/user', isAuthenticated, userRoutes);
+app.use('/api/v1.1/contacts', isAuthenticated, contactRoutes);
+app.use('/api/v1.1/about', aboutRoutes);
+
+
+// Legacy API Routes (to be deprecated)
 app.use('/api', authRoutes);
-// Board routes
 app.use('/api', boardRoutes);
 app.use('/api', aboutRoutes);
-app.use('/api/v1.1', userRoutes); // Add this line
-app.use('/api/v1.1', authRoutes);
-app.use('/api/v1.1', boardRoutes);
-app.use('/api/v1.1', aboutRoutes);
+
 
 // Handle 404 for API routes
 app.use('/api', (req, res, next) => {

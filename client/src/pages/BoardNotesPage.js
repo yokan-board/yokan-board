@@ -2,107 +2,49 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, Divider } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import { useBlocker } from 'react-router-dom';
-import {
-    DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    DragOverlay,
-} from '@dnd-kit/core';
-import {
-    arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    useSortable,
-    rectSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import BookmarkItem from '../components/BookmarkItem';
 import NewBookmarkForm from '../components/NewBookmarkForm';
 import ContactCard from '../components/ContactCard';
 import NewContactForm from '../components/NewContactForm';
 import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog';
+import contactService from '../services/contactService';
 
-function SortableContactCard({ contact, onUpdate, onDelete }) {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-        id: contact.id,
-    });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.5 : 1,
-    };
-
-    return (
-        <div ref={setNodeRef} style={style} {...attributes}>
-            <ContactCard
-                contact={contact}
-                onUpdate={onUpdate}
-                onDelete={onDelete}
-                dragHandleProps={listeners}
-            />
-        </div>
-    );
-}
-
-function BoardNotesPage({ bookmarks: initialBookmarks = [], contacts: initialContacts = [], onSave, onHasUnsavedChangesChange }) {
+function BoardNotesPage({ bookmarks: initialBookmarks = [], onSave, onHasUnsavedChangesChange }) {
     const [localBookmarks, setLocalBookmarks] = useState(initialBookmarks);
-    const [localContacts, setLocalContacts] = useState(initialContacts);
+    const [contacts, setContacts] = useState([]);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
     const [deleteType, setDeleteType] = useState(null); // 'bookmark' or 'contact'
-    const [activeContactId, setActiveContactId] = useState(null);
 
-    const sensors = useSensors(
-        useSensor(PointerSensor),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
-    );
+    const fetchContacts = async () => {
+        try {
+            const fetchedContacts = await contactService.getContacts();
+            setContacts(fetchedContacts);
+        } catch (error) {
+            console.error('Error fetching contacts:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchContacts();
+    }, []);
 
     useEffect(() => {
         setLocalBookmarks(initialBookmarks || []);
-        setLocalContacts(initialContacts || []);
-    }, [initialBookmarks, initialContacts]);
-
-    const handleDragStart = (event) => {
-        setActiveContactId(event.active.id);
-    };
-
-    const handleDragEnd = (event) => {
-        const { active, over } = event;
-
-        if (active.id !== over?.id) {
-            setLocalContacts((items) => {
-                const oldIndex = items.findIndex((item) => item.id === active.id);
-                const newIndex = items.findIndex((item) => item.id === over.id);
-
-                return arrayMove(items, oldIndex, newIndex);
-            });
-        }
-
-        setActiveContactId(null);
-    };
+    }, [initialBookmarks]);
 
     useEffect(() => {
         const stringifiedLocalBookmarks = JSON.stringify(localBookmarks);
         const stringifiedInitialBookmarks = JSON.stringify(initialBookmarks || []);
-        const stringifiedLocalContacts = JSON.stringify(localContacts);
-        const stringifiedInitialContacts = JSON.stringify(initialContacts || []);
         
         const bookmarksChanged = stringifiedLocalBookmarks !== stringifiedInitialBookmarks;
-        const contactsChanged = stringifiedLocalContacts !== stringifiedInitialContacts;
         
-        const newHasUnsavedChanges = bookmarksChanged || contactsChanged;
-        setHasUnsavedChanges(newHasUnsavedChanges);
+        setHasUnsavedChanges(bookmarksChanged);
         if (onHasUnsavedChangesChange) {
-            onHasUnsavedChangesChange(newHasUnsavedChanges);
+            onHasUnsavedChangesChange(bookmarksChanged);
         }
-    }, [localBookmarks, initialBookmarks, localContacts, initialContacts, onHasUnsavedChangesChange]);
+    }, [localBookmarks, initialBookmarks, onHasUnsavedChangesChange]);
 
     const blocker = useBlocker(
         ({ currentLocation, nextLocation }) => hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname
@@ -134,12 +76,11 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contacts: initialCon
     }, [hasUnsavedChanges]);
 
     const handleSaveChanges = () => {
-        onSave({ bookmarks: localBookmarks, contacts: localContacts });
+        onSave({ bookmarks: localBookmarks });
     };
 
     const handleClearChanges = () => {
         setLocalBookmarks(initialBookmarks || []);
-        setLocalContacts(initialContacts || []);
     };
 
     // Bookmark Handlers
@@ -162,16 +103,23 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contacts: initialCon
     };
 
     // Contact Handlers
-    const handleAddContact = (newContact) => {
-        const contactWithId = { ...newContact, id: uuidv4() };
-        setLocalContacts([...localContacts, contactWithId]);
+    const handleAddContact = async (newContact) => {
+        try {
+            await contactService.createContact(newContact);
+            fetchContacts(); // Refresh list
+        } catch (error) {
+            console.error('Error creating contact:', error);
+            alert(error.response?.data?.errors?.[0]?.msg || 'Failed to create contact. The email may already exist.');
+        }
     };
 
-    const handleUpdateContact = (updatedContact) => {
-        const updatedContacts = localContacts.map((contact) =>
-            contact.id === updatedContact.id ? updatedContact : contact
-        );
-        setLocalContacts(updatedContacts);
+    const handleUpdateContact = async (updatedContact) => {
+        try {
+            await contactService.updateContact(updatedContact.id, updatedContact);
+            fetchContacts(); // Refresh list
+        } catch (error) {
+            console.error('Error updating contact:', error);
+        }
     };
 
     const handleDeleteContact = (contactId) => {
@@ -180,13 +128,17 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contacts: initialCon
         setIsDeleteConfirmOpen(true);
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (deleteType === 'bookmark') {
             const updatedBookmarks = localBookmarks.filter((bookmark) => bookmark.id !== itemToDelete);
             setLocalBookmarks(updatedBookmarks);
         } else if (deleteType === 'contact') {
-            const updatedContacts = localContacts.filter((contact) => contact.id !== itemToDelete);
-            setLocalContacts(updatedContacts);
+            try {
+                await contactService.deleteContact(itemToDelete);
+                fetchContacts(); // Refresh list
+            } catch (error) {
+                console.error('Error deleting contact:', error);
+            }
         }
         setIsDeleteConfirmOpen(false);
         setItemToDelete(null);
@@ -200,34 +152,16 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contacts: initialCon
                 Contacts
             </Typography>
             <Box sx={{ mb: 4 }}>
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                >
-                    <SortableContext items={localContacts.map((c) => c.id)} strategy={rectSortingStrategy}>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '16px', mb: 2 }}>
-                            {localContacts.map((contact) => (
-                                <SortableContactCard
-                                    key={contact.id}
-                                    contact={contact}
-                                    onUpdate={handleUpdateContact}
-                                    onDelete={handleDeleteContact}
-                                />
-                            ))}
-                        </Box>
-                    </SortableContext>
-                    <DragOverlay>
-                        {activeContactId ? (
-                            <ContactCard
-                                contact={localContacts.find((c) => c.id === activeContactId)}
-                                onUpdate={() => {}}
-                                onDelete={() => {}}
-                            />
-                        ) : null}
-                    </DragOverlay>
-                </DndContext>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '16px', mb: 2 }}>
+                    {contacts.map((contact) => (
+                        <ContactCard
+                            key={contact.id}
+                            contact={contact}
+                            onUpdate={handleUpdateContact}
+                            onDelete={handleDeleteContact}
+                        />
+                    ))}
+                </Box>
                 <Box sx={{ width: '24rem' }}>
                     <NewContactForm onAdd={handleAddContact} />
                 </Box>
