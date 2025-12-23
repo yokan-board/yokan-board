@@ -91,7 +91,7 @@ function TaskComments({ comments, setComments, currentUser, readOnly = false }) 
 
     return (
         <Box sx={{ mt: 4 }}>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="subtitle1" gutterBottom fontWeight="bold">
                 Comments
             </Typography>
 
