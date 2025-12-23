@@ -41,8 +41,16 @@ function ContactCard({ contact, onUpdate, onDelete }) {
 
     if (isEditing) {
         return (
-            <Card sx={{ mb: 2, position: 'relative' }}>
-                <CardContent>
+            <Card sx={{ 
+                width: '24rem', 
+                height: '14.8rem', 
+                flexShrink: 0, 
+                mb: 2, 
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column'
+            }}>
+                <CardContent sx={{ flexGrow: 1, overflowY: 'auto' }}>
                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
                         <Avatar
                             src={editedContact.avatarUrl || getGravatarUrl(editedContact.email)}
@@ -105,17 +113,26 @@ function ContactCard({ contact, onUpdate, onDelete }) {
                         </Box>
                     </Box>
                 </CardContent>
-                <CardActions sx={{ justifyContent: 'flex-end' }}>
-                    <Button startIcon={<CancelIcon />} onClick={handleCancel}>Cancel</Button>
-                    <Button startIcon={<SaveIcon />} variant="contained" onClick={handleSave}>Save</Button>
+                <CardActions sx={{ justifyContent: 'flex-end', p: 1 }}>
+                    <Button size="small" startIcon={<CancelIcon />} onClick={handleCancel}>Cancel</Button>
+                    <Button size="small" startIcon={<SaveIcon />} variant="contained" onClick={handleSave}>Save</Button>
                 </CardActions>
             </Card>
         );
     }
 
     return (
-        <Card sx={{ mb: 2, opacity: isInactive ? 0.6 : 1, transition: 'opacity 0.3s' }}>
-            <CardContent>
+        <Card sx={{ 
+            width: '24rem', 
+            height: '14.8rem', 
+            flexShrink: 0, 
+            mb: 2, 
+            opacity: isInactive ? 0.6 : 1, 
+            transition: 'opacity 0.3s',
+            display: 'flex',
+            flexDirection: 'column'
+        }}>
+            <CardContent sx={{ flexGrow: 1, overflowY: 'auto' }}>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                     <Avatar
                         src={contact.avatarUrl || getGravatarUrl(contact.email)}
@@ -150,10 +167,10 @@ function ContactCard({ contact, onUpdate, onDelete }) {
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         <IconButton size="small" onClick={() => setIsEditing(true)}>
-                            <EditIcon />
+                            <EditIcon fontSize="small" />
                         </IconButton>
                         <IconButton size="small" onClick={handleDelete}>
-                            <DeleteIcon />
+                            <DeleteIcon fontSize="small" />
                         </IconButton>
                     </Box>
                 </Box>

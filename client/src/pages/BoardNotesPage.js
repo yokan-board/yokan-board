@@ -133,15 +133,19 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contacts: initialCon
                 Contacts
             </Typography>
             <Box sx={{ mb: 4 }}>
-                {localContacts.map((contact) => (
-                    <ContactCard
-                        key={contact.id}
-                        contact={contact}
-                        onUpdate={handleUpdateContact}
-                        onDelete={handleDeleteContact}
-                    />
-                ))}
-                <NewContactForm onAdd={handleAddContact} />
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '16px', mb: 2 }}>
+                    {localContacts.map((contact) => (
+                        <ContactCard
+                            key={contact.id}
+                            contact={contact}
+                            onUpdate={handleUpdateContact}
+                            onDelete={handleDeleteContact}
+                        />
+                    ))}
+                </Box>
+                <Box sx={{ width: '24rem' }}>
+                    <NewContactForm onAdd={handleAddContact} />
+                </Box>
             </Box>
 
             <Divider sx={{ mb: 4 }} />
