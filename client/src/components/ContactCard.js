@@ -130,7 +130,8 @@ function ContactCard({ contact, onUpdate, onDelete }) {
             opacity: isInactive ? 0.6 : 1, 
             transition: 'opacity 0.3s',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            position: 'relative'
         }}>
             <CardContent sx={{ flexGrow: 1, overflowY: 'auto' }}>
                 <Box sx={{ display: 'flex', gap: 2 }}>
@@ -155,15 +156,6 @@ function ContactCard({ contact, onUpdate, onDelete }) {
                                 </Typography>
                             )}
                         </Box>
-                        <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
-                            <Typography variant="caption" sx={{
-                                color: isInactive ? 'text.disabled' : 'success.main',
-                                fontWeight: 'bold',
-                                textTransform: 'uppercase'
-                            }}>
-                                {contact.status}
-                            </Typography>
-                        </Box>
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         <IconButton size="small" onClick={() => setIsEditing(true)}>
@@ -173,6 +165,21 @@ function ContactCard({ contact, onUpdate, onDelete }) {
                             <DeleteIcon fontSize="small" />
                         </IconButton>
                     </Box>
+                </Box>
+                <Box sx={{ 
+                    position: 'absolute', 
+                    bottom: 12, 
+                    right: 16,
+                    display: 'flex',
+                    alignItems: 'center'
+                }}>
+                    <Typography variant="caption" sx={{
+                        color: isInactive ? 'text.disabled' : 'success.main',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase'
+                    }}>
+                        {contact.status}
+                    </Typography>
                 </Box>
             </CardContent>
         </Card>
