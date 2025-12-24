@@ -377,9 +377,9 @@ function Column({
                         action is not reversible.
                     </Typography>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCancelDeleteColumn}>Cancel</Button>
-                    <Button onClick={handleConfirmDeleteColumn} color="error">
+                <DialogActions sx={{ px: 3, pb: 3 }}>
+                    <Button variant="outlined" onClick={handleCancelDeleteColumn}>Cancel</Button>
+                    <Button variant="contained" onClick={handleConfirmDeleteColumn} color="error">
                         Delete
                     </Button>
                 </DialogActions>

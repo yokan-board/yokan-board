@@ -161,6 +161,13 @@ function Task({ task, boardId, columnId, getParentDisplayId, onDelete, onArchive
                         e.stopPropagation();
                         onDelete(task.id);
                     }}
+                    color="error"
+                    sx={{
+                        '&:hover': {
+                            backgroundColor: theme.palette.error.main,
+                            color: 'white',
+                        },
+                    }}
                 >
                     <DeleteIcon fontSize="small" />
                 </IconButton>

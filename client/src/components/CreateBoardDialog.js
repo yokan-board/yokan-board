@@ -212,9 +212,9 @@ function CreateBoardDialog({ open, onClose, onCreateBoard }) {
                     </Select>
                 </FormControl>
             </DialogContent>
-            <DialogActions>
-                <Button onClick={handleClose}>Cancel</Button>
-                <Button onClick={handleCreate}>Create</Button>
+            <DialogActions sx={{ px: 3, pb: 3 }}>
+                <Button variant="outlined" onClick={handleClose}>Cancel</Button>
+                <Button variant="contained" onClick={handleCreate}>Create</Button>
             </DialogActions>
         </Dialog>
     );
