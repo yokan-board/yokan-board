@@ -19,7 +19,7 @@ describe('Kanban Board API', () => {
             db.run('DELETE FROM users');
             db.run('DELETE FROM boards');
             const hashedPassword = bcrypt.hashSync('testpassword', 10);
-            const insert = 'INSERT INTO users (username, password, email) VALUES (?,?,?)'; // Added email
+            const insert = 'INSERT INTO users (username, password, email, enabled) VALUES (?,?,?,1)'; // Added email and enabled
             db.run(insert, ['testuser', hashedPassword, 'test@example.com'], async function (err) {
                 // Added email
                 if (err) {
@@ -225,7 +225,7 @@ describe('Kanban Board API', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.headers['content-type']).toContain('text/csv');
         expect(res.headers['content-disposition']).toContain('attachment');
-        const expectedCsv = `Task ID,Task Content,Description,Due Date,Column Name,Parent Task ID\n"task1","Task 1","Desc 1","2023-01-01","Todo",""`;
+        const expectedCsv = `Task ID,Task Content,Description,Due Date,Column Name,Parent Task ID,Archived,Archive Date,Comments\n"task1","Task 1","Desc 1","2023-01-01","Todo","",FALSE,"",""`;
         expect(res.text).toEqual(expectedCsv);
     });
 

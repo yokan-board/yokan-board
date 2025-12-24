@@ -108,16 +108,17 @@ describe('Board Model', () => {
             const userId = 1;
             const name = 'New Board';
             const data = { columns: { col1: { id: 'col1', title: 'Todo' } } };
+            const collection = 'Projects';
 
             db.run.mockImplementationOnce((sql, params, callback) => {
                 callback.call({ lastID: 3 }); // Simulate successful insertion
             });
 
-            const newBoard = await boardModel.createBoard(userId, name, data);
+            const newBoard = await boardModel.createBoard(userId, name, data, collection);
 
             expect(db.run).toHaveBeenCalledWith(
-                'INSERT INTO boards (user_id, name, data) VALUES (?,?,?)',
-                [userId, name, JSON.stringify(data)],
+                'INSERT INTO boards (user_id, name, data, collection) VALUES (?,?,?,?)',
+                [userId, name, JSON.stringify(data), collection],
                 expect.any(Function)
             );
             expect(newBoard).toEqual({ id: 3 });
@@ -142,16 +143,17 @@ describe('Board Model', () => {
             const boardId = 1;
             const name = 'Updated Board Name';
             const data = { columns: { col1: { id: 'col1', title: 'Updated Todo' } } };
+            const collection = 'Archive';
 
             db.run.mockImplementationOnce((sql, params, callback) => {
                 callback.call({ changes: 1 }); // Simulate successful update
             });
 
-            const updatedBoard = await boardModel.updateBoard(boardId, name, data);
+            const updatedBoard = await boardModel.updateBoard(boardId, name, data, collection);
 
             expect(db.run).toHaveBeenCalledWith(
                 expect.stringContaining('UPDATE boards set'),
-                [name, JSON.stringify(data), boardId],
+                [name, JSON.stringify(data), collection, boardId],
                 expect.any(Function)
             );
             expect(updatedBoard).toEqual({ id: boardId, changes: 1 });
@@ -252,20 +254,21 @@ describe('Board Model', () => {
             const userId = 1;
             const name = 'Imported Board';
             const data = { columns: { col1: { id: 'col1', title: 'Imported Todo' } } };
+            const collection = 'Imports';
 
             db.run.mockImplementationOnce((sql, params, callback) => {
                 callback.call({ lastID: 4 }); // Simulate successful insertion
             });
 
-            const newBoard = await boardModel.importBoard(userId, name, data);
+            const newBoard = await boardModel.importBoard(userId, name, data, collection);
 
             expect(runTransaction).toHaveBeenCalledTimes(1);
             expect(db.run).toHaveBeenCalledWith(
-                'INSERT INTO boards (user_id, name, data) VALUES (?,?,?)',
-                [userId, name, JSON.stringify(data)],
+                'INSERT INTO boards (user_id, name, data, collection) VALUES (?,?,?,?)',
+                [userId, name, JSON.stringify(data), collection],
                 expect.any(Function)
             );
-            expect(newBoard).toEqual({ id: 4, name, data });
+            expect(newBoard).toEqual({ id: 4, name, data, collection });
         });
 
         it('should reject if there is a database error during import', async () => {

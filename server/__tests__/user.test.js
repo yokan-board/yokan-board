@@ -17,7 +17,7 @@ describe('User Account Management API', () => {
             db.run('DELETE FROM users');
             const hashedPassword = bcrypt.hashSync('password123', 10);
             db.run(
-                'INSERT INTO users (username, password, email, display_name) VALUES (?,?,?,?)',
+                'INSERT INTO users (username, password, email, display_name, enabled) VALUES (?,?,?,?,1)',
                 ['testuser', hashedPassword, 'test@example.com', 'Test User'],
                 function (err) {
                     if (err) return done(err);
@@ -85,7 +85,7 @@ describe('User Account Management API', () => {
             .set('Authorization', `Bearer ${authToken}`);
 
         expect(res.statusCode).toEqual(200);
-        expect(res.body).toEqual({}); // Default preferences
+        expect(res.body).toEqual({ hideUnnamedCollectionHeading: false }); // Default preferences
     });
 
     it('should update user preferences', async () => {
