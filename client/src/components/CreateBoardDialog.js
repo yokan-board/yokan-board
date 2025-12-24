@@ -107,10 +107,9 @@ function CreateBoardDialog({ open, onClose, onCreateBoard }) {
                     label="Board Name"
                     type="text"
                     fullWidth
-                    variant="standard"
                     value={newBoardName}
                     onChange={(e) => setNewBoardName(e.target.value)}
-                    sx={{ mb: 2 }}
+                    sx={{ mb: 3, mt: 1 }}
                 />
                 <Autocomplete
                     freeSolo
@@ -129,11 +128,9 @@ function CreateBoardDialog({ open, onClose, onCreateBoard }) {
                             label="Collection"
                             type="text"
                             fullWidth
-                            variant="standard"
-                            sx={{ mb: 2 }}
+                            sx={{ mb: 3 }}
                         />
                     )}
-                    sx={{ mt: 1, mb: 2 }}
                 />
                 <TextField
                     margin="dense"
@@ -142,14 +139,13 @@ function CreateBoardDialog({ open, onClose, onCreateBoard }) {
                     fullWidth
                     multiline
                     rows={4}
-                    variant="outlined"
                     value={newBoardDescription}
                     onChange={(e) => setNewBoardDescription(e.target.value)}
-                    sx={{ mb: 2 }}
+                    sx={{ mb: 3 }}
                 />
 
-                <Box sx={{ mt: 2, mb: 2 }}>
-                    <Typography variant="h6" gutterBottom>
+                <Box sx={{ mt: 1, mb: 3 }}>
+                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'bold' }}>
                         Organization (Optional)
                     </Typography>
                     <TextField
@@ -157,27 +153,27 @@ function CreateBoardDialog({ open, onClose, onCreateBoard }) {
                         label="Short Name"
                         type="text"
                         fullWidth
-                        variant="standard"
                         value={orgShortName}
                         onChange={(e) => setOrgShortName(e.target.value)}
+                        sx={{ mb: 2 }}
                     />
                     <TextField
                         margin="dense"
                         label="Full Name"
                         type="text"
                         fullWidth
-                        variant="standard"
                         value={orgFullName}
                         onChange={(e) => setOrgFullName(e.target.value)}
+                        sx={{ mb: 2 }}
                     />
                     <TextField
                         margin="dense"
                         label="URL"
                         type="text"
                         fullWidth
-                        variant="standard"
                         value={orgUrl}
                         onChange={(e) => setOrgUrl(e.target.value)}
+                        sx={{ mb: 2 }}
                     />
                     <Box sx={{ mt: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
                         <Button variant="contained" component="label">

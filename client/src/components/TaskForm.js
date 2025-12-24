@@ -24,7 +24,7 @@ function TaskForm({
             sx={{ mt: 1, width: '100%', display: 'flex', flexDirection: 'column', flexGrow: 1 }}
         >
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 4 }}>
                     <DatePicker
                         label="Due Date"
                         value={dueDate ? dayjs(dueDate) : null}
@@ -45,7 +45,7 @@ function TaskForm({
                 value={description}
                 onChange={setDescription}
                 placeholder="Description (Markdown)"
-                sx={{ flexGrow: 1, mb: 3 }} // Allow MarkdownEditor to grow
+                sx={{ flexGrow: 1, mb: 4 }} // Allow MarkdownEditor to grow
             />
         </Box>
     );
