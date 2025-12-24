@@ -4,6 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit'; // Import EditIcon
 import DragHandleIcon from '@mui/icons-material/DragHandle'; // Import DragHandleIcon
 import ArchiveIcon from '@mui/icons-material/Archive'; // Import ArchiveIcon
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'; // Import ChatBubbleOutlineIcon
 import DeleteConfirmationDialog from './DeleteConfirmationDialog'; // Import DeleteConfirmationDialog
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -101,6 +102,14 @@ function Task({ task, boardId, columnId, getParentDisplayId, onDelete, onArchive
                         </Typography>
                     );
                 })()}
+            {task.comments && task.comments.length > 0 && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5, color: 'text.secondary' }}>
+                    <ChatBubbleOutlineIcon sx={{ fontSize: '0.875rem', mr: 0.5 }} />
+                    <Typography variant="caption">
+                        {task.comments.length}
+                    </Typography>
+                </Box>
+            )}
             {parentDisplayId && (
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
                     Parent: #{parentDisplayId}
