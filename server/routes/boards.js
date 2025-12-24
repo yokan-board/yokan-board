@@ -23,6 +23,11 @@ const { validate } = require('../middleware/validationMiddleware');
 router.get('/users/:id/boards', authenticateUser, boardController.getAllBoardsForUser);
 
 /**
+ * Route for reordering boards.
+ */
+router.put('/boards/reorder', authenticateUser, boardController.updateBoardPositions);
+
+/**
  * Route for getting a single board by ID.
  * @name GET /boards/:id
  * @function

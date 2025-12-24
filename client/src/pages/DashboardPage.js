@@ -1,16 +1,27 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Box, Typography, Tooltip, IconButton, Divider } from '@mui/material';
 import { Add as AddIcon, Upload as UploadIcon, Download as DownloadIcon } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import {
+    DndContext,
+    closestCorners,
+    useSensor,
+    useSensors,
+    PointerSensor,
+    KeyboardSensor,
+    DragOverlay,
+    useDroppable,
+} from '@dnd-kit/core';
+import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 
 import SettingsMenu from '../components/SettingsMenu';
 import { useAuth } from '../contexts/AuthContext';
 import { useBoards } from '../contexts/BoardContext';
 import boardService from '../services/boardService';
-import userService from '../services/userService'; // Import userService
+import userService from '../services/userService';
 import { generateRandomGradientColors } from '../services/colorService';
 
 import BoardList from '../components/BoardList';
+import BoardCard from '../components/BoardCard';
 import CreateBoardDialog from '../components/CreateBoardDialog';
 import EditBoardDialog from '../components/EditBoardDialog';
 import ColorPickerDialog from '../components/ColorPickerDialog';
@@ -19,8 +30,7 @@ import ImportBoardJsonDialog from '../components/ImportBoardJsonDialog';
 
 function DashboardPage() {
     const { user } = useAuth();
-    const { boards, fetchBoards } = useBoards();
-    const navigate = useNavigate();
+    const { boards, fetchBoards, setBoards } = useBoards();
     const [openCreateDialog, setOpenCreateDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [openColorPickerDialog, setOpenColorPickerDialog] = useState(false);
@@ -29,7 +39,19 @@ function DashboardPage() {
     const [editingBoard, setEditingBoard] = useState(null);
     const [deletingBoardId, setDeletingBoardId] = useState(null);
     const [copiedGradient, setCopiedGradient] = useState(null);
-    const [hideUnnamedCollectionHeading, setHideUnnamedCollectionHeading] = useState(false); // New state for preference
+    const [hideUnnamedCollectionHeading, setHideUnnamedCollectionHeading] = useState(false);
+    const [activeId, setActiveId] = useState(null);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     useEffect(() => {
         const fetchPreferences = async () => {
@@ -43,7 +65,7 @@ function DashboardPage() {
             }
         };
         fetchPreferences();
-    }, []); // Fetch preferences on component mount
+    }, []);
 
     const handleCreateBoard = async (name, data, collection) => {
         try {
@@ -142,16 +164,11 @@ function DashboardPage() {
         }
     };
 
-    const handleNavigateToBoard = (boardId) => {
-        navigate(`/board/${boardId}`);
-    };
-
     const handleExportAllBoards = async () => {
         try {
             await boardService.exportAllBoardsMarkdownAsZip(user.id);
         } catch (error) {
             console.error('Error exporting all boards:', error);
-            // Optionally, show a user-friendly error message
         }
     };
 
@@ -161,7 +178,7 @@ function DashboardPage() {
     ];
 
     const groupedBoards = useMemo(() => {
-        const groups = { Default: [] }; // Use 'Default' as a key for boards without a collection
+        const groups = { Default: [] };
 
         boards.forEach((board) => {
             const collectionName = board.collection || 'Default';
@@ -171,7 +188,6 @@ function DashboardPage() {
             groups[collectionName].push(board);
         });
 
-        // Sort collection names alphabetically, with 'Default' always first
         const sortedCollectionNames = Object.keys(groups).sort((a, b) => {
             if (a === 'Default') return -1;
             if (b === 'Default') return 1;
@@ -186,10 +202,128 @@ function DashboardPage() {
         return sortedGroups;
     }, [boards]);
 
+    const handleDragStart = (event) => {
+        setActiveId(event.active.id);
+    };
+
+    const handleDragOver = (event) => {
+        const { active, over } = event;
+        if (!over) return;
+
+        const activeId = active.id;
+        const overId = over.id;
+
+        if (activeId === overId) return;
+
+        const activeData = active.data.current;
+        const overData = over.data.current;
+
+        if (activeData?.type !== 'Board') return;
+
+        const activeBoard = boards.find(b => b.id === activeId);
+        const activeContainer = activeBoard?.collection || 'Default';
+
+        let overContainer = null;
+        if (overData?.type === 'Collection') {
+            overContainer = overData.collectionName;
+        } else if (overData?.type === 'Board') {
+            overContainer = overData.board.collection || 'Default';
+        }
+
+        if (!overContainer || activeContainer === overContainer) return;
+
+        setBoards((prev) => {
+            const activeIndex = prev.findIndex((b) => b.id === activeId);
+            const overIndex = prev.findIndex((b) => b.id === overId);
+
+            let newIndex;
+            if (overData?.type === 'Board') {
+                newIndex = overIndex;
+            } else {
+                const collectionBoards = prev.filter(b => (b.collection || 'Default') === overContainer);
+                if (collectionBoards.length > 0) {
+                    const lastBoard = collectionBoards[collectionBoards.length - 1];
+                    newIndex = prev.findIndex(b => b.id === lastBoard.id) + 1;
+                } else {
+                    const collectionNames = Object.keys(groupedBoards);
+                    const overCollIndex = collectionNames.indexOf(overContainer);
+                    
+                    if (overCollIndex <= 0) { 
+                        newIndex = 0;
+                    } else {
+                        const prevCollName = collectionNames[overCollIndex - 1];
+                        const prevCollBoards = prev.filter(b => (b.collection || 'Default') === prevCollName);
+                        if (prevCollBoards.length > 0) {
+                            const lastOfPrev = prevCollBoards[prevCollBoards.length - 1];
+                            newIndex = prev.findIndex(b => b.id === lastOfPrev.id) + 1;
+                        } else {
+                            newIndex = 0;
+                        }
+                    }
+                }
+            }
+
+            const updatedBoard = {
+                ...prev[activeIndex],
+                collection: overContainer === 'Default' ? null : overContainer
+            };
+
+            const result = [...prev];
+            result.splice(activeIndex, 1);
+            const finalIndex = (overIndex >= 0 && newIndex > activeIndex) ? newIndex - 1 : newIndex;
+            result.splice(finalIndex, 0, updatedBoard);
+            return result;
+        });
+    };
+
+    const handleDragEnd = async (event) => {
+        const { active, over } = event;
+        setActiveId(null);
+
+        if (!over) return;
+
+        const activeId = active.id;
+        const overId = over.id;
+
+        const activeIndex = boards.findIndex((b) => b.id === activeId);
+        const overIndex = boards.findIndex((b) => b.id === overId);
+
+        let finalBoards = [...boards];
+
+        if (activeIndex !== overIndex) {
+            finalBoards = arrayMove(boards, activeIndex, overIndex);
+            setBoards(finalBoards);
+        }
+
+        const movedBoard = finalBoards[overIndex];
+        if (!movedBoard) return;
+
+        try {
+            await boardService.updateBoard(movedBoard.id, movedBoard.name, movedBoard.data, movedBoard.collection);
+            
+            const positions = finalBoards.map((board, index) => ({
+                id: board.id,
+                position: index + 1,
+            }));
+            await boardService.reorderBoards(positions);
+            fetchBoards();
+        } catch (error) {
+            console.error('Error persisting reorder:', error);
+            fetchBoards();
+        }
+    };
+
+    const handleDragCancel = () => {
+        setActiveId(null);
+        fetchBoards();
+    };
+
+    const activeBoard = activeId ? boards.find((b) => b.id === activeId) : null;
+
     return (
         <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h4" gutterBottom>
+                <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
                     Your Kanban Boards
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1 }}>
@@ -206,18 +340,20 @@ function DashboardPage() {
                 </Box>
             </Box>
 
-            {Object.entries(groupedBoards).map(([collectionName, boardsInCollection]) => (
-                <Box key={collectionName} sx={{ mb: 4 }}>
-                    {!(collectionName === 'Default' && hideUnnamedCollectionHeading) && (
-                        <>
-                            <Typography variant="h5" gutterBottom sx={{ mt: 2, mb: 1 }}>
-                                {collectionName === 'Default' ? 'Boards' : collectionName}
-                            </Typography>
-                            <Divider sx={{ mb: 2 }} />
-                        </>
-                    )}
-                    <BoardList
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCorners}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragEnd={handleDragEnd}
+                onDragCancel={handleDragCancel}
+            >
+                {Object.entries(groupedBoards).map(([collectionName, boardsInCollection]) => (
+                    <CollectionSection
+                        key={collectionName}
+                        collectionName={collectionName}
                         boards={boardsInCollection}
+                        hideUnnamedCollectionHeading={hideUnnamedCollectionHeading}
                         onEdit={handleEditBoard}
                         onDelete={handleDeleteBoard}
                         onCopyGradient={handleCopyGradient}
@@ -226,8 +362,17 @@ function DashboardPage() {
                         onLongPressChangeGradient={handleLongPressChangeGradient}
                         copiedGradient={copiedGradient}
                     />
-                </Box>
-            ))}
+                ))}
+                <DragOverlay>
+                    {activeBoard ? (
+                        <BoardCard
+                            board={activeBoard}
+                            isOverlay
+                            copiedGradient={copiedGradient}
+                        />
+                    ) : null}
+                </DragOverlay>
+            </DndContext>
 
             <CreateBoardDialog
                 open={openCreateDialog}
@@ -267,5 +412,64 @@ function DashboardPage() {
         </Box>
     );
 }
+
+const CollectionSection = ({
+    collectionName,
+    boards,
+    hideUnnamedCollectionHeading,
+    onEdit,
+    onDelete,
+    onCopyGradient,
+    onPasteGradient,
+    onChangeGradient,
+    onLongPressChangeGradient,
+    copiedGradient,
+}) => {
+    const { setNodeRef, isOver } = useDroppable({
+        id: `collection-${collectionName}`,
+        data: {
+            type: 'Collection',
+            collectionName,
+        },
+    });
+
+    return (
+        <Box 
+            ref={setNodeRef}
+            sx={{ 
+                mb: 4,
+                p: 3,
+                borderRadius: 2,
+                backgroundColor: isOver ? 'action.hover' : 'transparent',
+                transition: 'background-color 0.2s',
+                minHeight: '200px',
+                border: '2px solid transparent',
+                ...(isOver && {
+                    border: '2px dashed',
+                    borderColor: 'primary.main',
+                })
+            }}
+        >
+            {!(collectionName === 'Default' && hideUnnamedCollectionHeading) && (
+                <>
+                    <Typography variant="h5" gutterBottom sx={{ mt: 1, mb: 1, fontWeight: 'bold' }}>
+                        {collectionName === 'Default' ? 'Boards' : collectionName}
+                    </Typography>
+                    <Divider sx={{ mb: 3 }} />
+                </>
+            )}
+            <BoardList
+                boards={boards}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onCopyGradient={onCopyGradient}
+                onPasteGradient={onPasteGradient}
+                onChangeGradient={onChangeGradient}
+                onLongPressChangeGradient={onLongPressChangeGradient}
+                copiedGradient={copiedGradient}
+            />
+        </Box>
+    );
+};
 
 export default DashboardPage;

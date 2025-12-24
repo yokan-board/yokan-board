@@ -348,3 +348,27 @@ exports.importBoardJson = async (req, res, next) => {
         next(new AppError(err.message, 400));
     }
 };
+
+/**
+ * Updates the positions of multiple boards.
+ * @param {object} req - The Express request object, expected to have `req.body.positions` (array of {id, position}).
+ * @param {object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ * @returns {Promise<void>}
+ */
+exports.updateBoardPositions = async (req, res, next) => {
+    const { positions } = req.body;
+
+    if (!Array.isArray(positions)) {
+        return next(new BadRequestError('Positions array is required'));
+    }
+
+    try {
+        await boardModel.updateBoardPositions(positions);
+        res.json({
+            message: 'success',
+        });
+    } catch (err) {
+        next(new AppError(err.message, 400));
+    }
+};

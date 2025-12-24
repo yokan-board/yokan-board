@@ -281,6 +281,11 @@ const getUniqueCollections = async (userId) => {
     return Array.from(collections).sort();
 };
 
+const reorderBoards = async (boardPositions) => {
+    const response = await api.put(`/boards/reorder`, { positions: boardPositions });
+    return response.data;
+};
+
 const boardService = {
     getBoards,
     getBoard,
@@ -294,6 +299,7 @@ const boardService = {
     importBoardCsv,
     exportAllBoardsMarkdownAsZip,
     getUniqueCollections,
+    reorderBoards,
 };
 
 export default boardService;

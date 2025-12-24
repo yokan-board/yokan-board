@@ -6,6 +6,7 @@ import { useAuth } from './AuthContext';
 const BoardContext = createContext({
     boards: [],
     fetchBoards: () => {},
+    setBoards: () => {},
 });
 
 export const useBoards = () => useContext(BoardContext);
@@ -53,6 +54,7 @@ export function BoardProvider({ children }) {
     const value = {
         boards,
         fetchBoards,
+        setBoards,
     };
 
     return <BoardContext.Provider value={value}>{children}</BoardContext.Provider>;

@@ -38,7 +38,7 @@ describe('Board Model', () => {
             const boards = await boardModel.getAllBoardsByUserId(userId);
 
             expect(db.all).toHaveBeenCalledWith(
-                'select * from boards where user_id = ?',
+                'select * from boards where user_id = ? ORDER BY position ASC, id ASC',
                 [userId],
                 expect.any(Function)
             );
@@ -117,8 +117,8 @@ describe('Board Model', () => {
             const newBoard = await boardModel.createBoard(userId, name, data, collection);
 
             expect(db.run).toHaveBeenCalledWith(
-                'INSERT INTO boards (user_id, name, data, collection) VALUES (?,?,?,?)',
-                [userId, name, JSON.stringify(data), collection],
+                'INSERT INTO boards (user_id, name, data, collection, position) VALUES (?,?,?,?,?)',
+                [userId, name, JSON.stringify(data), collection, 0],
                 expect.any(Function)
             );
             expect(newBoard).toEqual({ id: 3 });
@@ -144,16 +144,17 @@ describe('Board Model', () => {
             const name = 'Updated Board Name';
             const data = { columns: { col1: { id: 'col1', title: 'Updated Todo' } } };
             const collection = 'Archive';
+            const position = 5;
 
             db.run.mockImplementationOnce((sql, params, callback) => {
                 callback.call({ changes: 1 }); // Simulate successful update
             });
 
-            const updatedBoard = await boardModel.updateBoard(boardId, name, data, collection);
+            const updatedBoard = await boardModel.updateBoard(boardId, name, data, collection, position);
 
             expect(db.run).toHaveBeenCalledWith(
                 expect.stringContaining('UPDATE boards set'),
-                [name, JSON.stringify(data), collection, boardId],
+                [name, JSON.stringify(data), collection, position, boardId],
                 expect.any(Function)
             );
             expect(updatedBoard).toEqual({ id: boardId, changes: 1 });

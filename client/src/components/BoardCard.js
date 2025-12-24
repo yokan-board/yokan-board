@@ -6,9 +6,12 @@ import {
     Edit as EditIcon,
     ContentCopy,
     ContentPaste,
+    DragHandle as DragHandleIcon,
 } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles'; // Import useTheme
+import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 function BoardCard({
     board,
@@ -19,10 +22,34 @@ function BoardCard({
     onChangeGradientClick,
     onLongPressChangeGradient,
     copiedGradient,
+    isOverlay = false,
 }) {
-    const theme = useTheme(); // Use the theme hook
+    const theme = useTheme();
     const navigate = useNavigate();
     const longPressTimer = useRef(null);
+
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({
+        id: board.id,
+        disabled: isOverlay, // Disable sortable logic for the overlay component itself
+        data: {
+            type: 'Board',
+            board,
+        },
+    });
+
+    const style = {
+        transform: isOverlay ? undefined : CSS.Translate.toString(transform),
+        transition,
+        opacity: isDragging ? 0.3 : 1,
+        zIndex: isDragging ? 1000 : 1,
+    };
 
     const handleLongPressEnd = () => {
         clearTimeout(longPressTimer.current);
@@ -37,8 +64,18 @@ function BoardCard({
 
     const org = board.data.org;
 
+    // Fixed overlay style to prevent scaling glitches
+    const overlayStyle = {
+        opacity: 0.9,
+        boxShadow: theme.shadows[10],
+        cursor: 'grabbing',
+        transform: 'scale(1.02)', // Minimal scale for feedback
+    };
+
     return (
         <ListItem
+            ref={setNodeRef}
+            style={isOverlay ? overlayStyle : style}
             key={board.id}
             component={Paper}
             sx={{
@@ -58,16 +95,42 @@ function BoardCard({
                 boxShadow: theme.shadows[1],
                 '&:hover': {
                     boxShadow: theme.shadows[3],
+                    '& .drag-handle': {
+                        opacity: 1,
+                    },
                 },
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: theme.spacing(2),
-                color: textColor, // Set the default text color for the card
-                position: 'relative', // Needed for positioning the org logo/name
+                color: textColor,
+                position: 'relative',
             }}
+            {...attributes}
         >
+            {!isOverlay && (
+                <IconButton
+                    className="drag-handle"
+                    size="small"
+                    {...listeners}
+                    sx={{
+                        position: 'absolute',
+                        top: 4,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        opacity: 0,
+                        transition: 'opacity 0.2s',
+                        color: iconColor,
+                        cursor: 'grab',
+                        '&:active': {
+                            cursor: 'grabbing',
+                        },
+                    }}
+                >
+                    <DragHandleIcon fontSize="small" />
+                </IconButton>
+            )}
             {org && (
                 <Box sx={{ position: 'absolute', top: 16, left: 16 }}>
                     {org.logo ? (
@@ -75,8 +138,8 @@ function BoardCard({
                             sx={{
                                 width: '64px',
                                 height: '64px',
-                                borderRadius: '8px', // Slightly rounded corners for the container
-                                backgroundColor: theme.palette.background.paper, // Background from theme
+                                borderRadius: '8px',
+                                backgroundColor: theme.palette.background.paper,
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center',
@@ -152,19 +215,18 @@ function BoardCard({
                     aria-label="change gradient"
                     onMouseDown={() => {
                         longPressTimer.current = setTimeout(() => {
-                            onChangeGradientClick(board); // Long click: Set random gradient
+                            onChangeGradientClick(board);
                             longPressTimer.current = null;
                         }, 500);
                     }}
                     onMouseUp={() => {
                         if (longPressTimer.current) {
-                            // If timer is still running, it's a short click
                             clearTimeout(longPressTimer.current);
                             longPressTimer.current = null;
-                            onLongPressChangeGradient(board); // Short click: Open dialog
+                            onLongPressChangeGradient(board);
                         }
                     }}
-                    onMouseLeave={handleLongPressEnd} // Clear timer if mouse leaves before up
+                    onMouseLeave={handleLongPressEnd}
                     size="small"
                     sx={{
                         color: iconColor,
@@ -179,7 +241,7 @@ function BoardCard({
 
             <Box
                 data-testid="board-card-content"
-                onClick={() => navigate(`/board/${board.id}`)}
+                onClick={() => !isOverlay && navigate(`/board/${board.id}`)}
                 sx={{
                     textDecoration: 'none',
                     color: 'inherit',
@@ -189,7 +251,7 @@ function BoardCard({
                     flexDirection: 'column',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    cursor: 'pointer',
+                    cursor: isOverlay ? 'grabbing' : 'pointer',
                 }}
             >
                 <ListItemText
@@ -227,7 +289,7 @@ function BoardCard({
                 <IconButton
                     edge="end"
                     aria-label="delete"
-                    onClick={() => onDeleteClick(board.id)}
+                    onClick={() => !isOverlay && onDeleteClick(board.id)}
                     sx={{
                         color: iconColor,
                         '&:hover': {

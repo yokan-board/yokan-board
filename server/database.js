@@ -146,6 +146,24 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
                                     }
                                 );
                             }
+
+                            if (!boardColumns.includes('position')) {
+                                db.run(`ALTER TABLE boards ADD COLUMN position INTEGER DEFAULT 0`, (errAlter) => {
+                                    if (errAlter) {
+                                        console.error('Error adding position column to boards table:', errAlter.message);
+                                    } else {
+                                        console.log('Added position column to boards table.');
+                                        // Initialize positions based on ID
+                                        db.run(`UPDATE boards SET position = id WHERE position IS NULL OR position = 0`, (errUpdate) => {
+                                            if (errUpdate) {
+                                                console.error('Error initializing positions:', errUpdate.message);
+                                            } else {
+                                                console.log('Initialized board positions.');
+                                            }
+                                        });
+                                    }
+                                });
+                            }
                         });
 
                         db.run(`CREATE TABLE IF NOT EXISTS contacts (
