@@ -383,9 +383,9 @@ function Column({
                         <Typography variant="body2">{rgbToHex(baseColor.r, baseColor.g, baseColor.b)}</Typography>
                     </Box>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseColorPicker}>Cancel</Button>
-                    <Button onClick={handleSaveBaseColor}>Save</Button>
+                <DialogActions sx={{ px: 3, pb: 3 }}>
+                    <Button variant="outlined" onClick={handleCloseColorPicker}>Cancel</Button>
+                    <Button variant="contained" onClick={handleSaveBaseColor}>Save</Button>
                 </DialogActions>
             </Dialog>
 

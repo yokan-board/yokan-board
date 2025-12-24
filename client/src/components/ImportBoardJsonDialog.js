@@ -67,11 +67,11 @@ function ImportBoardJsonDialog({ open, onClose, onImport }) {
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>Import Board from JSON</DialogTitle>
             <DialogContent>
-                <Button variant="contained" component="label">
+                <Button variant="contained" component="label" sx={{ mt: 1 }}>
                     Upload JSON File
                     <input type="file" hidden accept=".json" onChange={handleJsonFileChange} />
                 </Button>
-                {jsonFileContent && <Typography sx={{ mt: 2 }}>File selected.</Typography>}
+                {jsonFileContent && <Typography sx={{ mt: 2, fontWeight: 'bold' }}>File selected.</Typography>}
                 {/* Add Autocomplete here */}
                 <Autocomplete
                     freeSolo
@@ -90,16 +90,14 @@ function ImportBoardJsonDialog({ open, onClose, onImport }) {
                             label="Collection"
                             type="text"
                             fullWidth
-                            variant="standard"
-                            sx={{ mt: 2, mb: 2 }} // Added margin top to separate from file selected text
+                            sx={{ mt: 3, mb: 1 }} // Added margin top to separate from file selected text
                         />
                     )}
-                    sx={{ mt: 1, mb: 2 }}
                 />
             </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose}>Cancel</Button>
-                <Button onClick={handleConfirmImport} disabled={!jsonFileContent}>
+            <DialogActions sx={{ px: 3, pb: 3 }}>
+                <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                <Button variant="contained" onClick={handleConfirmImport} disabled={!jsonFileContent}>
                     Import
                 </Button>
             </DialogActions>
