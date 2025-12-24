@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, Divider } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import { useBlocker } from 'react-router-dom';
+import AddIcon from '@mui/icons-material/Add';
 import {
     DndContext,
     closestCenter,
@@ -22,7 +23,6 @@ import { CSS } from '@dnd-kit/utilities';
 import BookmarkItem from '../components/BookmarkItem';
 import NewBookmarkForm from '../components/NewBookmarkForm';
 import ContactCard from '../components/ContactCard';
-import NewContactForm from '../components/NewContactForm';
 import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog';
 import contactService from '../services/contactService';
 import ContactEditDialog from '../components/ContactEditDialog';
@@ -180,34 +180,8 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
     };
 
     // Contact Handlers
-    const handleAddContact = async (newContact) => {
-        try {
-            const savedContact = await contactService.createContact(newContact);
-            setAllContacts(prev => [...prev, savedContact]);
-            setLocalContactIds(prev => [...prev, savedContact.id]);
-        } catch (error) {
-            // Check if it's a conflict (email exists)
-            if (error.response?.status === 409) {
-                 // The NewContactForm handles existing contacts via search, 
-                 // but if they hit save on a new one that exists, we should probably 
-                 // just find it and add it.
-                 console.log('Contact exists, trying to link...');
-                 const results = await contactService.searchContacts(newContact.email);
-                 const existing = results.find(r => r.email === newContact.email);
-                 if (existing) {
-                     if (!localContactIds.includes(existing.id)) {
-                        setLocalContactIds(prev => [...prev, existing.id]);
-                     }
-                 }
-            } else {
-                console.error('Error creating contact:', error);
-                alert(error.response?.data?.message || 'Failed to create contact.');
-            }
-        }
-    };
-
-    const handleEditContact = (contact) => {
-        setEditingContact({ ...contact });
+    const handleOpenEdit = (contact = null) => {
+        setEditingContact(contact);
         setIsEditDialogOpen(true);
     };
 
@@ -216,14 +190,25 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
         setEditingContact(null);
     };
 
-    const handleSaveEdit = async (updatedContact) => {
+    const handleSaveEdit = async (contact) => {
         try {
-            await contactService.updateContact(updatedContact.id, updatedContact);
-            setAllContacts(prev => prev.map(c => c.id === updatedContact.id ? updatedContact : c));
+            if (contact.id) {
+                // Update existing
+                await contactService.updateContact(contact.id, contact);
+                setAllContacts(prev => prev.map(c => c.id === contact.id ? contact : c));
+                if (!localContactIds.includes(contact.id)) {
+                    setLocalContactIds(prev => [...prev, contact.id]);
+                }
+            } else {
+                // Create new
+                const saved = await contactService.createContact(contact);
+                setAllContacts(prev => [...prev, saved]);
+                setLocalContactIds(prev => [...prev, saved.id]);
+            }
             handleCloseEdit();
         } catch (error) {
-            console.error('Error updating contact:', error);
-            alert(error.response?.data?.message || 'Failed to update contact.');
+            console.error('Error saving contact:', error);
+            alert(error.response?.data?.message || 'Failed to save contact.');
         }
     };
 
@@ -269,7 +254,7 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
                                 <SortableContactCard
                                     key={contact.id}
                                     contact={contact}
-                                    onEdit={handleEditContact}
+                                    onEdit={handleOpenEdit}
                                     onDelete={handleDeleteContact}
                                 />
                             ))}
@@ -285,8 +270,15 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
                         ) : null}
                     </DragOverlay>
                 </DndContext>
-                <Box sx={{ width: '24rem' }}>
-                    <NewContactForm onAdd={handleAddContact} />
+                <Box sx={{ width: '24rem', mt: 2 }}>
+                    <Button
+                        startIcon={<AddIcon />}
+                        onClick={() => handleOpenEdit()}
+                        variant="outlined"
+                        fullWidth
+                    >
+                        Add New Contact
+                    </Button>
                 </Box>
             </Box>
 
@@ -325,7 +317,13 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
                 open={isDeleteConfirmOpen}
                 onClose={() => setIsDeleteConfirmOpen(false)}
                 onConfirm={handleConfirmDelete}
-                itemName={deleteType || 'item'}
+                title={deleteType === 'contact' ? 'Remove Contact Reference' : 'Confirm Deletion'}
+                message={
+                    deleteType === 'contact'
+                        ? 'Are you sure you want to remove the reference to this contact from this board? This action is not reversible.'
+                        : 'Are you sure you want to delete this bookmark? This action is not reversible.'
+                }
+                confirmButtonText={deleteType === 'contact' ? 'Remove' : 'Delete'}
             />
 
             <ContactEditDialog
