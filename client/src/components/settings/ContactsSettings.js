@@ -7,7 +7,8 @@ import {
     ListItemText,
     ListItemAvatar,
     Avatar,
-    IconButton
+    IconButton,
+    Tooltip
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -80,9 +81,19 @@ function ContactsSettings() {
                                 <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(contact)}>
                                     <EditIcon />
                                 </IconButton>
-                                <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(contact.id)} sx={{ ml: 1 }}>
-                                    <DeleteIcon />
-                                </IconButton>
+                                <Tooltip title={contact.usageCount > 0 ? "This contact is referenced by one or more boards and cannot be deleted." : ""}>
+                                    <span>
+                                        <IconButton 
+                                            edge="end" 
+                                            aria-label="delete" 
+                                            onClick={() => handleDelete(contact.id)} 
+                                            sx={{ ml: 1 }}
+                                            disabled={contact.usageCount > 0}
+                                        >
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    </span>
+                                </Tooltip>
                             </>
                         }
                     >

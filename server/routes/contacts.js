@@ -13,6 +13,9 @@ router.get('/', contactController.getAllContacts);
 // POST a new contact
 router.post('/', contactValidation.validateContact, validate, contactController.createContact);
 
+// GET contact usage info
+router.get('/:id/usage', contactValidation.validateContactId, validate, contactController.getContactUsage);
+
 // GET a single contact by ID
 router.get('/:id', contactValidation.validateContactId, validate, contactController.getContact);
 

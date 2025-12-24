@@ -32,7 +32,23 @@ function formatPhoneNumber(phone) {
 exports.getAllContacts = async (req, res, next) => {
     try {
         const contacts = await contactModel.getAllContactsByUserId(req.user.id);
-        res.json({ message: 'success', data: contacts });
+        
+        // Enrich contacts with usage count
+        const enrichedContacts = await Promise.all(contacts.map(async (contact) => {
+            const usageCount = await contactModel.getContactUsageCount(contact.id, req.user.id);
+            return { ...contact, usageCount };
+        }));
+
+        res.json({ message: 'success', data: enrichedContacts });
+    } catch (err) {
+        next(new AppError(err.message, 400));
+    }
+};
+
+exports.getContactUsage = async (req, res, next) => {
+    try {
+        const usageCount = await contactModel.getContactUsageCount(req.params.id, req.user.id);
+        res.json({ message: 'success', data: { usageCount } });
     } catch (err) {
         next(new AppError(err.message, 400));
     }
