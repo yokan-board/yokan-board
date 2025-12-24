@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import authService from '../services/authService';
 import userService from '../services/userService';
-import { setLogoutCallback } from '../utils/authUtils'; // Import setLogoutCallback
+import { setLogoutCallback, triggerLogout } from '../utils/authUtils'; // Import setLogoutCallback and triggerLogout
 import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext();
@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const lastActivity = useRef(Date.now());
-    const events = useMemo(() => ['mousemove', 'keydown', 'click', 'scroll'], []);
+    const events = useMemo(() => ['mousemove', 'keydown', 'click', 'scroll', 'mousedown', 'touchstart', 'wheel'], []);
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
@@ -30,10 +30,12 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         const updateLastActivity = () => {
-            lastActivity.current = Date.now();
+            const now = Date.now();
+            lastActivity.current = now;
+            localStorage.setItem('lastActivity', now.toString());
         };
-        // Attach event listeners to the document body in the capturing phase
-        events.forEach((event) => document.body.addEventListener(event, updateLastActivity, true)); // true for capturing phase
+        // Attach event listeners to window in the capturing phase
+        events.forEach((event) => window.addEventListener(event, updateLastActivity, true));
 
         const interval = setInterval(() => {
             const user = JSON.parse(localStorage.getItem('user'));
@@ -42,11 +44,14 @@ export function AuthProvider({ children }) {
             }
 
             const now = Date.now();
-            const timeSinceLastActivity = now - lastActivity.current;
-            const isInactive = timeSinceLastActivity > 10 * 60 * 1000; // 10 minutes
+            const storedLastActivity = parseInt(localStorage.getItem('lastActivity') || '0');
+            const effectiveLastActivity = Math.max(lastActivity.current, storedLastActivity);
+            
+            const timeSinceLastActivity = now - effectiveLastActivity;
+            const isInactive = timeSinceLastActivity > 30 * 60 * 1000; // 30 minutes
 
             if (isInactive) {
-                logout(); // Logout on inactivity
+                triggerLogout(); // Use triggerLogout for proper navigation and message
                 return;
             }
 
@@ -67,8 +72,8 @@ export function AuthProvider({ children }) {
         }, 60 * 1000); // Check every minute
 
         return () => {
-            // Clean up event listeners from the document body, also in the capturing phase
-            events.forEach((event) => document.body.removeEventListener(event, updateLastActivity, true)); // true for capturing phase
+            // Clean up event listeners from window, also in the capturing phase
+            events.forEach((event) => window.removeEventListener(event, updateLastActivity, true));
             clearInterval(interval);
         };
     }, [events, logout]);
@@ -84,6 +89,11 @@ export function AuthProvider({ children }) {
             const userToSet = { ...profile, token: loginResponse.token };
             setUser(userToSet);
             localStorage.setItem('user', JSON.stringify(userToSet));
+            
+            // Reset inactivity timer on login
+            const now = Date.now();
+            lastActivity.current = now;
+            localStorage.setItem('lastActivity', now.toString());
 
             return { success: true };
         } catch (error) {
