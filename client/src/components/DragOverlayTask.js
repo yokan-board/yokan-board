@@ -22,7 +22,22 @@ function DragOverlayTask({ task, tasksMap }) {
 
     return (
         <Paper style={style}>
-            <Typography variant="body1">{task.content}</Typography>
+            <Typography variant="body1" sx={{ fontWeight: 500 }}>{task.content}</Typography>
+            
+            {/* Metadata mockup for overlay */}
+            <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                {task.dueDate && (
+                    <Typography variant="caption" color="text.secondary">
+                        Due: {task.dueDate.split('T')[0]}
+                    </Typography>
+                )}
+                {task.comments && task.comments.length > 0 && (
+                    <Typography variant="caption" color="text.secondary">
+                        {task.comments.length} {task.comments.length === 1 ? 'comment' : 'comments'}
+                    </Typography>
+                )}
+            </Box>
+
             {task.subtasks && task.subtasks.length > 0 && (
                 <Box sx={{ mt: 0.5, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {task.subtasks.map((subtaskId, index) => {

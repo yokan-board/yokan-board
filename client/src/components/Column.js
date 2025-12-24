@@ -11,6 +11,7 @@ import {
     DialogContent,
     DialogActions,
     Slider,
+    Tooltip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -210,41 +211,53 @@ function Column({
                         {column.title}
                     </Typography>
                 )}
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <IconButton size="small" onClick={handleToggleMinimize}>
-                        {isMinimized ? <UnfoldMoreIcon /> : <UnfoldLessIcon />}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Tooltip title={isMinimized ? "Expand" : "Minimize"}>
+                        <IconButton size="small" onClick={handleToggleMinimize} color="inherit" sx={{ opacity: 0.7 }}>
+                            {isMinimized ? <UnfoldMoreIcon fontSize="small" /> : <UnfoldLessIcon fontSize="small" />}
+                        </IconButton>
+                    </Tooltip>
+                    <IconButton size="small" {...listeners} sx={{ cursor: 'grab', opacity: 0.7 }}>
+                        <DragHandleIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" {...listeners}>
-                        <DragHandleIcon />
-                    </IconButton>{' '}
-                    {/* Drag handle */}
-                    <IconButton
-                        size="small"
-                        onMouseDown={handleLongPressStart}
-                        onMouseUp={handleLongPressEnd}
-                        onMouseLeave={handleLongPressEnd}
-                        onClick={() => {
-                            if (!longPressTimer.current) {
-                                // Short press behavior: open color picker
-                                const hex = column.highlightColor;
-                                const r = parseInt(hex.slice(1, 3), 16);
-                                const g = parseInt(hex.slice(3, 5), 16);
-                                const b = parseInt(hex.slice(5, 7), 16);
-                                setBaseColor({ r, g, b });
-                                setColorPickerOpen(true);
-                            }
-                            clearTimeout(longPressTimer.current); // Clear any pending long press timer
-                            longPressTimer.current = null;
-                        }}
-                    >
-                        <PaletteIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" onClick={handleArchiveColumnClick} disabled={column.tasks.length === 0}>
-                        <ArchiveIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" onClick={handleDeleteColumnClick}>
-                        <DeleteIcon fontSize="small" />
-                    </IconButton>
+                    <Tooltip title="Column color">
+                        <IconButton
+                            size="small"
+                            onMouseDown={handleLongPressStart}
+                            onMouseUp={handleLongPressEnd}
+                            onMouseLeave={handleLongPressEnd}
+                            sx={{ opacity: 0.7 }}
+                            onClick={() => {
+                                if (!longPressTimer.current) {
+                                    const hex = column.highlightColor;
+                                    const r = parseInt(hex.slice(1, 3), 16);
+                                    const g = parseInt(hex.slice(3, 5), 16);
+                                    const b = parseInt(hex.slice(5, 7), 16);
+                                    setBaseColor({ r, g, b });
+                                    setColorPickerOpen(true);
+                                }
+                                clearTimeout(longPressTimer.current);
+                                longPressTimer.current = null;
+                            }}
+                        >
+                            <PaletteIcon fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Archive column tasks">
+                        <IconButton 
+                            size="small" 
+                            onClick={handleArchiveColumnClick} 
+                            disabled={column.tasks.length === 0}
+                            sx={{ opacity: 0.7 }}
+                        >
+                            <ArchiveIcon fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete column">
+                        <IconButton size="small" onClick={handleDeleteColumnClick} sx={{ opacity: 0.7 }}>
+                            <DeleteIcon fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
                 </Box>
             </Box>
             {isMinimized ? (
@@ -298,7 +311,7 @@ function Column({
                     </Box>
                 </SortableContext>
             )}
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 'auto', pt: 2 }}>
                 <TextField
                     fullWidth
                     placeholder="Add a task"
@@ -309,8 +322,15 @@ function Column({
                             handleAddTask();
                         }
                     }}
+                    sx={{ mb: 1 }}
                 />
-                <Button fullWidth variant="contained" startIcon={<AddIcon />} onClick={handleAddTask} sx={{ mt: 1 }}>
+                <Button 
+                    fullWidth 
+                    variant="contained" 
+                    disableElevation
+                    startIcon={<AddIcon />} 
+                    onClick={handleAddTask}
+                >
                     Add Task
                 </Button>
             </Box>

@@ -78,45 +78,50 @@ function Task({ task, boardId, columnId, getParentDisplayId, onDelete, onArchive
                 sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
                 onClick={handleNavigateToEdit} // Add onClick here
             >
-                <Typography variant="body1" sx={{ flexGrow: 1 }}>
+                <Typography variant="body1" sx={{ flexGrow: 1, fontWeight: 500 }}>
                     {task.content}
                 </Typography>
                 {task.displayId && (
-                    <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                    <Typography variant="caption" sx={{ ml: 1, color: 'text.disabled', fontWeight: 'bold' }}>
                         #{task.displayId}
                     </Typography>
                 )}
             </Box>
 
-            {/* Placeholder for new attributes */}
-            {task.dueDate &&
-                (() => {
-                    const dateParts = task.dueDate.split('T')[0].split('-');
-                    const year = parseInt(dateParts[0]);
-                    const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed
-                    const day = parseInt(dateParts[2]);
-                    const localDate = new Date(year, month, day);
-                    return (
-                        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                            Due: {localDate.toLocaleDateString()}
+            {/* Task Metadata Section */}
+            <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                {task.dueDate &&
+                    (() => {
+                        const dateParts = task.dueDate.split('T')[0].split('-');
+                        const year = parseInt(dateParts[0]);
+                        const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed
+                        const day = parseInt(dateParts[2]);
+                        const localDate = new Date(year, month, day);
+                        return (
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
+                                Due: {localDate.toLocaleDateString()}
+                            </Typography>
+                        );
+                    })()}
+                
+                {task.comments && task.comments.length > 0 && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                        <ChatBubbleOutlineIcon sx={{ fontSize: '0.75rem', mr: 0.5 }} />
+                        <Typography variant="caption">
+                            {task.comments.length} {task.comments.length === 1 ? 'comment' : 'comments'}
                         </Typography>
-                    );
-                })()}
-            {task.comments && task.comments.length > 0 && (
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5, color: 'text.secondary' }}>
-                    <ChatBubbleOutlineIcon sx={{ fontSize: '0.875rem', mr: 0.5 }} />
-                    <Typography variant="caption">
-                        {task.comments.length}
+                    </Box>
+                )}
+
+                {parentDisplayId && (
+                    <Typography variant="caption" color="text.secondary">
+                        Parent: #{parentDisplayId}
                     </Typography>
-                </Box>
-            )}
-            {parentDisplayId && (
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                    Parent: #{parentDisplayId}
-                </Typography>
-            )}
+                )}
+            </Box>
+
             {task.subtasks && task.subtasks.length > 0 && (
-                <Box sx={{ mt: 0.5, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {task.subtasks.map((subtaskId, index) => {
                         const subtask = tasksMap[subtaskId];
                         const bulletColor = subtask ? subtask.highlightColor : theme.palette.text.secondary;
