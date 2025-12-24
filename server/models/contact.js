@@ -101,6 +101,32 @@ exports.deleteContact = (contactId, userId) => {
 };
 
 /**
+ * Checks how many boards reference a specific contact.
+ * @param {number} contactId - The ID of the contact.
+ * @param {number} userId - The ID of the user.
+ * @returns {Promise<number>} The number of boards referencing the contact.
+ */
+exports.getContactUsageCount = (contactId, userId) => {
+    // We use json_each to search inside the contactIds array in the board's data blob
+    const sql = `
+        SELECT COUNT(DISTINCT boards.id) as count 
+        FROM boards, json_each(boards.data, '$.contactIds') 
+        WHERE boards.user_id = ? AND json_each.value = ?
+    `;
+    return new Promise((resolve, reject) => {
+        db.get(sql, [userId, contactId], (err, row) => {
+            if (err) {
+                // If data is not valid JSON or contactIds doesn't exist, it might throw. 
+                // In that case, we fallback to 0.
+                resolve(0);
+            } else {
+                resolve(row.count || 0);
+            }
+        });
+    });
+};
+
+/**
  * Searches for contacts by a query string (name or email).
  * @param {number} userId - The ID of the user.
  * @param {string} query - The search query.
