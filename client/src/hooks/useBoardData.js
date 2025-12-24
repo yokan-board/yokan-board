@@ -11,9 +11,11 @@ import {
     updateParentsWithArchivedLogs,
 } from '../utils/archiveUtils';
 import { useTheme } from '@mui/material/styles';
+import { useAuth } from '../contexts/AuthContext';
 
 export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard, onBoardDataChange) => {
     const theme = useTheme();
+    const { user } = useAuth();
     const [boardData, setBoardData] = useState(() => {
         if (initialBoardData) {
             const columns = initialBoardData.columns || {};
@@ -192,14 +194,30 @@ export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard, 
                     };
                 } else {
                     const activeTask = tasksMap[activeId]; // Use tasksMap to find the active task
+                    
+                    // Create movement comment
+                    const moveComment = {
+                        id: crypto.randomUUID(),
+                        userId: user?.id || 'system',
+                        username: user?.username || user?.display_name || 'System',
+                        userEmail: user?.email || '',
+                        content: `Moved task from ${activeColumn.title} to ${overColumn.title}.`,
+                        createdAt: new Date().toISOString(),
+                    };
+
+                    const updatedTask = {
+                        ...activeTask,
+                        comments: [moveComment, ...(activeTask.comments || [])],
+                    };
+
                     const newActiveTasks = activeColumn.tasks.filter((task) => task.id !== activeId);
                     const newOverTasks = [...overColumn.tasks];
                     const overIndex = overColumn.tasks.findIndex((task) => task.id === overId);
 
                     if (overIndex === -1) {
-                        newOverTasks.push(activeTask);
+                        newOverTasks.push(updatedTask);
                     } else {
-                        newOverTasks.splice(overIndex, 0, activeTask);
+                        newOverTasks.splice(overIndex, 0, updatedTask);
                     }
 
                     return {
@@ -213,7 +231,7 @@ export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard, 
                 }
             });
         },
-        [findColumn, tasksMap]
+        [findColumn, tasksMap, user]
     );
 
     const handleArchiveTask = useCallback((taskId) => {
