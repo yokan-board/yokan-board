@@ -90,7 +90,14 @@ function ContactsSettings() {
                             <Avatar src={contact.avatarUrl || getGravatarUrl(contact.email)} />
                         </ListItemAvatar>
                         <ListItemText
-                            primary={`${contact.name} (${contact.email})`}
+                            primary={
+                                <>
+                                    {contact.name}
+                                    <Typography component="span" color="text.secondary" sx={{ ml: 1, opacity: 0.6 }}>
+                                        / {contact.email}
+                                    </Typography>
+                                </>
+                            }
                             secondary={`${contact.title || ''}${contact.title && contact.company ? ' at ' : ''}${contact.company || ''}`}
                         />
                     </ListItem>
