@@ -27,6 +27,7 @@ function EditTaskPage() {
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [isEditingTaskTitle, setIsEditingTaskTitle] = useState(false);
     const [boardName, setBoardName] = useState('');
+    const [collectionName, setCollectionName] = useState('');
     const [columns, setColumns] = useState([]);
     const [originalColumnId, setOriginalColumnId] = useState(null);
     const [selectedColumnId, setSelectedColumnId] = useState(null);
@@ -44,6 +45,7 @@ function EditTaskPage() {
             const board = await boardService.getBoard(boardId);
             if (board && board.data && board.data.columns) {
                 setBoardName(board.name);
+                setCollectionName(board.collection || '');
                 setColumns(Object.values(board.data.columns));
 
                 const allTasksWithColors = Object.values(board.data.columns).flatMap((column) =>
@@ -237,6 +239,9 @@ function EditTaskPage() {
         <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="h6" color="text.secondary" sx={{ mr: 1 }}>
+                        {collectionName || 'Boards'} /
+                    </Typography>
                     <Typography variant="h6">
                         <Link to={`/board/${boardId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                             {boardName}
