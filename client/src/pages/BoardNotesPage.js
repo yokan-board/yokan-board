@@ -25,8 +25,9 @@ import ContactCard from '../components/ContactCard';
 import NewContactForm from '../components/NewContactForm';
 import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog';
 import contactService from '../services/contactService';
+import ContactEditDialog from '../components/ContactEditDialog';
 
-function SortableContactCard({ contact, onUpdate, onDelete }) {
+function SortableContactCard({ contact, onEdit, onDelete, dragHandleProps }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: contact.id,
     });
@@ -41,7 +42,7 @@ function SortableContactCard({ contact, onUpdate, onDelete }) {
         <div ref={setNodeRef} style={style} {...attributes}>
             <ContactCard
                 contact={contact}
-                onUpdate={onUpdate}
+                onEdit={onEdit}
                 onDelete={onDelete}
                 dragHandleProps={listeners}
             />
@@ -58,6 +59,8 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
     const [itemToDelete, setItemToDelete] = useState(null);
     const [deleteType, setDeleteType] = useState(null); // 'bookmark' or 'contact'
     const [activeContactId, setActiveContactId] = useState(null);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [editingContact, setEditingContact] = useState(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -203,12 +206,24 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
         }
     };
 
-    const handleUpdateContact = async (updatedContact) => {
+    const handleEditContact = (contact) => {
+        setEditingContact({ ...contact });
+        setIsEditDialogOpen(true);
+    };
+
+    const handleCloseEdit = () => {
+        setIsEditDialogOpen(false);
+        setEditingContact(null);
+    };
+
+    const handleSaveEdit = async (updatedContact) => {
         try {
             await contactService.updateContact(updatedContact.id, updatedContact);
             setAllContacts(prev => prev.map(c => c.id === updatedContact.id ? updatedContact : c));
+            handleCloseEdit();
         } catch (error) {
             console.error('Error updating contact:', error);
+            alert(error.response?.data?.message || 'Failed to update contact.');
         }
     };
 
@@ -254,7 +269,7 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
                                 <SortableContactCard
                                     key={contact.id}
                                     contact={contact}
-                                    onUpdate={handleUpdateContact}
+                                    onEdit={handleEditContact}
                                     onDelete={handleDeleteContact}
                                 />
                             ))}
@@ -264,7 +279,7 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
                         {activeContactId ? (
                             <ContactCard
                                 contact={allContacts.find((c) => c.id === activeContactId)}
-                                onUpdate={() => {}}
+                                onEdit={() => {}}
                                 onDelete={() => {}}
                             />
                         ) : null}
@@ -311,6 +326,13 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
                 onClose={() => setIsDeleteConfirmOpen(false)}
                 onConfirm={handleConfirmDelete}
                 itemName={deleteType || 'item'}
+            />
+
+            <ContactEditDialog
+                open={isEditDialogOpen}
+                contact={editingContact}
+                onClose={handleCloseEdit}
+                onSave={handleSaveEdit}
             />
         </Box>
     );

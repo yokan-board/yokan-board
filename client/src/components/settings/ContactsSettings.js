@@ -7,21 +7,13 @@ import {
     ListItemText,
     ListItemAvatar,
     Avatar,
-    IconButton,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    TextField,
-    FormControlLabel,
-    Switch
+    IconButton
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import contactService from '../../services/contactService';
 import { getGravatarUrl } from '../../utils/gravatar';
-import { formatPhoneNumber } from '../../utils/phoneUtils';
+import ContactEditDialog from '../ContactEditDialog';
 
 function ContactsSettings() {
     const [contacts, setContacts] = useState([]);
@@ -62,27 +54,15 @@ function ContactsSettings() {
         setEditingContact(null);
     };
 
-    const handleSaveEdit = async () => {
+    const handleSaveEdit = async (updatedContact) => {
         try {
-            const toSave = {
-                ...editingContact,
-                phone: formatPhoneNumber(editingContact.phone)
-            };
-            await contactService.updateContact(toSave.id, toSave);
+            await contactService.updateContact(updatedContact.id, updatedContact);
             fetchContacts();
             handleCloseEdit();
         } catch (error) {
             console.error('Error updating contact:', error);
             alert(error.response?.data?.message || 'Failed to update contact.');
         }
-    };
-
-    const handleEditChange = (field) => (e) => {
-        setEditingContact({ ...editingContact, [field]: e.target.value });
-    };
-
-    const handleStatusChange = (e) => {
-        setEditingContact({ ...editingContact, status: e.target.checked ? 'ACTIVE' : 'INACTIVE' });
     };
 
     return (
@@ -117,69 +97,12 @@ function ContactsSettings() {
                 ))}
             </List>
 
-            <Dialog open={isEditDialogOpen} onClose={handleCloseEdit} fullWidth maxWidth="sm">
-                <DialogTitle>Edit Contact</DialogTitle>
-                <DialogContent>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-                        <TextField
-                            label="Full Name"
-                            value={editingContact?.name || ''}
-                            onChange={handleEditChange('name')}
-                            fullWidth
-                            size="small"
-                        />
-                        <TextField
-                            label="Email"
-                            value={editingContact?.email || ''}
-                            onChange={handleEditChange('email')}
-                            fullWidth
-                            size="small"
-                        />
-                        <TextField
-                            label="Title"
-                            value={editingContact?.title || ''}
-                            onChange={handleEditChange('title')}
-                            fullWidth
-                            size="small"
-                        />
-                        <TextField
-                            label="Company"
-                            value={editingContact?.company || ''}
-                            onChange={handleEditChange('company')}
-                            fullWidth
-                            size="small"
-                        />
-                        <TextField
-                            label="Phone"
-                            value={editingContact?.phone || ''}
-                            onChange={handleEditChange('phone')}
-                            fullWidth
-                            size="small"
-                        />
-                        <TextField
-                            label="Avatar URL"
-                            value={editingContact?.avatarUrl || ''}
-                            onChange={handleEditChange('avatarUrl')}
-                            fullWidth
-                            size="small"
-                        />
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={editingContact?.status === 'ACTIVE'}
-                                    onChange={handleStatusChange}
-                                    color="primary"
-                                />
-                            }
-                            label={editingContact?.status === 'ACTIVE' ? 'Active' : 'Inactive'}
-                        />
-                    </Box>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseEdit}>Cancel</Button>
-                    <Button onClick={handleSaveEdit} variant="contained">Save Changes</Button>
-                </DialogActions>
-            </Dialog>
+            <ContactEditDialog
+                open={isEditDialogOpen}
+                contact={editingContact}
+                onClose={handleCloseEdit}
+                onSave={handleSaveEdit}
+            />
         </Box>
     );
 }

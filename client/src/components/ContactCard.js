@@ -1,132 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, IconButton, Avatar, TextField, Switch, FormControlLabel, Card, CardContent, CardActions, Button } from '@mui/material';
+import React from 'react';
+import { Box, Typography, IconButton, Avatar, Card, CardContent } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Cancel';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 import { getGravatarUrl } from '../utils/gravatar';
-import { formatPhoneNumber } from '../utils/phoneUtils';
 
-function ContactCard({ contact, onUpdate, onDelete, dragHandleProps }) {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editedContact, setEditedContact] = useState(contact);
-
-    useEffect(() => {
-        setEditedContact(contact);
-    }, [contact]);
-
-    const handleSave = () => {
-        const toSave = {
-            ...editedContact,
-            phone: formatPhoneNumber(editedContact.phone)
-        };
-        onUpdate(toSave);
-        setIsEditing(false);
-    };
-
-    const handleCancel = () => {
-        setEditedContact(contact);
-        setIsEditing(false);
-    };
-
+function ContactCard({ contact, onEdit, onDelete, dragHandleProps }) {
     const handleDelete = () => {
         onDelete(contact.id);
     };
 
-    const handleStatusChange = (e) => {
-        const newStatus = e.target.checked ? 'ACTIVE' : 'INACTIVE';
-        const updated = { ...editedContact, status: newStatus };
-        setEditedContact(updated);
-        if (!isEditing) {
-            onUpdate(updated);
-        }
-    };
-
     const isInactive = contact.status === 'INACTIVE';
-
-    if (isEditing) {
-        return (
-            <Card sx={{ 
-                width: '24rem', 
-                height: '14.8rem', 
-                flexShrink: 0, 
-                mb: 2, 
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: '8px'
-            }}>
-                <CardContent sx={{ flexGrow: 1, overflowY: 'auto' }}>
-                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                        <Avatar
-                            src={editedContact.avatarUrl || getGravatarUrl(editedContact.email)}
-                            sx={{ width: 56, height: 56 }}
-                        />
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, flexGrow: 1 }}>
-                            <TextField
-                                label="Avatar URL"
-                                value={editedContact.avatarUrl || ''}
-                                onChange={(e) => setEditedContact({ ...editedContact, avatarUrl: e.target.value })}
-                                size="small"
-                                fullWidth
-                                placeholder="https://example.com/avatar.png"
-                            />
-                            <TextField
-                                label="Full Name"
-                                value={editedContact.name}
-                                onChange={(e) => setEditedContact({ ...editedContact, name: e.target.value })}
-                                size="small"
-                                fullWidth
-                            />
-                            <TextField
-                                label="Title"
-                                value={editedContact.title}
-                                onChange={(e) => setEditedContact({ ...editedContact, title: e.target.value })}
-                                size="small"
-                                fullWidth
-                            />
-                            <TextField
-                                label="Company"
-                                value={editedContact.company}
-                                onChange={(e) => setEditedContact({ ...editedContact, company: e.target.value })}
-                                size="small"
-                                fullWidth
-                            />
-                            <TextField
-                                label="Email"
-                                value={editedContact.email}
-                                onChange={(e) => setEditedContact({ ...editedContact, email: e.target.value })}
-                                size="small"
-                                fullWidth
-                            />
-                            <TextField
-                                label="Phone"
-                                value={editedContact.phone}
-                                onChange={(e) => setEditedContact({ ...editedContact, phone: e.target.value })}
-                                size="small"
-                                fullWidth
-                            />
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                        checked={editedContact.status === 'ACTIVE'}
-                                        onChange={handleStatusChange}
-                                        color="primary"
-                                    />
-                                }
-                                label={editedContact.status === 'ACTIVE' ? 'Active' : 'Inactive'}
-                            />
-                        </Box>
-                    </Box>
-                </CardContent>
-                <CardActions sx={{ justifyContent: 'flex-end', p: 1 }}>
-                    <Button size="small" startIcon={<CancelIcon />} onClick={handleCancel}>Cancel</Button>
-                    <Button size="small" startIcon={<SaveIcon />} variant="contained" onClick={handleSave}>Save</Button>
-                </CardActions>
-            </Card>
-        );
-    }
 
     return (
         <Card sx={{ 
@@ -181,7 +65,7 @@ function ContactCard({ contact, onUpdate, onDelete, dragHandleProps }) {
                                 <DragHandleIcon fontSize="small" />
                             </IconButton>
                         )}
-                        <IconButton size="small" onClick={() => setIsEditing(true)}>
+                        <IconButton size="small" onClick={() => onEdit(contact)}>
                             <EditIcon fontSize="small" />
                         </IconButton>
                         <IconButton size="small" onClick={handleDelete}>
