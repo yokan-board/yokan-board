@@ -145,6 +145,24 @@ function EditTaskPage() {
                     }
                 }
 
+                let updatedComments = [...comments];
+                if (originalColumnId !== selectedColumnId) {
+                    const sourceColumn = columns.find((c) => c.id === originalColumnId);
+                    const targetColumn = columns.find((c) => c.id === selectedColumnId);
+
+                    if (sourceColumn && targetColumn) {
+                        const moveComment = {
+                            id: crypto.randomUUID(),
+                            userId: user?.id || 'system',
+                            username: user?.username || user?.display_name || 'System',
+                            userEmail: user?.email || '',
+                            content: `Moved task from ${sourceColumn.title} to ${targetColumn.title}.`,
+                            createdAt: new Date().toISOString(),
+                        };
+                        updatedComments = [moveComment, ...updatedComments];
+                    }
+                }
+
                 // Update the task's main properties (content, dueDate, etc.)
                 const updatedTask = {
                     ...(taskToMove || task),
@@ -152,7 +170,7 @@ function EditTaskPage() {
                     dueDate: dueDate || null,
                     description: description,
                     subtasks: subtasks,
-                    comments: comments,
+                    comments: updatedComments,
                 };
 
                 // Add the task to the new column or update it in the original column
