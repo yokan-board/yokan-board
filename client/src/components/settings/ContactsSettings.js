@@ -1,5 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, List, ListItem, ListItemText, ListItemAvatar, Avatar, IconButton } from '@mui/material';
+import {
+    Box,
+    Typography,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemAvatar,
+    Avatar,
+    IconButton,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+    TextField,
+    FormControlLabel,
+    Switch
+} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import contactService from '../../services/contactService';
@@ -7,6 +24,8 @@ import { getGravatarUrl } from '../../utils/gravatar';
 
 function ContactsSettings() {
     const [contacts, setContacts] = useState([]);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [editingContact, setEditingContact] = useState(null);
 
     const fetchContacts = async () => {
         try {
@@ -31,10 +50,34 @@ function ContactsSettings() {
             }
         }
     };
-    
-    // The edit functionality will be handled by a modal or a separate page in the future.
-    const handleEdit = (id) => {
-        alert(`Editing contact ${id} is not yet implemented.`);
+
+    const handleEdit = (contact) => {
+        setEditingContact({ ...contact });
+        setIsEditDialogOpen(true);
+    };
+
+    const handleCloseEdit = () => {
+        setIsEditDialogOpen(false);
+        setEditingContact(null);
+    };
+
+    const handleSaveEdit = async () => {
+        try {
+            await contactService.updateContact(editingContact.id, editingContact);
+            fetchContacts();
+            handleCloseEdit();
+        } catch (error) {
+            console.error('Error updating contact:', error);
+            alert(error.response?.data?.message || 'Failed to update contact.');
+        }
+    };
+
+    const handleEditChange = (field) => (e) => {
+        setEditingContact({ ...editingContact, [field]: e.target.value });
+    };
+
+    const handleStatusChange = (e) => {
+        setEditingContact({ ...editingContact, status: e.target.checked ? 'ACTIVE' : 'INACTIVE' });
     };
 
     return (
@@ -45,11 +88,11 @@ function ContactsSettings() {
             </Typography>
             <List>
                 {contacts.map((contact) => (
-                    <ListItem 
+                    <ListItem
                         key={contact.id}
                         secondaryAction={
                             <>
-                                <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(contact.id)}>
+                                <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(contact)}>
                                     <EditIcon />
                                 </IconButton>
                                 <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(contact.id)} sx={{ ml: 1 }}>
@@ -68,6 +111,70 @@ function ContactsSettings() {
                     </ListItem>
                 ))}
             </List>
+
+            <Dialog open={isEditDialogOpen} onClose={handleCloseEdit} fullWidth maxWidth="sm">
+                <DialogTitle>Edit Contact</DialogTitle>
+                <DialogContent>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+                        <TextField
+                            label="Full Name"
+                            value={editingContact?.name || ''}
+                            onChange={handleEditChange('name')}
+                            fullWidth
+                            size="small"
+                        />
+                        <TextField
+                            label="Email"
+                            value={editingContact?.email || ''}
+                            onChange={handleEditChange('email')}
+                            fullWidth
+                            size="small"
+                        />
+                        <TextField
+                            label="Title"
+                            value={editingContact?.title || ''}
+                            onChange={handleEditChange('title')}
+                            fullWidth
+                            size="small"
+                        />
+                        <TextField
+                            label="Company"
+                            value={editingContact?.company || ''}
+                            onChange={handleEditChange('company')}
+                            fullWidth
+                            size="small"
+                        />
+                        <TextField
+                            label="Phone"
+                            value={editingContact?.phone || ''}
+                            onChange={handleEditChange('phone')}
+                            fullWidth
+                            size="small"
+                        />
+                        <TextField
+                            label="Avatar URL"
+                            value={editingContact?.avatarUrl || ''}
+                            onChange={handleEditChange('avatarUrl')}
+                            fullWidth
+                            size="small"
+                        />
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={editingContact?.status === 'ACTIVE'}
+                                    onChange={handleStatusChange}
+                                    color="primary"
+                                />
+                            }
+                            label={editingContact?.status === 'ACTIVE' ? 'Active' : 'Inactive'}
+                        />
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseEdit}>Cancel</Button>
+                    <Button onClick={handleSaveEdit} variant="contained">Save Changes</Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }
