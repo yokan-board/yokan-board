@@ -21,6 +21,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import contactService from '../../services/contactService';
 import { getGravatarUrl } from '../../utils/gravatar';
+import { formatPhoneNumber } from '../../utils/phoneUtils';
 
 function ContactsSettings() {
     const [contacts, setContacts] = useState([]);
@@ -63,7 +64,11 @@ function ContactsSettings() {
 
     const handleSaveEdit = async () => {
         try {
-            await contactService.updateContact(editingContact.id, editingContact);
+            const toSave = {
+                ...editingContact,
+                phone: formatPhoneNumber(editingContact.phone)
+            };
+            await contactService.updateContact(toSave.id, toSave);
             fetchContacts();
             handleCloseEdit();
         } catch (error) {

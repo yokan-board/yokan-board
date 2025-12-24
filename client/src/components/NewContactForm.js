@@ -5,6 +5,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import { debounce } from 'lodash';
 import contactService from '../services/contactService';
+import { formatPhoneNumber } from '../utils/phoneUtils';
 
 const initialContactState = {
     name: '',
@@ -28,7 +29,11 @@ function NewContactForm({ onAdd }) {
 
     const handleSave = () => {
         if (contact.name.trim() && contact.email.trim()) {
-            onAdd(contact);
+            const toSave = {
+                ...contact,
+                phone: formatPhoneNumber(contact.phone)
+            };
+            onAdd(toSave);
             resetForm();
             setIsExpanded(false);
         }

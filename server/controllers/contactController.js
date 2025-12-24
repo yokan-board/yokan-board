@@ -1,6 +1,34 @@
 const contactModel = require('../models/contact');
 const { AppError, NotFoundError } = require('../utils/appError');
 
+function formatPhoneNumber(phone) {
+    if (!phone) return phone;
+
+    // Remove all non-digit characters except +
+    let cleaned = phone.replace(/[^\d+]/g, '');
+
+    if (!cleaned) return cleaned;
+
+    // If it doesn't start with +, assume it needs +1
+    if (!cleaned.startsWith('+')) {
+        if (cleaned.length === 11 && cleaned.startsWith('1')) {
+            cleaned = '+' + cleaned;
+        } else if (cleaned.length === 10) {
+            cleaned = '+1' + cleaned;
+        } else {
+            cleaned = '+1' + cleaned;
+        }
+    }
+
+    // Format if it matches the US/Canada pattern
+    const match = cleaned.match(/^\+1(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+        return `+1 (${match[1]}) ${match[2]}-${match[3]}`;
+    }
+
+    return cleaned;
+}
+
 exports.getAllContacts = async (req, res, next) => {
     try {
         const contacts = await contactModel.getAllContactsByUserId(req.user.id);
@@ -12,7 +40,11 @@ exports.getAllContacts = async (req, res, next) => {
 
 exports.createContact = async (req, res, next) => {
     try {
-        const contactData = { ...req.body, user_id: req.user.id };
+        const contactData = { 
+            ...req.body, 
+            user_id: req.user.id,
+            phone: formatPhoneNumber(req.body.phone)
+        };
         const newContact = await contactModel.createContact(contactData);
         res.status(201).json({ message: 'success', data: newContact });
     } catch (err) {
@@ -38,7 +70,11 @@ exports.getContact = async (req, res, next) => {
 
 exports.updateContact = async (req, res, next) => {
     try {
-        const result = await contactModel.updateContact(req.params.id, req.user.id, req.body);
+        const updatedData = {
+            ...req.body,
+            phone: formatPhoneNumber(req.body.phone)
+        };
+        const result = await contactModel.updateContact(req.params.id, req.user.id, updatedData);
         if (result.changes === 0) {
             return next(new NotFoundError('Contact not found or no changes made'));
         }

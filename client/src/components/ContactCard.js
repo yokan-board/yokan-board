@@ -6,6 +6,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 import { getGravatarUrl } from '../utils/gravatar';
+import { formatPhoneNumber } from '../utils/phoneUtils';
 
 function ContactCard({ contact, onUpdate, onDelete, dragHandleProps }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -16,7 +17,11 @@ function ContactCard({ contact, onUpdate, onDelete, dragHandleProps }) {
     }, [contact]);
 
     const handleSave = () => {
-        onUpdate(editedContact);
+        const toSave = {
+            ...editedContact,
+            phone: formatPhoneNumber(editedContact.phone)
+        };
+        onUpdate(toSave);
         setIsEditing(false);
     };
 
