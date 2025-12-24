@@ -191,6 +191,7 @@ const generateBoardMarkdown = (boardName, boardDescription, boardData) => {
     if (boardData.contacts && boardData.contacts.length > 0) {
         markdown += `## Contacts\n\n`;
         boardData.contacts.forEach((contact) => {
+            if (!contact) return;
             markdown += `### ${contact.name}\n`;
             if (contact.title || contact.company) {
                 markdown += `- **Title/Company:** ${contact.title || ''}${contact.title && contact.company ? ' at ' : ''}${contact.company || ''}\n`;

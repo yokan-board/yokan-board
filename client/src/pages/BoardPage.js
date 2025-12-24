@@ -101,8 +101,8 @@ function BoardPage() {
                         if (!data.data.bookmarks || !Array.isArray(data.data.bookmarks)) {
                             data.data.bookmarks = [];
                         }
-                        if (!data.data.contacts || !Array.isArray(data.data.contacts)) {
-                            data.data.contacts = [];
+                        if (!data.data.contactIds || !Array.isArray(data.data.contactIds)) {
+                            data.data.contactIds = [];
                         }
                     } else {
                         data.data = { columns: {} };
@@ -163,11 +163,11 @@ function BoardPage() {
         [id, fetchBoards, handleBoardDataChange]
     );
 
-    const handleSaveNotes = async ({ bookmarks, contacts }) => {
+    const handleSaveNotes = async ({ bookmarks, contactIds }) => {
         const updatedBoardData = {
             ...currentBoardData,
             bookmarks: bookmarks,
-            contacts: contacts,
+            contactIds: contactIds,
         };
         await handleSaveBoard({ name: editedBoardName, data: updatedBoardData });
     };
@@ -278,12 +278,23 @@ function BoardPage() {
         }
     };
 
-    const handleExportMarkdown = () => {
+    const handleExportMarkdown = async () => {
         try {
             let boardToExport = boardRef.current ? boardRef.current.getBoardData() : currentBoardData;
             if (!boardToExport) return;
+
+            // Resolve contactIds to actual contact data
+            const contactService = (await import('../services/contactService')).default;
+            const allContacts = await contactService.getContacts();
+            const resolvedContacts = (boardToExport.contactIds || []).map(id => allContacts.find(c => c.id === id)).filter(Boolean);
+            
+            const boardWithResolvedContacts = {
+                ...boardToExport,
+                contacts: resolvedContacts
+            };
+
             const boardDescription = boardToExport.description;
-            boardService.exportBoardMarkdown(editedBoardName, boardDescription, boardToExport); // Use editedBoardName
+            boardService.exportBoardMarkdown(editedBoardName, boardDescription, boardWithResolvedContacts); // Use editedBoardName
             console.log('Markdown export initiated.');
         } catch (err) {
             console.error('Error exporting Markdown:', err);
@@ -426,7 +437,7 @@ function BoardPage() {
                     {currentBoardData && (
                         <BoardNotesPage
                             bookmarks={currentBoardData.bookmarks}
-                            contacts={currentBoardData.contacts}
+                            contactIds={currentBoardData.contactIds || []}
                             onSave={handleSaveNotes}
                             onHasUnsavedChangesChange={setNotesHaveUnsavedChanges}
                         />

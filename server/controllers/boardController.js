@@ -289,11 +289,20 @@ exports.exportBoardCsv = async (req, res, next) => {
             );
         });
 
-        if (boardContent.contacts && boardContent.contacts.length > 0) {
+        const contactModel = require('../models/contact');
+        const contacts = [];
+        if (boardContent.contactIds && boardContent.contactIds.length > 0) {
+            for (const id of boardContent.contactIds) {
+                const contact = await contactModel.getContactById(id, user_id);
+                if (contact) contacts.push(contact);
+            }
+        }
+
+        if (contacts.length > 0) {
             csvRows.push(''); // Empty line as separator
             csvRows.push('--- CONTACTS ---');
             csvRows.push('Name,Title,Company,Email,Phone,Status');
-            boardContent.contacts.forEach((contact) => {
+            contacts.forEach((contact) => {
                 const name = `"${(contact.name || '').replace(/"/g, '""')}"`;
                 const title = `"${(contact.title || '').replace(/"/g, '""')}"`;
                 const company = `"${(contact.company || '').replace(/"/g, '""')}"`;

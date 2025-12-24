@@ -48,10 +48,11 @@ function NewContactForm({ onAdd }) {
                     if (results.length === 1) {
                         const found = results[0];
                         setContact({
-                            ...contact,
+                            id: found.id,
                             name: found.name,
                             title: found.title || '',
                             company: found.company || '',
+                            email: found.email,
                             phone: found.phone || '',
                             avatarUrl: found.avatarUrl || '',
                             status: found.status || 'ACTIVE',
@@ -162,9 +163,9 @@ function NewContactForm({ onAdd }) {
                                 startIcon={<SaveIcon />} 
                                 variant="contained" 
                                 onClick={handleSave} 
-                                disabled={!contact.name.trim() || !contact.email.trim() || isExisting}
+                                disabled={!contact.name.trim() || !contact.email.trim()}
                             >
-                                Add Contact
+                                {isExisting ? 'Link Contact' : 'Add Contact'}
                             </Button>
                         </Box>
                     </Box>

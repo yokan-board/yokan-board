@@ -84,16 +84,17 @@ module.exports = { app, startServer };
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // API v1.1 Routes
-app.use('/api/v1.1/auth', authRoutes);
-app.use('/api/v1.1/boards', isAuthenticated, boardRoutes);
-app.use('/api/v1.1/user', isAuthenticated, userRoutes);
+app.use('/api/v1.1', authRoutes);
+app.use('/api/v1.1', boardRoutes);
+app.use('/api/v1.1', userRoutes);
 app.use('/api/v1.1/contacts', isAuthenticated, contactRoutes);
-app.use('/api/v1.1/about', aboutRoutes);
+app.use('/api/v1.1', aboutRoutes);
 
 
 // Legacy API Routes (to be deprecated)
 app.use('/api', authRoutes);
 app.use('/api', boardRoutes);
+app.use('/api/contacts', isAuthenticated, contactRoutes);
 app.use('/api', aboutRoutes);
 
 
