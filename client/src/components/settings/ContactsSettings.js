@@ -90,7 +90,7 @@ function ContactsSettings() {
                             <Avatar src={contact.avatarUrl || getGravatarUrl(contact.email)} />
                         </ListItemAvatar>
                         <ListItemText
-                            primary={contact.name}
+                            primary={`${contact.name} (${contact.email})`}
                             secondary={`${contact.title || ''}${contact.title && contact.company ? ' at ' : ''}${contact.company || ''}`}
                         />
                     </ListItem>
