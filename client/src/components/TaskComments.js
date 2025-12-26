@@ -90,7 +90,7 @@ function TaskComments({ comments, setComments, currentUser, readOnly = false }) 
     };
 
     return (
-        <Box sx={{ mt: 4 }}>
+        <Box sx={{ mt: 0 }}>
             <Typography variant="subtitle1" gutterBottom fontWeight="bold">
                 Comments
             </Typography>
@@ -98,7 +98,7 @@ function TaskComments({ comments, setComments, currentUser, readOnly = false }) 
             {/* Add Comment Section */}
             {!readOnly && (
                 <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
-                    <Avatar
+                    <Avatar sx={{ ml: 0.5, mt: 0.5 }}
                         src={getGravatarUrl(currentUser?.email)}
                         alt={currentUser?.username || 'User'}
                     />
