@@ -42,8 +42,9 @@ function ContactCard({
                 flexGrow: 1, 
                 overflowY: isList ? 'hidden' : 'auto',
                 p: isList ? '8px 16px !important' : undefined,
-                display: isList ? 'flex' : 'block',
-                alignItems: 'center',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: isList ? 'center' : 'flex-start',
                 gap: 2
             }}>
                 <ContactInfo contact={contact} viewMode={viewMode} />
@@ -73,7 +74,7 @@ function ContactCard({
                     visibility: 'hidden',
                     opacity: 0,
                     transition: 'opacity 0.2s',
-                    ml: isList ? 2 : 0,
+                    ml: 'auto',
                     gap: isList ? 1 : 0
                 }}>
                     {dragHandleProps && (

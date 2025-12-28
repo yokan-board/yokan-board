@@ -281,12 +281,13 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
                 >
                     <SortableContext 
                         items={localContactIds} 
-                        strategy={viewMode === 'list' ? verticalListSortingStrategy : rectSortingStrategy}
+                        strategy={rectSortingStrategy}
                     >
                         <Box sx={{ 
-                            display: 'flex', 
-                            flexWrap: viewMode === 'list' ? 'nowrap' : 'wrap', 
-                            flexDirection: viewMode === 'list' ? 'column' : 'row',
+                            display: viewMode === 'list' ? 'grid' : 'flex',
+                            gridTemplateColumns: viewMode === 'list' ? { xs: '1fr', xl: '1fr 1fr' } : undefined,
+                            flexWrap: viewMode === 'list' ? undefined : 'wrap',
+                            flexDirection: viewMode === 'list' ? undefined : 'row',
                             gap: '16px', 
                             mb: 2 
                         }}>
