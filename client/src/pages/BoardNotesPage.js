@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, Divider } from '@mui/material';
+import { Box, Typography, Button, Divider, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import { useBlocker } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import ViewListIcon from '@mui/icons-material/ViewList';
 import {
     DndContext,
     closestCenter,
@@ -18,6 +20,7 @@ import {
     sortableKeyboardCoordinates,
     useSortable,
     rectSortingStrategy,
+    verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import BookmarkItem from '../components/BookmarkItem';
@@ -27,7 +30,7 @@ import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog';
 import contactService from '../services/contactService';
 import ContactEditDialog from '../components/ContactEditDialog';
 
-function SortableContactCard({ contact, onEdit, onDelete, dragHandleProps }) {
+function SortableContactCard({ contact, onEdit, onDelete, dragHandleProps, viewMode }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: contact.id,
     });
@@ -36,6 +39,7 @@ function SortableContactCard({ contact, onEdit, onDelete, dragHandleProps }) {
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1,
+        width: viewMode === 'list' ? '100%' : 'auto',
     };
 
     return (
@@ -45,6 +49,7 @@ function SortableContactCard({ contact, onEdit, onDelete, dragHandleProps }) {
                 onEdit={onEdit}
                 onDelete={onDelete}
                 dragHandleProps={listeners}
+                viewMode={viewMode}
             />
         </div>
     );
@@ -61,6 +66,7 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
     const [activeContactId, setActiveContactId] = useState(null);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingContact, setEditingContact] = useState(null);
+    const [viewMode, setViewMode] = useState('card');
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -68,6 +74,12 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
+
+    const handleViewModeChange = (event, newViewMode) => {
+        if (newViewMode !== null) {
+            setViewMode(newViewMode);
+        }
+    };
 
     const fetchAllContacts = async () => {
         try {
@@ -238,9 +250,25 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
     return (
         <Box sx={{ p: 3 }}>
             {/* Contacts Section */}
-            <Typography variant="h5" sx={{ mb: 2 }}>
-                Contacts
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h5">
+                    Contacts
+                </Typography>
+                <ToggleButtonGroup
+                    value={viewMode}
+                    exclusive
+                    onChange={handleViewModeChange}
+                    aria-label="contact view mode"
+                    size="small"
+                >
+                    <ToggleButton value="card" aria-label="card view">
+                        <ViewModuleIcon />
+                    </ToggleButton>
+                    <ToggleButton value="list" aria-label="list view">
+                        <ViewListIcon />
+                    </ToggleButton>
+                </ToggleButtonGroup>
+            </Box>
             <Box sx={{ mb: 4 }}>
                 <DndContext
                     sensors={sensors}
@@ -248,14 +276,24 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
                 >
-                    <SortableContext items={localContactIds} strategy={rectSortingStrategy}>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '16px', mb: 2 }}>
+                    <SortableContext 
+                        items={localContactIds} 
+                        strategy={viewMode === 'list' ? verticalListSortingStrategy : rectSortingStrategy}
+                    >
+                        <Box sx={{ 
+                            display: 'flex', 
+                            flexWrap: viewMode === 'list' ? 'nowrap' : 'wrap', 
+                            flexDirection: viewMode === 'list' ? 'column' : 'row',
+                            gap: '16px', 
+                            mb: 2 
+                        }}>
                             {displayContacts.map((contact) => (
                                 <SortableContactCard
                                     key={contact.id}
                                     contact={contact}
                                     onEdit={handleOpenEdit}
                                     onDelete={handleDeleteContact}
+                                    viewMode={viewMode}
                                 />
                             ))}
                         </Box>
@@ -266,11 +304,12 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
                                 contact={allContacts.find((c) => c.id === activeContactId)}
                                 onEdit={() => {}}
                                 onDelete={() => {}}
+                                viewMode={viewMode}
                             />
                         ) : null}
                     </DragOverlay>
                 </DndContext>
-                <Box sx={{ width: '24rem', mt: 2 }}>
+                <Box sx={{ width: viewMode === 'list' ? '100%' : '24rem', mt: 2 }}>
                     <Button
                         startIcon={<AddIcon />}
                         onClick={() => handleOpenEdit()}
