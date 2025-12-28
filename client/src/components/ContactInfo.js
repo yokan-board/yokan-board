@@ -6,13 +6,23 @@ function ContactInfo({ contact, viewMode = 'card' }) {
     const isList = viewMode === 'list';
     
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexGrow: 1, overflow: 'hidden' }}>
+        <Box sx={{ display: 'flex', alignItems: isList ? 'center' : 'flex-start', gap: 2, flexGrow: 1, overflow: 'hidden' }}>
             <Avatar
                 src={contact.avatarUrl || getGravatarUrl(contact.email)}
-                sx={{ width: isList ? 40 : 56, height: isList ? 40 : 56 }}
+                sx={{ 
+                    width: isList ? 40 : 56, 
+                    height: isList ? 40 : 56,
+                    alignSelf: isList ? 'center' : 'flex-start',
+                    mt: isList ? 0 : 0.5 
+                }}
             />
             <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                <Typography variant="h6" sx={{ fontSize: isList ? '1rem' : '1.25rem', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+                <Typography variant="h6" sx={{ 
+                    fontSize: isList ? '1rem' : '1.25rem', 
+                    display: isList ? 'flex' : 'block', 
+                    alignItems: isList ? 'center' : undefined, 
+                    flexWrap: 'wrap' 
+                }}>
                     {contact.name}
                     {isList && (
                         <>
