@@ -29,7 +29,7 @@ function ContactInfo({ contact, viewMode = 'card' }) {
                         </>
                     )}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom={!isList} noWrap>
+                <Typography variant="body2" color="text.secondary" gutterBottom={!isList}>
                     {contact.title} {contact.title && contact.company ? 'at' : ''} {contact.company}
                 </Typography>
                 {!isList && (
