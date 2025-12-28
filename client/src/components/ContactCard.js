@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Typography, IconButton, Card, CardContent, Tooltip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
 import ContactInfo from './ContactInfo';
 
 function ContactCard({ 
@@ -14,8 +16,29 @@ function ContactCard({
     isDeleteDisabled = false,
     deleteTooltip = ''
 }) {
+    const [copied, setCopied] = useState(false);
+
     const handleDelete = () => {
         onDelete(contact.id);
+    };
+
+    const handleCopy = async () => {
+        const details = [
+            contact.name,
+            contact.title && contact.company 
+                ? `${contact.title} at ${contact.company}` 
+                : (contact.title || contact.company || ''),
+            contact.email ? `Email: ${contact.email}` : '',
+            contact.phone ? `Phone: ${contact.phone}` : ''
+        ].filter(Boolean).join('\n');
+
+        try {
+            await navigator.clipboard.writeText(details);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+        }
     };
 
     const isInactive = contact.status === 'INACTIVE';
@@ -82,6 +105,11 @@ function ContactCard({
                             <DragHandleIcon fontSize="small" />
                         </IconButton>
                     )}
+                    <Tooltip title={copied ? "Copied!" : "Copy details"}>
+                        <IconButton size="small" onClick={handleCopy}>
+                            {copied ? <CheckIcon fontSize="small" color="success" /> : <ContentCopyIcon fontSize="small" />}
+                        </IconButton>
+                    </Tooltip>
                     <IconButton size="small" onClick={() => onEdit(contact)}>
                         <EditIcon fontSize="small" />
                     </IconButton>
