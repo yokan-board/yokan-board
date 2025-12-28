@@ -130,8 +130,8 @@ function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) {
                                             <Box sx={{ mt: 1, ml: '82px' }}>
                                                 {' '}
                                                 {/* Removed width */}
-                                                <Typography variant="subtitle2" gutterBottom>
-                                                    Description:
+                                                <Typography variant="subtitle1" gutterBottom>
+                                                    Description
                                                 </Typography>
                                                 <Box
                                                     dangerouslySetInnerHTML={{ __html: marked.parse(task.description) }}
@@ -153,7 +153,7 @@ function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) {
                                                 <TaskComments
                                                     comments={task.comments}
                                                     readOnly={true}
-                                                    setComments={() => {}}
+                                                    setComments={() => { }}
                                                     currentUser={null}
                                                 />
                                             </Box>
