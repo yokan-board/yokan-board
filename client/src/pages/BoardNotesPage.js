@@ -66,7 +66,9 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
     const [activeContactId, setActiveContactId] = useState(null);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingContact, setEditingContact] = useState(null);
-    const [viewMode, setViewMode] = useState('card');
+    const [viewMode, setViewMode] = useState(() => {
+        return localStorage.getItem('boardNotesContactViewMode') || 'card';
+    });
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -78,6 +80,7 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
     const handleViewModeChange = (event, newViewMode) => {
         if (newViewMode !== null) {
             setViewMode(newViewMode);
+            localStorage.setItem('boardNotesContactViewMode', newViewMode);
         }
     };
 
