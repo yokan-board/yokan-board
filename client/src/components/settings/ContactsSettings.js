@@ -1,20 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
     Box,
-    Typography,
-    List,
-    ListItem,
-    ListItemText,
-    ListItemAvatar,
-    Avatar,
-    IconButton,
-    Tooltip
+    Typography
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import contactService from '../../services/contactService';
-import { getGravatarUrl } from '../../utils/gravatar';
 import ContactEditDialog from '../ContactEditDialog';
+import ContactCard from '../ContactCard';
 
 function ContactsSettings() {
     const [contacts, setContacts] = useState([]);
@@ -72,48 +63,19 @@ function ContactsSettings() {
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 This is a centralized list of all your contacts from across all boards.
             </Typography>
-            <List>
+            <Box sx={{ mt: 2 }}>
                 {contacts.map((contact) => (
-                    <ListItem
+                    <ContactCard
                         key={contact.id}
-                        secondaryAction={
-                            <>
-                                <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(contact)}>
-                                    <EditIcon />
-                                </IconButton>
-                                <Tooltip title={contact.usageCount > 0 ? "This contact is referenced by one or more boards and cannot be deleted." : ""}>
-                                    <span>
-                                        <IconButton 
-                                            edge="end" 
-                                            aria-label="delete" 
-                                            onClick={() => handleDelete(contact.id)} 
-                                            sx={{ ml: 1 }}
-                                            disabled={contact.usageCount > 0}
-                                        >
-                                            <DeleteIcon />
-                                        </IconButton>
-                                    </span>
-                                </Tooltip>
-                            </>
-                        }
-                    >
-                        <ListItemAvatar>
-                            <Avatar src={contact.avatarUrl || getGravatarUrl(contact.email)} />
-                        </ListItemAvatar>
-                        <ListItemText
-                            primary={
-                                <>
-                                    {contact.name}
-                                    <Typography component="span" color="text.secondary" sx={{ ml: 1, opacity: 0.6 }}>
-                                        / {contact.email}
-                                    </Typography>
-                                </>
-                            }
-                            secondary={`${contact.title || ''}${contact.title && contact.company ? ' at ' : ''}${contact.company || ''}`}
-                        />
-                    </ListItem>
+                        contact={contact}
+                        viewMode="list"
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        isDeleteDisabled={contact.usageCount > 0}
+                        deleteTooltip={contact.usageCount > 0 ? "This contact is referenced by one or more boards and cannot be deleted." : ""}
+                    />
                 ))}
-            </List>
+            </Box>
 
             <ContactEditDialog
                 open={isEditDialogOpen}

@@ -1,11 +1,19 @@
 import React from 'react';
-import { Box, Typography, IconButton, Avatar, Card, CardContent } from '@mui/material';
+import { Box, Typography, IconButton, Card, CardContent, Tooltip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
-import { getGravatarUrl } from '../utils/gravatar';
+import ContactInfo from './ContactInfo';
 
-function ContactCard({ contact, onEdit, onDelete, dragHandleProps, viewMode = 'card' }) {
+function ContactCard({ 
+    contact, 
+    onEdit, 
+    onDelete, 
+    dragHandleProps, 
+    viewMode = 'card',
+    isDeleteDisabled = false,
+    deleteTooltip = ''
+}) {
     const handleDelete = () => {
         onDelete(contact.id);
     };
@@ -38,48 +46,7 @@ function ContactCard({ contact, onEdit, onDelete, dragHandleProps, viewMode = 'c
                 alignItems: 'center',
                 gap: 2
             }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexGrow: 1 }}>
-                    <Avatar
-                        src={contact.avatarUrl || getGravatarUrl(contact.email)}
-                        sx={{ width: isList ? 40 : 56, height: isList ? 40 : 56 }}
-                    />
-                    <Box sx={{ flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontSize: isList ? '1rem' : '1.25rem', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-                            {contact.name}
-                            {isList && (
-                                <>
-                                    {contact.email && (
-                                        <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1, opacity: 0.6 }}>
-                                            / {contact.email}
-                                        </Typography>
-                                    )}
-                                    {contact.phone && (
-                                        <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1, opacity: 0.6 }}>
-                                            / {contact.phone}
-                                        </Typography>
-                                    )}
-                                </>
-                            )}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" gutterBottom={!isList}>
-                            {contact.title} {contact.title && contact.company ? 'at' : ''} {contact.company}
-                        </Typography>
-                        {!isList && (
-                            <Box sx={{ mt: 1 }}>
-                                {contact.email && (
-                                    <Typography variant="body2" color="text.primary">
-                                        {contact.email}
-                                    </Typography>
-                                )}
-                                {contact.phone && (
-                                    <Typography variant="body2" color="text.primary">
-                                        {contact.phone}
-                                    </Typography>
-                                )}
-                            </Box>
-                        )}
-                    </Box>
-                </Box>
+                <ContactInfo contact={contact} viewMode={viewMode} />
                 
                 <Box sx={{ 
                     position: isList ? 'static' : 'absolute', 
@@ -117,9 +84,17 @@ function ContactCard({ contact, onEdit, onDelete, dragHandleProps, viewMode = 'c
                     <IconButton size="small" onClick={() => onEdit(contact)}>
                         <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" onClick={handleDelete}>
-                        <DeleteIcon fontSize="small" />
-                    </IconButton>
+                    <Tooltip title={deleteTooltip}>
+                        <span>
+                            <IconButton 
+                                size="small" 
+                                onClick={handleDelete}
+                                disabled={isDeleteDisabled}
+                            >
+                                <DeleteIcon fontSize="small" />
+                            </IconButton>
+                        </span>
+                    </Tooltip>
                 </Box>
             </CardContent>
         </Card>
