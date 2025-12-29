@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     Box,
     Typography,
-    Button
+    Button,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Divider
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import contactService from '../../services/contactService';
@@ -13,6 +18,7 @@ function ContactsSettings() {
     const [contacts, setContacts] = useState([]);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingContact, setEditingContact] = useState(null);
+    const [sortBy, setSortBy] = useState('name'); // 'name', 'company', 'lastName', 'title'
 
     const fetchContacts = async () => {
         try {
@@ -68,6 +74,87 @@ function ContactsSettings() {
         }
     };
 
+    const handleSortChange = (event) => {
+        setSortBy(event.target.value);
+    };
+
+    // Helper to extract last name
+    const getLastNameInfo = (fullName) => {
+        if (!fullName) return { lastName: '', rest: '' };
+        const parts = fullName.trim().split(/\s+/);
+        if (parts.length === 1) return { lastName: parts[0], rest: '' };
+        const lastName = parts.pop();
+        const rest = parts.join(' ');
+        return { lastName, rest };
+    };
+
+    const groupedContacts = useMemo(() => {
+        const sorted = [...contacts].sort((a, b) => {
+            let valA = '', valB = '';
+
+            if (sortBy === 'name') {
+                valA = a.name || '';
+                valB = b.name || '';
+            } else if (sortBy === 'company') {
+                valA = a.company || '';
+                valB = b.company || '';
+                // Secondary sort by name
+                if (valA === valB) {
+                    return (a.name || '').localeCompare(b.name || '');
+                }
+            } else if (sortBy === 'lastName') {
+                valA = getLastNameInfo(a.name).lastName;
+                valB = getLastNameInfo(b.name).lastName;
+                // Secondary sort by first name
+                if (valA === valB) {
+                    return (a.name || '').localeCompare(b.name || '');
+                }
+            } else if (sortBy === 'title') {
+                valA = a.title || '';
+                valB = b.title || '';
+                // Secondary sort by name
+                if (valA === valB) {
+                    return (a.name || '').localeCompare(b.name || '');
+                }
+            }
+            
+            return valA.localeCompare(valB);
+        });
+
+        const groups = {};
+
+        sorted.forEach(contact => {
+            let groupKey = '';
+            let displayContact = { ...contact };
+
+            if (sortBy === 'name') {
+                groupKey = (contact.name || '#')[0].toUpperCase();
+            } else if (sortBy === 'company') {
+                groupKey = contact.company || 'No Company';
+            } else if (sortBy === 'lastName') {
+                const { lastName, rest } = getLastNameInfo(contact.name);
+                groupKey = (lastName || '#')[0].toUpperCase();
+                if (lastName && rest) {
+                    displayContact.name = `${lastName}, ${rest}`;
+                }
+            } else if (sortBy === 'title') {
+                groupKey = (contact.title || 'No Title')[0].toUpperCase();
+            }
+
+            // Handle non-letter keys for name/title sorts if necessary, ensuring everything falls into a bucket
+            if (!groupKey || !groupKey.match(/[A-Z0-9]/i) && sortBy !== 'company') {
+                groupKey = '#';
+            }
+
+            if (!groups[groupKey]) {
+                groups[groupKey] = [];
+            }
+            groups[groupKey].push(displayContact);
+        });
+
+        return groups;
+    }, [contacts, sortBy]);
+
     return (
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -77,26 +164,62 @@ function ContactsSettings() {
                         This is a centralized list of all your contacts from across all boards.
                     </Typography>
                 </Box>
-                <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={handleAdd}
-                >
-                    Add Contact
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    <FormControl size="small" sx={{ minWidth: 150 }}>
+                        <InputLabel id="sort-by-label">Sort By</InputLabel>
+                        <Select
+                            labelId="sort-by-label"
+                            id="sort-by-select"
+                            value={sortBy}
+                            label="Sort By"
+                            onChange={handleSortChange}
+                        >
+                            <MenuItem value="name">Full Name</MenuItem>
+                            <MenuItem value="company">Company</MenuItem>
+                            <MenuItem value="lastName">Last Name</MenuItem>
+                            <MenuItem value="title">Title</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <Button
+                        variant="contained"
+                        startIcon={<AddIcon />}
+                        onClick={handleAdd}
+                    >
+                        Add Contact
+                    </Button>
+                </Box>
             </Box>
+            
             <Box sx={{ mt: 2 }}>
-                {contacts.map((contact) => (
-                    <ContactCard
-                        key={contact.id}
-                        contact={contact}
-                        viewMode="list"
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        isDeleteDisabled={contact.usageCount > 0}
-                        deleteTooltip={contact.usageCount > 0 ? "This contact is referenced by one or more boards and cannot be deleted." : ""}
-                    />
+                {Object.entries(groupedContacts).map(([group, groupContacts]) => (
+                    <Box key={group} sx={{ mb: 3 }}>
+                        <Typography variant="h6" sx={{ 
+                            color: 'text.secondary', 
+                            borderBottom: '1px solid', 
+                            borderColor: 'divider', 
+                            mb: 2, 
+                            pb: 0.5 
+                        }}>
+                            {group}
+                        </Typography>
+                        {groupContacts.map((contact) => (
+                            <ContactCard
+                                key={contact.id}
+                                contact={contact}
+                                viewMode="list"
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                                isDeleteDisabled={contact.usageCount > 0}
+                                deleteTooltip={contact.usageCount > 0 ? "This contact is referenced by one or more boards and cannot be deleted." : ""}
+                            />
+                        ))}
+                    </Box>
                 ))}
+                {contacts.length === 0 && (
+                     <Typography color="text.secondary" align="center" sx={{ mt: 4 }}>
+                         No contacts found. Click "Add Contact" to create one.
+                     </Typography>
+                )}
             </Box>
 
             <ContactEditDialog
