@@ -393,6 +393,7 @@ function EditTaskPage() {
                                 comments={comments}
                                 setComments={setComments}
                                 currentUser={user}
+                                absoluteDates={true}
                             />
                         </Box>
                     </>
