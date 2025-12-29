@@ -1,20 +1,20 @@
 import React, { useState, Suspense, useEffect } from 'react';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Box, CircularProgress } from '@mui/material';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import NightlightRoundIcon from '@mui/icons-material/NightlightRound';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'; // Import the ExitToApp icon
 import { useThemeContext } from './contexts/ThemeContext';
-import { AuthProvider, useAuth } from './contexts/AuthContext'; // Import useAuth to get the logout function
-import { BoardProvider } from './contexts/BoardContext';
+import { useAuth } from './contexts/AuthContext'; // Import useAuth to get the logout function
 import Sidebar from './components/Sidebar'; // Import the new Sidebar component
 import { setNavigateFunction } from './utils/authUtils'; // Import setNavigateFunction
 
-function AppContent() {
+function App() {
     const { mode, toggleColorMode } = useThemeContext();
     const { isAuthenticated, logout } = useAuth(); // Get user from useAuth and logout function
     const [open, setOpen] = useState(true); // Manages the permanent state of the sidebar
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         setNavigateFunction(navigate);
@@ -24,6 +24,9 @@ function AppContent() {
         logout(); // No longer pass 'false'
         navigate('/login');
     };
+
+    const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+    const showSidebar = isAuthenticated && !isAuthPage;
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -69,7 +72,7 @@ function AppContent() {
                     )}
                 </Toolbar>
             </AppBar>
-            {isAuthenticated && <Sidebar open={open} setOpen={setOpen} />}
+            {showSidebar && <Sidebar open={open} setOpen={setOpen} />}
             <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                 <Toolbar />
                 <Suspense fallback={<CircularProgress />}>
@@ -77,16 +80,6 @@ function AppContent() {
                 </Suspense>
             </Box>
         </Box>
-    );
-}
-
-function App() {
-    return (
-        <AuthProvider>
-            <BoardProvider>
-                <AppContent />
-            </BoardProvider>
-        </AuthProvider>
     );
 }
 

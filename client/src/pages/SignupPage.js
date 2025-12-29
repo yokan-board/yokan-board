@@ -17,8 +17,14 @@ function SignupPage() {
     const [passwordError, setPasswordError] = useState('');
     const [emailError, setEmailError] = useState('');
 
-    const { signup } = useAuth();
+    const { signup, isAuthenticated } = useAuth();
     const navigate = useNavigate();
+
+    React.useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/dashboard');
+        }
+    }, [isAuthenticated, navigate]);
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
     const handleMouseDownPassword = (event) => {

@@ -7,10 +7,16 @@ function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
-    const { login } = useAuth();
+    const { login, isAuthenticated } = useAuth();
     const location = useLocation(); // Get location object
     const navigate = useNavigate();
     const fromInactivity = location.state?.fromInactivity; // Check for inactivity flag
+
+    React.useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/dashboard');
+        }
+    }, [isAuthenticated, navigate]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
