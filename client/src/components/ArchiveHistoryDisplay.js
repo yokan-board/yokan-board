@@ -155,6 +155,7 @@ function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) {
                                                     readOnly={true}
                                                     setComments={() => { }}
                                                     currentUser={null}
+                                                    absoluteDates={true}
                                                 />
                                             </Box>
                                         )}

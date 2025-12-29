@@ -19,7 +19,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(relativeTime);
 
-function TaskComments({ comments, setComments, currentUser, readOnly = false }) {
+function TaskComments({ comments, setComments, currentUser, readOnly = false, absoluteDates = false }) {
     const [newComment, setNewComment] = useState('');
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editContent, setEditContent] = useState('');
@@ -153,7 +153,9 @@ function TaskComments({ comments, setComments, currentUser, readOnly = false }) 
                                             {comment.username}
                                         </Typography>
                                         <Typography variant="caption" color="text.secondary">
-                                            {dayjs(comment.createdAt).fromNow()}
+                                            {absoluteDates
+                                                ? `${dayjs(comment.createdAt).format('YYYY-MM-DD [at] hh:mm:ss A')} (${dayjs(comment.createdAt).fromNow()})`
+                                                : dayjs(comment.createdAt).fromNow()}
                                             {comment.updatedAt && ' (edited)'}
                                         </Typography>
                                     </Box>
