@@ -38,7 +38,7 @@ exports.getUserProfile = async (req, res, next /* eslint-disable-line no-unused-
  * @param {function} next - The Express next middleware function.
  * @returns {Promise<void>}
  */
-exports.updateUserProfile = async (req, res, next /* eslint-disable-line no-unused-vars */) => {
+exports.updateUserProfile = async (req, res, next) => {
     const userId = req.user.id;
     const { display_name, email } = req.body;
 
@@ -82,7 +82,7 @@ exports.updateUserProfile = async (req, res, next /* eslint-disable-line no-unus
  * @param {function} next - The Express next middleware function.
  * @returns {Promise<void>}
  */
-exports.updatePassword = async (req, res, next /* eslint-disable-line no-unused-vars */) => {
+exports.updatePassword = async (req, res, next) => {
     const userId = req.user.id;
     const { currentPassword, newPassword } = req.body;
 
@@ -112,7 +112,7 @@ exports.updatePassword = async (req, res, next /* eslint-disable-line no-unused-
  * @param {function} next - The Express next middleware function.
  * @returns {Promise<void>}
  */
-exports.getPreferences = async (req, res, next /* eslint-disable-line no-unused-vars */) => {
+exports.getPreferences = async (req, res, next) => {
     try {
         const preferences = req.user.preferences ? JSON.parse(req.user.preferences) : {};
         // Ensure default value for hideUnnamedCollectionHeading
@@ -132,7 +132,7 @@ exports.getPreferences = async (req, res, next /* eslint-disable-line no-unused-
  * @param {function} next - The Express next middleware function.
  * @returns {Promise<void>}
  */
-exports.updatePreferences = async (req, res, next /* eslint-disable-line no-unused-vars */) => {
+exports.updatePreferences = async (req, res, next) => {
     const userId = req.user.id;
     const newPreferences = req.body;
 
@@ -156,7 +156,7 @@ exports.updatePreferences = async (req, res, next /* eslint-disable-line no-unus
  * @param {function} next - The Express next middleware function.
  * @returns {Promise<void>}
  */
-exports.getAllUsers = async (req, res, next /* eslint-disable-line no-unused-vars */) => {
+exports.getAllUsers = async (req, res, next) => {
     try {
         const users = await userModel.findAllUsers();
         // Mask sensitive data like password if it were included (it shouldn't be by findAllUsers query)
@@ -173,7 +173,7 @@ exports.getAllUsers = async (req, res, next /* eslint-disable-line no-unused-var
  * @param {function} next - The Express next middleware function.
  * @returns {Promise<void>}
  */
-exports.updateUserEnabledStatus = async (req, res, next /* eslint-disable-line no-unused-vars */) => {
+exports.updateUserEnabledStatus = async (req, res, next) => {
     const userId = parseInt(req.params.id, 10);
     const { enabled } = req.body;
 
@@ -195,5 +195,3 @@ exports.updateUserEnabledStatus = async (req, res, next /* eslint-disable-line n
         next(new AppError(err.message, 400));
     }
 };
-
-

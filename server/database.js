@@ -78,21 +78,30 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
                     }
 
                     if (!columns.includes('enabled')) {
-                        db.run(`ALTER TABLE users ADD COLUMN enabled INTEGER DEFAULT 0`, (errAlter) => {
-                            if (errAlter) {
-                                console.error('Error adding enabled column:', errAlter.message);
-                            } else {
-                                console.log('Added enabled column to users table.');
-                                // Set existing users to enabled = 1
-                                db.run(`UPDATE users SET enabled = 1 WHERE enabled IS NULL`, (errUpdate) => {
-                                    if (errUpdate) {
-                                        console.error('Error setting default for enabled column:', errUpdate.message);
-                                    } else {
-                                        console.log('Set enabled=1 for existing users.');
-                                    }
-                                });
+                        db.run(
+                            `ALTER TABLE users ADD COLUMN enabled INTEGER DEFAULT 0`,
+                            (errAlter) => {
+                                if (errAlter) {
+                                    console.error('Error adding enabled column:', errAlter.message);
+                                } else {
+                                    console.log('Added enabled column to users table.');
+                                    // Set existing users to enabled = 1
+                                    db.run(
+                                        `UPDATE users SET enabled = 1 WHERE enabled IS NULL`,
+                                        (errUpdate) => {
+                                            if (errUpdate) {
+                                                console.error(
+                                                    'Error setting default for enabled column:',
+                                                    errUpdate.message
+                                                );
+                                            } else {
+                                                console.log('Set enabled=1 for existing users.');
+                                            }
+                                        }
+                                    );
+                                }
                             }
-                        });
+                        );
                     }
 
                     if (!columns.includes('last_login')) {
@@ -148,21 +157,33 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
                             }
 
                             if (!boardColumns.includes('position')) {
-                                db.run(`ALTER TABLE boards ADD COLUMN position INTEGER DEFAULT 0`, (errAlter) => {
-                                    if (errAlter) {
-                                        console.error('Error adding position column to boards table:', errAlter.message);
-                                    } else {
-                                        console.log('Added position column to boards table.');
-                                        // Initialize positions based on ID
-                                        db.run(`UPDATE boards SET position = id WHERE position IS NULL OR position = 0`, (errUpdate) => {
-                                            if (errUpdate) {
-                                                console.error('Error initializing positions:', errUpdate.message);
-                                            } else {
-                                                console.log('Initialized board positions.');
-                                            }
-                                        });
+                                db.run(
+                                    `ALTER TABLE boards ADD COLUMN position INTEGER DEFAULT 0`,
+                                    (errAlter) => {
+                                        if (errAlter) {
+                                            console.error(
+                                                'Error adding position column to boards table:',
+                                                errAlter.message
+                                            );
+                                        } else {
+                                            console.log('Added position column to boards table.');
+                                            // Initialize positions based on ID
+                                            db.run(
+                                                `UPDATE boards SET position = id WHERE position IS NULL OR position = 0`,
+                                                (errUpdate) => {
+                                                    if (errUpdate) {
+                                                        console.error(
+                                                            'Error initializing positions:',
+                                                            errUpdate.message
+                                                        );
+                                                    } else {
+                                                        console.log('Initialized board positions.');
+                                                    }
+                                                }
+                                            );
+                                        }
                                     }
-                                });
+                                );
                             }
                         });
 

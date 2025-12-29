@@ -26,6 +26,8 @@ tags:
     description: User account management
   - name: Boards
     description: Board management
+  - name: Contacts
+    description: Contact management
   - name: About
     description: Application information
 
@@ -121,11 +123,98 @@ components:
                     description: Milk, eggs, bread
                     parentId: null
                     subtasks: []
+            org:
+              short_name: MyOrg
+              full_name: My Organization
+              logo: https://example.com/logo.png
+              url: https://example.com
         collection:
           type: string
           nullable: true
           description: Optional name of the collection the board belongs to.
           example: My Projects
+    BoardPosition:
+      type: object
+      required:
+        - id
+        - position
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 101
+        position:
+          type: integer
+          example: 1
+    Contact:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the contact.
+          example: 1
+        name:
+          type: string
+          description: Full name of the contact.
+          example: Jane Doe
+        title:
+          type: string
+          nullable: true
+          description: Job title.
+          example: Software Engineer
+        company:
+          type: string
+          nullable: true
+          description: Company name.
+          example: Tech Corp
+        email:
+          type: string
+          format: email
+          description: Email address.
+          example: jane.doe@example.com
+        phone:
+          type: string
+          nullable: true
+          description: Phone number.
+          example: "+1 (555) 123-4567"
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+          description: URL to the contact's avatar image.
+          example: https://example.com/avatar.png
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+          default: ACTIVE
+          description: Status of the contact.
+          example: ACTIVE
+        usageCount:
+          type: integer
+          description: Number of boards that reference this contact.
+          example: 2
+    ContactStats:
+      type: object
+      properties:
+        added:
+          type: integer
+          example: 5
+        merged:
+          type: integer
+          example: 2
+        skipped:
+          type: integer
+          example: 1
+        replaced:
+          type: integer
+          example: 0
+        errors:
+          type: integer
+          example: 0
     Error:
       type: object
       properties:
@@ -664,6 +753,50 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /v1.1/boards/reorder:
+    put:
+      summary: Update the positions of multiple boards
+      tags:
+        - Boards
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - positions
+              properties:
+                positions:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/BoardPosition'
+      responses:
+        '200':
+          description: Board positions successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized (Missing or invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /v1.1/boards/{id}:
     get:
       summary: Get a single board by ID
@@ -1001,6 +1134,315 @@ paths:
                 $ref: '#/components/schemas/Error'
         '401':
           description: Unauthorized (Missing or invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1.1/contacts:
+    get:
+      summary: Get all contacts for the authenticated user
+      tags:
+        - Contacts
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of contacts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contact'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new contact
+      tags:
+        - Contacts
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contact'
+      responses:
+        '201':
+          description: Contact successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    $ref: '#/components/schemas/Contact'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Contact with this email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1.1/contacts/search:
+    get:
+      summary: Search for contacts by name or email
+      tags:
+        - Contacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+          required: true
+          description: Search query (name or email).
+          example: Jane
+      responses:
+        '200':
+          description: A list of matching contacts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contact'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1.1/contacts/bulk:
+    post:
+      summary: Bulk import contacts
+      tags:
+        - Contacts
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - contacts
+              properties:
+                contacts:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Contact'
+                strategy:
+                  type: string
+                  enum: [merge, skip, replace]
+                  default: merge
+                  description: How to handle existing contacts with the same email.
+      responses:
+        '200':
+          description: Bulk import results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    $ref: '#/components/schemas/ContactStats'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1.1/contacts/{id}:
+    get:
+      summary: Get a single contact by ID
+      tags:
+        - Contacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Numeric ID of the contact to retrieve.
+      responses:
+        '200':
+          description: Contact details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    $ref: '#/components/schemas/Contact'
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update an existing contact
+      tags:
+        - Contacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Numeric ID of the contact to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contact'
+      responses:
+        '200':
+          description: Contact successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  changes:
+                    type: integer
+                    example: 1
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a contact
+      tags:
+        - Contacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Numeric ID of the contact to delete.
+      responses:
+        '204':
+          description: Contact successfully deleted
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1.1/contacts/{id}/usage:
+    get:
+      summary: Get usage count for a specific contact
+      tags:
+        - Contacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Numeric ID of the contact.
+      responses:
+        '200':
+          description: Contact usage info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      usageCount:
+                        type: integer
+                        example: 2
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:

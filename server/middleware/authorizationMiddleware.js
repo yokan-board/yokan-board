@@ -25,7 +25,6 @@ const isOwner = (req, res, next) => {
     next();
 };
 
-
 /**
  * Middleware to check if the authenticated user is an administrator.
  * Assumes user with ID 1 is the admin.
@@ -36,7 +35,9 @@ const isOwner = (req, res, next) => {
  */
 const isAdmin = (req, res, next) => {
     if (!req.user || Number(req.user.id) !== 1) {
-        return next(new ForbiddenError('Forbidden: You must be an administrator to access this resource.'));
+        return next(
+            new ForbiddenError('Forbidden: You must be an administrator to access this resource.')
+        );
     }
     next();
 };

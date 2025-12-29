@@ -150,7 +150,13 @@ describe('Board Model', () => {
                 callback.call({ changes: 1 }); // Simulate successful update
             });
 
-            const updatedBoard = await boardModel.updateBoard(boardId, name, data, collection, position);
+            const updatedBoard = await boardModel.updateBoard(
+                boardId,
+                name,
+                data,
+                collection,
+                position
+            );
 
             expect(db.run).toHaveBeenCalledWith(
                 expect.stringContaining('UPDATE boards set'),

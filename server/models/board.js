@@ -73,20 +73,25 @@ exports.getBoardById = (id) => {
  */
 exports.createBoard = (user_id, name, data, collection, position) => {
     return new Promise((resolve, reject) => {
-        const insert = 'INSERT INTO boards (user_id, name, data, collection, position) VALUES (?,?,?,?,?)';
+        const insert =
+            'INSERT INTO boards (user_id, name, data, collection, position) VALUES (?,?,?,?,?)';
         const finalPosition = position !== undefined ? position : 0;
-        db.run(insert, [user_id, name, JSON.stringify(data), collection, finalPosition], function (err) {
-            if (err) {
-                reject(err);
-            } else {
-                const newId = this.lastID;
-                // If position was default 0, update it to its own ID to put it at the end
-                if (finalPosition === 0) {
-                    db.run('UPDATE boards SET position = ? WHERE id = ?', [newId, newId]);
+        db.run(
+            insert,
+            [user_id, name, JSON.stringify(data), collection, finalPosition],
+            function (err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    const newId = this.lastID;
+                    // If position was default 0, update it to its own ID to put it at the end
+                    if (finalPosition === 0) {
+                        db.run('UPDATE boards SET position = ? WHERE id = ?', [newId, newId]);
+                    }
+                    resolve({ id: newId });
                 }
-                resolve({ id: newId });
             }
-        });
+        );
     });
 };
 
@@ -181,15 +186,21 @@ exports.getBoardForExport = (id, user_id) => {
  */
 exports.importBoard = (user_id, name, data, collection) => {
     return runTransaction(async () => {
-        const insertBoardSql = 'INSERT INTO boards (user_id, name, data, collection) VALUES (?,?,?,?)'; // Add collection column
+        const insertBoardSql =
+            'INSERT INTO boards (user_id, name, data, collection) VALUES (?,?,?,?)'; // Add collection column
         const newBoardId = await new Promise((resolve, reject) => {
-            db.run(insertBoardSql, [user_id, name, JSON.stringify(data), collection], function (err) { // Add collection parameter
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(this.lastID);
+            db.run(
+                insertBoardSql,
+                [user_id, name, JSON.stringify(data), collection],
+                function (err) {
+                    // Add collection parameter
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(this.lastID);
+                    }
                 }
-            });
+            );
         });
         return {
             id: newBoardId,

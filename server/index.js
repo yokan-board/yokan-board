@@ -42,10 +42,7 @@ app.use(
                     );
             } else {
                 // Default allowed patterns for local development and local network if not specified in .env
-                allowedOrigins = [
-                    /^http:\/\/localhost(:\d+)?$/,
-                    /^http:\/\/127\.0\.0\.1(:\d+)?$/,
-                ];
+                allowedOrigins = [/^http:\/\/localhost(:\d+)?$/, /^http:\/\/127\.0\.0\.1(:\d+)?$/];
             }
 
             const isAllowed = allowedOrigins.some((pattern) => pattern.test(origin));
@@ -90,13 +87,11 @@ app.use('/api/v1.1', userRoutes);
 app.use('/api/v1.1/contacts', isAuthenticated, contactRoutes);
 app.use('/api/v1.1', aboutRoutes);
 
-
 // Legacy API Routes (to be deprecated)
 app.use('/api', authRoutes);
 app.use('/api', boardRoutes);
 app.use('/api/contacts', isAuthenticated, contactRoutes);
 app.use('/api', aboutRoutes);
-
 
 // Handle 404 for API routes
 app.use('/api', (req, res, next) => {

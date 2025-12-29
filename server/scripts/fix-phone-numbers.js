@@ -37,7 +37,7 @@ function formatPhoneNumber(phone) {
     return cleaned;
 }
 
-db.all("SELECT id, phone FROM contacts", [], (err, rows) => {
+db.all('SELECT id, phone FROM contacts', [], (err, rows) => {
     if (err) {
         console.error(err.message);
         process.exit(1);
@@ -50,11 +50,15 @@ db.all("SELECT id, phone FROM contacts", [], (err, rows) => {
         if (row.phone) {
             const formatted = formatPhoneNumber(row.phone);
             if (formatted !== row.phone) {
-                db.run("UPDATE contacts SET phone = ? WHERE id = ?", [formatted, row.id], function(err) {
-                    if (err) {
-                        console.error(`Error updating contact ${row.id}:`, err.message);
+                db.run(
+                    'UPDATE contacts SET phone = ? WHERE id = ?',
+                    [formatted, row.id],
+                    function (err) {
+                        if (err) {
+                            console.error(`Error updating contact ${row.id}:`, err.message);
+                        }
                     }
-                });
+                );
                 updatedCount++;
             }
         }

@@ -45,7 +45,8 @@ const authenticateUser = async (req, res, next) => {
         }
         if (err.name === 'TokenExpiredError') {
             // Special handling for refresh token requests
-            if (req.originalUrl === '/api/refresh-token') { // Assuming '/api' is the base path
+            if (req.originalUrl === '/api/refresh-token') {
+                // Assuming '/api' is the base path
                 const decodedExpired = jwt.decode(token); // Decode the expired token to get user ID
                 if (decodedExpired && decodedExpired.id) {
                     const currentUser = await userModel.findUserById(decodedExpired.id);
@@ -60,6 +61,5 @@ const authenticateUser = async (req, res, next) => {
         next(new UnauthorizedError('Invalid token'));
     }
 };
-
 
 module.exports = authenticateUser;

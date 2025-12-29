@@ -19,7 +19,8 @@ describe('Kanban Board API', () => {
             db.run('DELETE FROM users');
             db.run('DELETE FROM boards');
             const hashedPassword = bcrypt.hashSync('testpassword', 10);
-            const insert = 'INSERT INTO users (username, password, email, enabled) VALUES (?,?,?,1)'; // Added email and enabled
+            const insert =
+                'INSERT INTO users (username, password, email, enabled) VALUES (?,?,?,1)'; // Added email and enabled
             db.run(insert, ['testuser', hashedPassword, 'test@example.com'], async function (err) {
                 // Added email
                 if (err) {

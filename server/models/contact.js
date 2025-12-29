@@ -113,10 +113,10 @@ exports.getContactUsageCount = (contactId, userId) => {
         FROM boards, json_each(boards.data, '$.contactIds') 
         WHERE boards.user_id = ? AND json_each.value = ?
     `;
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         db.get(sql, [userId, contactId], (err, row) => {
             if (err) {
-                // If data is not valid JSON or contactIds doesn't exist, it might throw. 
+                // If data is not valid JSON or contactIds doesn't exist, it might throw.
                 // In that case, we fallback to 0.
                 resolve(0);
             } else {

@@ -41,7 +41,7 @@ exports.bulkImportContacts = async (req, res, next) => {
             merged: 0,
             skipped: 0,
             replaced: 0,
-            errors: 0
+            errors: 0,
         };
 
         const userId = req.user.id;
@@ -65,7 +65,7 @@ exports.bulkImportContacts = async (req, res, next) => {
                         await contactModel.createContact({
                             ...contactData,
                             user_id: userId,
-                            phone: formatPhoneNumber(contactData.phone)
+                            phone: formatPhoneNumber(contactData.phone),
                         });
                         stats.replaced++;
                     } else {
@@ -77,7 +77,7 @@ exports.bulkImportContacts = async (req, res, next) => {
                             email: existing.email, // email stays same
                             phone: formatPhoneNumber(contactData.phone || existing.phone),
                             avatarUrl: contactData.avatarUrl || existing.avatarUrl,
-                            status: contactData.status || existing.status
+                            status: contactData.status || existing.status,
                         };
                         await contactModel.updateContact(existing.id, userId, updatedData);
                         stats.merged++;
@@ -86,7 +86,7 @@ exports.bulkImportContacts = async (req, res, next) => {
                     await contactModel.createContact({
                         ...contactData,
                         user_id: userId,
-                        phone: formatPhoneNumber(contactData.phone)
+                        phone: formatPhoneNumber(contactData.phone),
                     });
                     stats.added++;
                 }
@@ -105,12 +105,14 @@ exports.bulkImportContacts = async (req, res, next) => {
 exports.getAllContacts = async (req, res, next) => {
     try {
         const contacts = await contactModel.getAllContactsByUserId(req.user.id);
-        
+
         // Enrich contacts with usage count
-        const enrichedContacts = await Promise.all(contacts.map(async (contact) => {
-            const usageCount = await contactModel.getContactUsageCount(contact.id, req.user.id);
-            return { ...contact, usageCount };
-        }));
+        const enrichedContacts = await Promise.all(
+            contacts.map(async (contact) => {
+                const usageCount = await contactModel.getContactUsageCount(contact.id, req.user.id);
+                return { ...contact, usageCount };
+            })
+        );
 
         res.json({ message: 'success', data: enrichedContacts });
     } catch (err) {
@@ -129,10 +131,10 @@ exports.getContactUsage = async (req, res, next) => {
 
 exports.createContact = async (req, res, next) => {
     try {
-        const contactData = { 
-            ...req.body, 
+        const contactData = {
+            ...req.body,
             user_id: req.user.id,
-            phone: formatPhoneNumber(req.body.phone)
+            phone: formatPhoneNumber(req.body.phone),
         };
         const newContact = await contactModel.createContact(contactData);
         res.status(201).json({ message: 'success', data: newContact });
@@ -161,7 +163,7 @@ exports.updateContact = async (req, res, next) => {
     try {
         const updatedData = {
             ...req.body,
-            phone: formatPhoneNumber(req.body.phone)
+            phone: formatPhoneNumber(req.body.phone),
         };
         const result = await contactModel.updateContact(req.params.id, req.user.id, updatedData);
         if (result.changes === 0) {

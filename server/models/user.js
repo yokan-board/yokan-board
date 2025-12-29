@@ -123,4 +123,3 @@ exports.findAllUsers = () => {
         });
     });
 };
-

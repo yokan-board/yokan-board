@@ -19,8 +19,14 @@ exports.createBoardValidation = [
     check('data.org').optional().isObject().withMessage('org must be an object'),
     check('data.org.short_name').optional().isString().withMessage('short_name must be a string'),
     check('data.org.full_name').optional().isString().withMessage('full_name must be a string'),
-    check('data.org.logo').optional().isString().withMessage('logo must be a string (URL or Base64)'),
-    check('data.org.url').optional({ checkFalsy: true }).isURL().withMessage('url must be a valid URL'),
+    check('data.org.logo')
+        .optional()
+        .isString()
+        .withMessage('logo must be a string (URL or Base64)'),
+    check('data.org.url')
+        .optional({ checkFalsy: true })
+        .isURL()
+        .withMessage('url must be a valid URL'),
 ];
 
 /**
@@ -39,6 +45,12 @@ exports.updateBoardValidation = [
     check('data.org').optional().isObject().withMessage('org must be an object'),
     check('data.org.short_name').optional().isString().withMessage('short_name must be a string'),
     check('data.org.full_name').optional().isString().withMessage('full_name must be a string'),
-    check('data.org.logo').optional().isString().withMessage('logo must be a string (URL or Base64)'),
-    check('data.org.url').optional({ checkFalsy: true }).isURL().withMessage('url must be a valid URL'),
+    check('data.org.logo')
+        .optional()
+        .isString()
+        .withMessage('logo must be a string (URL or Base64)'),
+    check('data.org.url')
+        .optional({ checkFalsy: true })
+        .isURL()
+        .withMessage('url must be a valid URL'),
 ];
