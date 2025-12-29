@@ -49,6 +49,30 @@ function UserEditDialog({ open, user, onClose, onSave }) {
         setEditingUser((prev) => ({ ...prev, [field]: value }));
     };
 
+    const handleReset = () => {
+        if (user) {
+            setEditingUser({
+                username: user.username || '',
+                display_name: user.display_name || '',
+                email: user.email || '',
+                enabled: user.enabled ?? true,
+            });
+            setNewPassword('');
+            setError(null);
+        }
+    };
+
+    const isChanged = user && (
+        editingUser.username !== (user.username || '') ||
+        editingUser.display_name !== (user.display_name || '') ||
+        editingUser.email !== (user.email || '') ||
+        editingUser.enabled !== (user.enabled ?? true)
+    );
+
+    const isPasswordValid = newPassword.length === 0 || newPassword.length >= 6;
+    const hasChanges = isChanged || newPassword.length > 0;
+    const canSave = hasChanges && isPasswordValid && !!editingUser.username?.trim() && !!editingUser.email?.trim();
+
     const handleSave = async () => {
         setSaving(true);
         setError(null);
@@ -137,10 +161,19 @@ function UserEditDialog({ open, user, onClose, onSave }) {
                 <Button variant="outlined" onClick={onClose} disabled={saving}>
                     Cancel
                 </Button>
+                <Box sx={{ flexGrow: 1 }} />
+                <Button 
+                    variant="text" 
+                    onClick={handleReset} 
+                    disabled={saving || !hasChanges}
+                    color="secondary"
+                >
+                    Reset Changes
+                </Button>
                 <Button
                     onClick={handleSave}
                     variant="contained"
-                    disabled={saving || !editingUser.username || !editingUser.email}
+                    disabled={saving || !canSave}
                 >
                     {saving ? 'Saving...' : 'Save Changes'}
                 </Button>
