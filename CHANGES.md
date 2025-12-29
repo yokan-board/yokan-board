@@ -1,5 +1,51 @@
 # CHANGES
 
+## v0.1.0-alpha-7 (2025-12-29)
+
+### Features
+
+- **Administrative User Management**:
+  - Full user record editing (username, display name, email, and enabled status).
+  - Administrative password reset functionality for any user.
+  - Enhanced User Management UI with interactive table rows and a dedicated edit dialog.
+  - Intelligent save logic with real-time validation and password constraint checking.
+  - Added "Reset Changes" option to the user record editor.
+- **Centralized Contact Management**:
+  - Implemented a unified contact management system with board-specific and global views.
+  - Added shared contact editing dialog and standardized contact information displays.
+  - Supported contact import (JSON/CSV) with conflict resolution strategies (merge, skip, replace).
+  - Added bulk contact actions and export functionality.
+  - Persistent sorting and grouping preferences in contact settings.
+  - Drag-and-drop reordering for contacts in Board Notes.
+  - Integrated contacts into Markdown and CSV board exports.
+- **Task Comments & History**:
+  - Full task commenting system with comment counts displayed on task cards.
+  - Automatic historical log appended to task comments when moving tasks between columns.
+  - Comments included in Markdown and CSV exports and displayed in archived tasks.
+- **Dashboard & Board UI**:
+  - Persistent board reordering on the dashboard with multi-container drag-and-drop support.
+  - Standardized semantic color usage, button variants, and form spacing across all components.
+  - Refined global theme with standardized typography and an improved dark mode palette.
+  - Enhanced task and column cards with better metadata layouts and action icons on hover.
+  - Added collection name to breadcrumbs on the Edit Task page.
+- **API & Documentation**:
+  - Completed OpenAPI 1.1 specification covering all new v1.1 endpoints.
+  - Added board organization attributes (short name, full name, logo, and URL).
+  - Improved inactivity timeout tracking with cross-tab synchronization.
+
+### Fixes & Improvements
+
+- **Code Quality & Stability**:
+  - Project-wide linting and formatting pass on the server codebase using Prettier.
+  - Extensive cleanup of unused variables, imports, and dead code.
+  - Updated server test suite to align with current database schema and logic.
+  - Added `py3-setuptools` to server Dockerfile to resolve Python 3.12 build issues.
+- **UI/UX Refinements**:
+  - Implemented responsive 2-column layouts for contact lists.
+  - Standardized phone number formatting to '+1 (XXX) XXX-XXXX'.
+  - Added copy-to-clipboard actions for contact information.
+  - Fixed sidebar visibility issues on logout and removed redundant context providers.
+
 ## v0.1.1-alpha-3 (Pre-release)
 
 ### Features
