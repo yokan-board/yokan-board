@@ -10,6 +10,8 @@ const userController = require('../controllers/userController');
 const {
     updateProfileValidation,
     updatePasswordValidation,
+    adminUpdateUserValidation,
+    adminResetPasswordValidation,
 } = require('../validation/userValidation');
 const { validate } = require('../middleware/validationMiddleware');
 const { isAdmin } = require('../middleware/authorizationMiddleware');
@@ -98,5 +100,29 @@ router.get('/users', authenticateUser, isAdmin, userController.getAllUsers);
  * @param {function} userController.updateUserEnabledStatus - Controller function to update user enabled status.
  */
 router.put('/users/:id/enabled', authenticateUser, isAdmin, userController.updateUserEnabledStatus);
+
+/**
+ * Route for updating a user's record (Admin only).
+ */
+router.put(
+    '/users/:id',
+    authenticateUser,
+    isAdmin,
+    adminUpdateUserValidation,
+    validate,
+    userController.updateUserByAdmin
+);
+
+/**
+ * Route for resetting a user's password (Admin only).
+ */
+router.put(
+    '/users/:id/password',
+    authenticateUser,
+    isAdmin,
+    adminResetPasswordValidation,
+    validate,
+    userController.resetUserPasswordByAdmin
+);
 
 module.exports = router;

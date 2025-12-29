@@ -28,3 +28,20 @@ exports.updatePasswordValidation = [
     check('currentPassword', 'Current password is required').not().isEmpty(),
     check('newPassword', 'New password must be at least 6 characters long').isLength({ min: 6 }),
 ];
+
+/**
+ * Validation rules for administrative update of a user.
+ */
+exports.adminUpdateUserValidation = [
+    check('username', 'Username must not be empty').optional().not().isEmpty(),
+    check('display_name', 'Display name must not be empty').optional().not().isEmpty(),
+    check('email', 'Please include a valid email').optional().isEmail(),
+    check('enabled', 'Enabled must be a boolean').optional().isBoolean(),
+];
+
+/**
+ * Validation rules for administrative password reset.
+ */
+exports.adminResetPasswordValidation = [
+    check('password', 'Password must be at least 6 characters long').isLength({ min: 6 }),
+];

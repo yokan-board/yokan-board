@@ -35,6 +35,16 @@ const updateUserEnabledStatus = async (userId, enabled) => {
     return response.data;
 };
 
+const updateUserByAdmin = async (userId, userData) => {
+    const response = await api.put(`/users/${userId}`, userData);
+    return response.data;
+};
+
+const resetUserPasswordByAdmin = async (userId, password) => {
+    const response = await api.put(`/users/${userId}/password`, { password });
+    return response.data;
+};
+
 const userService = {
     getUserProfile,
     updateUserProfile,
@@ -43,6 +53,8 @@ const userService = {
     updatePreferences,
     getUsers,
     updateUserEnabledStatus,
+    updateUserByAdmin,
+    resetUserPasswordByAdmin,
 };
 
 export default userService;

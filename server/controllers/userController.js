@@ -195,3 +195,98 @@ exports.updateUserEnabledStatus = async (req, res, next) => {
         next(new AppError(err.message, 400));
     }
 };
+
+/**
+ * Updates a user's record (Admin only).
+ * @param {object} req - The Express request object.
+ * @param {object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ * @returns {Promise<void>}
+ */
+exports.updateUserByAdmin = async (req, res, next) => {
+    const userId = parseInt(req.params.id, 10);
+    const { username, display_name, email, enabled } = req.body;
+
+    if (isNaN(userId)) {
+        return next(new BadRequestError('Invalid user ID.'));
+    }
+
+    try {
+        const user = await userModel.findUserById(userId);
+        if (!user) {
+            return next(new AppError('User not found.', 404));
+        }
+
+        // Check for uniqueness if username or email is changed
+        if (username && username !== user.username) {
+            const existingUser = await userModel.findUserByUsername(username);
+            if (existingUser) {
+                return next(new BadRequestError('Username is already taken.'));
+            }
+        }
+
+        if (email && email !== user.email) {
+            const existingUser = await userModel.findUserByEmail(email);
+            if (existingUser) {
+                return next(new BadRequestError('Email is already in use.'));
+            }
+        }
+
+        if (userId === 1 && enabled === false) {
+            return next(new BadRequestError('The main admin user cannot be disabled.'));
+        }
+
+        const updateData = {};
+        if (username !== undefined) updateData.username = username;
+        if (display_name !== undefined) updateData.display_name = display_name;
+        if (email !== undefined) updateData.email = email;
+        if (enabled !== undefined) updateData.enabled = enabled;
+
+        await userModel.updateUser(userId, updateData);
+
+        const updatedUser = await userModel.findUserById(userId);
+        res.status(200).json({
+            id: updatedUser.id,
+            username: updatedUser.username,
+            display_name: updatedUser.display_name,
+            email: updatedUser.email,
+            enabled: updatedUser.enabled,
+        });
+    } catch (err) {
+        next(new AppError(err.message, 400));
+    }
+};
+
+/**
+ * Resets a user's password (Admin only).
+ * @param {object} req - The Express request object.
+ * @param {object} res - The Express response object.
+ * @param {function} next - The Express next middleware function.
+ * @returns {Promise<void>}
+ */
+exports.resetUserPasswordByAdmin = async (req, res, next) => {
+    const userId = parseInt(req.params.id, 10);
+    const { password } = req.body;
+
+    if (isNaN(userId)) {
+        return next(new BadRequestError('Invalid user ID.'));
+    }
+
+    if (!password || password.length < 6) {
+        return next(new BadRequestError('Password must be at least 6 characters long.'));
+    }
+
+    try {
+        const user = await userModel.findUserById(userId);
+        if (!user) {
+            return next(new AppError('User not found.', 404));
+        }
+
+        const hashedPassword = bcrypt.hashSync(password, 10);
+        await userModel.updateUser(userId, { password: hashedPassword });
+
+        res.status(200).json({ message: 'User password reset successfully.' });
+    } catch (err) {
+        next(new AppError(err.message, 400));
+    }
+};

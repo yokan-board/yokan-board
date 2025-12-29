@@ -16,12 +16,15 @@ import {
 } from '@mui/material';
 import userService from '../../services/userService';
 import dayjs from 'dayjs';
-import { getGravatarUrl } from '../../utils/gravatar'; // Import Gravatar utility
+import { getGravatarUrl } from '../../utils/gravatar';
+import UserEditDialog from './UserEditDialog';
 
 function UsersTable() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -45,6 +48,17 @@ function UsersTable() {
         return <Alert severity="error">{error}</Alert>;
     }
 
+    const handleRowClick = (user) => {
+        setSelectedUser(user);
+        setIsDialogOpen(true);
+    };
+
+    const handleSaveUser = (updatedUser) => {
+        setUsers((prevUsers) =>
+            prevUsers.map((u) => (u.id === updatedUser.id ? { ...u, ...updatedUser } : u))
+        );
+    };
+
     return (
         <Box sx={{ mt: 4 }}>
             <Typography variant="h6" gutterBottom>
@@ -65,7 +79,12 @@ function UsersTable() {
                     </TableHead>
                     <TableBody>
                         {users.map((user) => (
-                            <TableRow key={user.id}>
+                            <TableRow
+                                key={user.id}
+                                hover
+                                onClick={() => handleRowClick(user)}
+                                sx={{ cursor: 'pointer' }}
+                            >
                                 <TableCell>{user.id}</TableCell>
                                 <TableCell>
                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -80,7 +99,7 @@ function UsersTable() {
                                 <TableCell>{user.display_name || user.username}</TableCell>
                                 <TableCell>{user.email}</TableCell>
                                 <TableCell>{user.id === 1 ? 'ADMIN' : 'USER'}</TableCell>
-                                <TableCell>
+                                <TableCell onClick={(e) => e.stopPropagation()}>
                                     <Switch
                                         checked={user.enabled}
                                         onChange={async (event) => {
@@ -109,6 +128,12 @@ function UsersTable() {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <UserEditDialog
+                open={isDialogOpen}
+                user={selectedUser}
+                onClose={() => setIsDialogOpen(false)}
+                onSave={handleSaveUser}
+            />
         </Box>
     );
 }
