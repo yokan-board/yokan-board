@@ -20,7 +20,6 @@ import {
     sortableKeyboardCoordinates,
     useSortable,
     rectSortingStrategy,
-    verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import BookmarkItem from '../components/BookmarkItem';
