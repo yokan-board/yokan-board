@@ -8,7 +8,10 @@ import {
     DialogContent,
     DialogActions,
     FormControlLabel,
-    Switch
+    Switch,
+    Chip,
+    Typography,
+    Divider
 } from '@mui/material';
 import { debounce } from 'lodash';
 import { formatPhoneNumber } from '../utils/phoneUtils';
@@ -22,20 +25,27 @@ const initialContactState = {
     phone: '',
     avatarUrl: '',
     status: 'ACTIVE',
+    tags: []
 };
 
-function ContactEditDialog({ open, contact, onClose, onSave }) {
+function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] }) {
     const [editingContact, setEditingContact] = useState(initialContactState);
     const [isExisting, setIsExisting] = useState(false);
+    const [tagInput, setTagInput] = useState('');
+
+    const suggestedTags = useMemo(() => {
+        return availableTags.filter(tag => !editingContact.tags.includes(tag));
+    }, [availableTags, editingContact.tags]);
 
     useEffect(() => {
         if (contact) {
-            setEditingContact({ ...contact });
+            setEditingContact({ ...initialContactState, ...contact, tags: contact.tags || [] });
             setIsExisting(false);
         } else {
             setEditingContact(initialContactState);
             setIsExisting(false);
         }
+        setTagInput('');
     }, [contact, open]);
 
     const debouncedSearch = useMemo(
@@ -103,6 +113,26 @@ function ContactEditDialog({ open, contact, onClose, onSave }) {
 
     const handleStatusChange = (e) => {
         setEditingContact({ ...editingContact, status: e.target.checked ? 'ACTIVE' : 'INACTIVE' });
+    };
+
+    const handleAddTag = (e) => {
+        if (e.key === 'Enter' && tagInput.trim()) {
+            e.preventDefault();
+            if (!editingContact.tags.includes(tagInput.trim())) {
+                setEditingContact(prev => ({
+                    ...prev,
+                    tags: [...prev.tags, tagInput.trim()]
+                }));
+            }
+            setTagInput('');
+        }
+    };
+
+    const handleDeleteTag = (tagToDelete) => {
+        setEditingContact(prev => ({
+            ...prev,
+            tags: prev.tags.filter(tag => tag !== tagToDelete)
+        }));
     };
 
     const handleSave = () => {
@@ -182,6 +212,57 @@ function ContactEditDialog({ open, contact, onClose, onSave }) {
                         }
                         label={editingContact.status === 'ACTIVE' ? 'Active' : 'Inactive'}
                     />
+
+                    <Divider sx={{ my: 1 }} />
+                    <Typography variant="subtitle2" color="text.secondary">
+                        Board-specific Tags
+                    </Typography>
+                    <TextField
+                        label="Add Tag (Press Enter)"
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={handleAddTag}
+                        fullWidth
+                        size="small"
+                        placeholder="e.g. Solution Architect"
+                    />
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, minHeight: '32px' }}>
+                        {editingContact.tags.map((tag) => (
+                            <Chip
+                                key={tag}
+                                label={tag}
+                                onDelete={() => handleDeleteTag(tag)}
+                                size="small"
+                                color="primary"
+                                variant="outlined"
+                            />
+                        ))}
+                    </Box>
+
+                    {suggestedTags.length > 0 && (
+                        <>
+                            <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                                Suggested Tags (click to add)
+                            </Typography>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                {suggestedTags.map((tag) => (
+                                    <Chip
+                                        key={tag}
+                                        label={tag}
+                                        onClick={() => {
+                                            setEditingContact(prev => ({
+                                                ...prev,
+                                                tags: [...prev.tags, tag]
+                                            }));
+                                        }}
+                                        size="small"
+                                        variant="outlined"
+                                        sx={{ cursor: 'pointer', fontSize: '0.7rem' }}
+                                    />
+                                ))}
+                            </Box>
+                        </>
+                    )}
                 </Box>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 3 }}>

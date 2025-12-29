@@ -1,8 +1,8 @@
 import React from 'react';
-import { Box, Typography, Avatar } from '@mui/material';
+import { Box, Typography, Avatar, Chip } from '@mui/material';
 import { getGravatarUrl } from '../utils/gravatar';
 
-function ContactInfo({ contact, viewMode = 'card' }) {
+function ContactInfo({ contact, viewMode = 'card', tags = [] }) {
     const isList = viewMode === 'list';
     
     return (
@@ -39,9 +39,29 @@ function ContactInfo({ contact, viewMode = 'card' }) {
                         </>
                     )}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom={!isList}>
+                <Typography variant="body2" color="text.secondary" gutterBottom={!isList && tags.length === 0}>
                     {contact.title} {contact.title && contact.company ? 'at' : ''} {contact.company}
                 </Typography>
+                
+                {isList && tags.length > 0 && (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                        {tags.map((tag) => (
+                            <Chip 
+                                key={tag} 
+                                label={tag} 
+                                size="small" 
+                                color="primary" 
+                                variant="outlined" 
+                                sx={{ 
+                                    height: '20px', 
+                                    fontSize: '0.7rem',
+                                    borderRadius: '4px'
+                                }} 
+                            />
+                        ))}
+                    </Box>
+                )}
+
                 {!isList && (
                     <Box sx={{ mt: 1 }}>
                         {contact.email && (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Box, Typography, Button, Divider, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import { useBlocker } from 'react-router-dom';
@@ -28,8 +28,9 @@ import ContactCard from '../components/ContactCard';
 import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog';
 import contactService from '../services/contactService';
 import ContactEditDialog from '../components/ContactEditDialog';
+import { useBoards } from '../contexts/BoardContext';
 
-function SortableContactCard({ contact, onEdit, onDelete, dragHandleProps, viewMode }) {
+function SortableContactCard({ contact, onEdit, onDelete, dragHandleProps, viewMode, tags }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: contact.id,
     });
@@ -49,15 +50,40 @@ function SortableContactCard({ contact, onEdit, onDelete, dragHandleProps, viewM
                 onDelete={onDelete}
                 dragHandleProps={listeners}
                 viewMode={viewMode}
+                tags={tags}
             />
         </div>
     );
 }
 
-function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialContactIds = [], onSave, onHasUnsavedChangesChange }) {
+function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialContactIds = [], contactTags: initialContactTags = {}, onSave, onHasUnsavedChangesChange }) {
+    const { boards } = useBoards();
     const [localBookmarks, setLocalBookmarks] = useState(initialBookmarks);
     const [localContactIds, setLocalContactIds] = useState(initialContactIds);
+    const [localContactTags, setLocalContactTags] = useState(initialContactTags);
     const [allContacts, setAllContacts] = useState([]);
+
+    // Extract all unique tags across all boards
+    const availableTags = useMemo(() => {
+        const tagSet = new Set();
+        boards.forEach(board => {
+            if (board.data && board.data.contactTags) {
+                Object.values(board.data.contactTags).forEach(tags => {
+                    if (Array.isArray(tags)) {
+                        tags.forEach(tag => tagSet.add(tag));
+                    }
+                });
+            }
+        });
+        // Also include tags from current unsaved state
+        Object.values(localContactTags).forEach(tags => {
+            if (Array.isArray(tags)) {
+                tags.forEach(tag => tagSet.add(tag));
+            }
+        });
+        return Array.from(tagSet).sort();
+    }, [boards, localContactTags]);
+
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
@@ -99,7 +125,8 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
     useEffect(() => {
         setLocalBookmarks(initialBookmarks || []);
         setLocalContactIds(initialContactIds || []);
-    }, [initialBookmarks, initialContactIds]);
+        setLocalContactTags(initialContactTags || {});
+    }, [initialBookmarks, initialContactIds, initialContactTags]);
 
     const handleDragStart = (event) => {
         setActiveContactId(event.active.id);
@@ -125,16 +152,19 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
         const stringifiedInitialBookmarks = JSON.stringify(initialBookmarks || []);
         const stringifiedLocalContactIds = JSON.stringify(localContactIds);
         const stringifiedInitialContactIds = JSON.stringify(initialContactIds || []);
+        const stringifiedLocalContactTags = JSON.stringify(localContactTags);
+        const stringifiedInitialContactTags = JSON.stringify(initialContactTags || {});
         
         const bookmarksChanged = stringifiedLocalBookmarks !== stringifiedInitialBookmarks;
         const contactsChanged = stringifiedLocalContactIds !== stringifiedInitialContactIds;
+        const tagsChanged = stringifiedLocalContactTags !== stringifiedInitialContactTags;
         
-        const newHasUnsavedChanges = bookmarksChanged || contactsChanged;
+        const newHasUnsavedChanges = bookmarksChanged || contactsChanged || tagsChanged;
         setHasUnsavedChanges(newHasUnsavedChanges);
         if (onHasUnsavedChangesChange) {
             onHasUnsavedChangesChange(newHasUnsavedChanges);
         }
-    }, [localBookmarks, initialBookmarks, localContactIds, initialContactIds, onHasUnsavedChangesChange]);
+    }, [localBookmarks, initialBookmarks, localContactIds, initialContactIds, localContactTags, initialContactTags, onHasUnsavedChangesChange]);
 
     const blocker = useBlocker(
         ({ currentLocation, nextLocation }) => hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname
@@ -166,12 +196,13 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
     }, [hasUnsavedChanges]);
 
     const handleSaveChanges = () => {
-        onSave({ bookmarks: localBookmarks, contactIds: localContactIds });
+        onSave({ bookmarks: localBookmarks, contactIds: localContactIds, contactTags: localContactTags });
     };
 
     const handleClearChanges = () => {
         setLocalBookmarks(initialBookmarks || []);
         setLocalContactIds(initialContactIds || []);
+        setLocalContactTags(initialContactTags || {});
     };
 
     // Bookmark Handlers
@@ -195,7 +226,14 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
 
     // Contact Handlers
     const handleOpenEdit = (contact = null) => {
-        setEditingContact(contact);
+        if (contact) {
+            setEditingContact({
+                ...contact,
+                tags: localContactTags[contact.id] || []
+            });
+        } else {
+            setEditingContact(null);
+        }
         setIsEditDialogOpen(true);
     };
 
@@ -206,19 +244,29 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
 
     const handleSaveEdit = async (contact) => {
         try {
+            const { tags, ...contactData } = contact;
+            let savedContact;
             if (contact.id) {
                 // Update existing
-                await contactService.updateContact(contact.id, contact);
-                setAllContacts(prev => prev.map(c => c.id === contact.id ? contact : c));
+                await contactService.updateContact(contact.id, contactData);
+                setAllContacts(prev => prev.map(c => c.id === contact.id ? { ...c, ...contactData } : c));
+                savedContact = { ...contactData, id: contact.id };
                 if (!localContactIds.includes(contact.id)) {
                     setLocalContactIds(prev => [...prev, contact.id]);
                 }
             } else {
                 // Create new
-                const saved = await contactService.createContact(contact);
-                setAllContacts(prev => [...prev, saved]);
-                setLocalContactIds(prev => [...prev, saved.id]);
+                savedContact = await contactService.createContact(contactData);
+                setAllContacts(prev => [...prev, savedContact]);
+                setLocalContactIds(prev => [...prev, savedContact.id]);
             }
+            
+            // Save tags locally for this board
+            setLocalContactTags(prev => ({
+                ...prev,
+                [savedContact.id]: tags || []
+            }));
+
             handleCloseEdit();
         } catch (error) {
             console.error('Error saving contact:', error);
@@ -297,6 +345,7 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
                                     onEdit={handleOpenEdit}
                                     onDelete={handleDeleteContact}
                                     viewMode={viewMode}
+                                    tags={localContactTags[contact.id] || []}
                                 />
                             ))}
                         </Box>
@@ -308,6 +357,7 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
                                 onEdit={() => {}}
                                 onDelete={() => {}}
                                 viewMode={viewMode}
+                                tags={localContactTags[activeContactId] || []}
                             />
                         ) : null}
                     </DragOverlay>
@@ -373,6 +423,7 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
                 contact={editingContact}
                 onClose={handleCloseEdit}
                 onSave={handleSaveEdit}
+                availableTags={availableTags}
             />
         </Box>
     );

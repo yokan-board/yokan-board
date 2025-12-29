@@ -104,8 +104,11 @@ function BoardPage() {
                         if (!data.data.contactIds || !Array.isArray(data.data.contactIds)) {
                             data.data.contactIds = [];
                         }
+                        if (!data.data.contactTags || typeof data.data.contactTags !== 'object') {
+                            data.data.contactTags = {};
+                        }
                     } else {
-                        data.data = { columns: {} };
+                        data.data = { columns: {}, contactTags: {} };
                     }
                     return data; // RETURN THE FETCHED DATA
                 } else {
@@ -163,11 +166,12 @@ function BoardPage() {
         [id, fetchBoards, handleBoardDataChange]
     );
 
-    const handleSaveNotes = async ({ bookmarks, contactIds }) => {
+    const handleSaveNotes = async ({ bookmarks, contactIds, contactTags }) => {
         const updatedBoardData = {
             ...currentBoardData,
             bookmarks: bookmarks,
             contactIds: contactIds,
+            contactTags: contactTags,
         };
         await handleSaveBoard({ name: editedBoardName, data: updatedBoardData });
     };
@@ -438,6 +442,7 @@ function BoardPage() {
                         <BoardNotesPage
                             bookmarks={currentBoardData.bookmarks}
                             contactIds={currentBoardData.contactIds || []}
+                            contactTags={currentBoardData.contactTags || {}}
                             onSave={handleSaveNotes}
                             onHasUnsavedChangesChange={setNotesHaveUnsavedChanges}
                         />

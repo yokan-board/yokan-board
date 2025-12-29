@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, IconButton, Card, CardContent, Tooltip } from '@mui/material';
+import { Box, Typography, IconButton, Card, CardContent, Tooltip, Chip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
@@ -14,7 +14,8 @@ function ContactCard({
     dragHandleProps, 
     viewMode = 'card',
     isDeleteDisabled = false,
-    deleteTooltip = ''
+    deleteTooltip = '',
+    tags = []
 }) {
     const [copied, setCopied] = useState(false);
 
@@ -70,8 +71,35 @@ function ContactCard({
                 alignItems: isList ? 'center' : 'flex-start',
                 gap: 2
             }}>
-                <ContactInfo contact={contact} viewMode={viewMode} />
+                <ContactInfo contact={contact} viewMode={viewMode} tags={tags} />
                 
+                {!isList && tags.length > 0 && (
+                    <Box sx={{ 
+                        position: 'absolute', 
+                        bottom: 12, 
+                        left: 16,
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 0.5,
+                        maxWidth: 'calc(100% - 100px)' // Leave room for status
+                    }}>
+                        {tags.map((tag) => (
+                            <Chip 
+                                key={tag} 
+                                label={tag} 
+                                size="small" 
+                                color="primary" 
+                                variant="outlined" 
+                                sx={{ 
+                                    height: '24px', 
+                                    fontSize: '0.75rem',
+                                    borderRadius: '4px'
+                                }} 
+                            />
+                        ))}
+                    </Box>
+                )}
+
                 <Box sx={{ 
                     position: isList ? 'static' : 'absolute', 
                     bottom: isList ? 'auto' : 12, 
