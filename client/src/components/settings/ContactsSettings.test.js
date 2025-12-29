@@ -123,4 +123,20 @@ describe('ContactsSettings Sorting', () => {
         expect(screen.getByText('D')).toBeInTheDocument(); // Designer, Developer
         expect(screen.getByText('M')).toBeInTheDocument(); // Manager
     });
+
+    test('remembers sorting preference from localStorage', async () => {
+        localStorage.setItem('contactsSortBy', 'company');
+        render(<ContactsSettings />);
+        
+        await waitFor(() => {
+            // Check that Acme Corp header exists
+            const headers = screen.getAllByText('Acme Corp');
+            expect(headers.length).toBeGreaterThan(0);
+            
+            // Check the select component display text
+            const selectDisplay = screen.getByRole('combobox');
+            expect(selectDisplay).toHaveTextContent('Company');
+        });
+        localStorage.clear();
+    });
 });

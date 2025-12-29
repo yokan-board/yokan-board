@@ -18,7 +18,9 @@ function ContactsSettings() {
     const [contacts, setContacts] = useState([]);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingContact, setEditingContact] = useState(null);
-    const [sortBy, setSortBy] = useState('name'); // 'name', 'company', 'lastName', 'title'
+    const [sortBy, setSortBy] = useState(() => {
+        return localStorage.getItem('contactsSortBy') || 'name';
+    });
 
     const fetchContacts = async () => {
         try {
@@ -75,7 +77,9 @@ function ContactsSettings() {
     };
 
     const handleSortChange = (event) => {
-        setSortBy(event.target.value);
+        const newSortBy = event.target.value;
+        setSortBy(newSortBy);
+        localStorage.setItem('contactsSortBy', newSortBy);
     };
 
     // Helper to extract last name
