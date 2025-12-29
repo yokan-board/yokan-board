@@ -29,6 +29,79 @@ function formatPhoneNumber(phone) {
     return cleaned;
 }
 
+exports.bulkImportContacts = async (req, res, next) => {
+    try {
+        const { contacts, strategy } = req.body; // strategy: 'merge', 'skip', 'replace'
+        if (!contacts || !Array.isArray(contacts)) {
+            return next(new AppError('No contacts provided', 400));
+        }
+
+        const stats = {
+            added: 0,
+            merged: 0,
+            skipped: 0,
+            replaced: 0,
+            errors: 0
+        };
+
+        const userId = req.user.id;
+        const resolutionStrategy = strategy || 'merge';
+
+        for (const contactData of contacts) {
+            try {
+                if (!contactData.email) {
+                    stats.errors++;
+                    continue;
+                }
+
+                const existing = await contactModel.getContactByEmail(userId, contactData.email);
+
+                if (existing) {
+                    if (resolutionStrategy === 'skip') {
+                        stats.skipped++;
+                        continue;
+                    } else if (resolutionStrategy === 'replace') {
+                        await contactModel.deleteContact(existing.id, userId);
+                        await contactModel.createContact({
+                            ...contactData,
+                            user_id: userId,
+                            phone: formatPhoneNumber(contactData.phone)
+                        });
+                        stats.replaced++;
+                    } else {
+                        // Default: merge
+                        const updatedData = {
+                            name: contactData.name || existing.name,
+                            title: contactData.title || existing.title,
+                            company: contactData.company || existing.company,
+                            email: existing.email, // email stays same
+                            phone: formatPhoneNumber(contactData.phone || existing.phone),
+                            avatarUrl: contactData.avatarUrl || existing.avatarUrl,
+                            status: contactData.status || existing.status
+                        };
+                        await contactModel.updateContact(existing.id, userId, updatedData);
+                        stats.merged++;
+                    }
+                } else {
+                    await contactModel.createContact({
+                        ...contactData,
+                        user_id: userId,
+                        phone: formatPhoneNumber(contactData.phone)
+                    });
+                    stats.added++;
+                }
+            } catch (err) {
+                console.error('Error importing single contact:', err);
+                stats.errors++;
+            }
+        }
+
+        res.json({ message: 'success', data: stats });
+    } catch (err) {
+        next(new AppError(err.message, 400));
+    }
+};
+
 exports.getAllContacts = async (req, res, next) => {
     try {
         const contacts = await contactModel.getAllContactsByUserId(req.user.id);

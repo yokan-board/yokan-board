@@ -11,14 +11,17 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DownloadIcon from '@mui/icons-material/Download';
+import UploadIcon from '@mui/icons-material/Upload';
 import contactService from '../../services/contactService';
 import ContactEditDialog from '../ContactEditDialog';
 import ContactCard from '../ContactCard';
 import SettingsMenu from '../SettingsMenu';
+import ImportContactsDialog from '../ImportContactsDialog';
 
 function ContactsSettings() {
     const [contacts, setContacts] = useState([]);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
     const [editingContact, setEditingContact] = useState(null);
     const [sortBy, setSortBy] = useState(() => {
         return localStorage.getItem('contactsSortBy') || 'name';
@@ -122,6 +125,7 @@ function ContactsSettings() {
     };
 
     const exportMenuItems = [
+        { text: 'Import Contacts', icon: <UploadIcon />, onClick: () => setIsImportDialogOpen(true) },
         { text: 'Export as JSON', icon: <DownloadIcon />, onClick: handleExportJson },
         { text: 'Export as CSV', icon: <DownloadIcon />, onClick: handleExportCsv },
     ];
@@ -278,6 +282,12 @@ function ContactsSettings() {
                 contact={editingContact}
                 onClose={handleCloseEdit}
                 onSave={handleSaveEdit}
+            />
+
+            <ImportContactsDialog
+                open={isImportDialogOpen}
+                onClose={() => setIsImportDialogOpen(false)}
+                onImportComplete={fetchContacts}
             />
         </Box>
     );

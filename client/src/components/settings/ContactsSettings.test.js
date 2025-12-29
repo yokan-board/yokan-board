@@ -150,6 +150,7 @@ describe('ContactsSettings Sorting', () => {
 
         fireEvent.click(settingsButton);
 
+        expect(screen.getByText('Import Contacts')).toBeInTheDocument();
         expect(screen.getByText('Export as JSON')).toBeInTheDocument();
         expect(screen.getByText('Export as CSV')).toBeInTheDocument();
     });

@@ -10,6 +10,9 @@ router.get('/search', contactValidation.validateSearchQuery, validate, contactCo
 // GET all contacts for the user
 router.get('/', contactController.getAllContacts);
 
+// POST bulk import contacts
+router.post('/bulk', contactController.bulkImportContacts);
+
 // POST a new contact
 router.post('/', contactValidation.validateContact, validate, contactController.createContact);
 

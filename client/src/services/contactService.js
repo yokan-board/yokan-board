@@ -19,6 +19,11 @@ const deleteContact = async (id) => {
     await api.delete(`/contacts/${id}`);
 };
 
+const bulkImportContacts = async (contacts, strategy) => {
+    const response = await api.post('/contacts/bulk', { contacts, strategy });
+    return response.data.data;
+};
+
 const searchContacts = async (query) => {
     const response = await api.get(`/contacts/search`, { params: { q: query } });
     return response.data.data;
@@ -30,6 +35,7 @@ const contactService = {
     createContact,
     updateContact,
     deleteContact,
+    bulkImportContacts,
     searchContacts,
 };
 

@@ -127,6 +127,25 @@ exports.getContactUsageCount = (contactId, userId) => {
 };
 
 /**
+ * Finds a contact by its exact email address.
+ * @param {number} userId - The ID of the user.
+ * @param {string} email - The email address to look for.
+ * @returns {Promise<object|null>} The contact object or null if not found.
+ */
+exports.getContactByEmail = (userId, email) => {
+    const sql = `SELECT * FROM contacts WHERE user_id = ? AND email = ?`;
+    return new Promise((resolve, reject) => {
+        db.get(sql, [userId, email], (err, row) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(row);
+            }
+        });
+    });
+};
+
+/**
  * Searches for contacts by a query string (name or email).
  * @param {number} userId - The ID of the user.
  * @param {string} query - The search query.
