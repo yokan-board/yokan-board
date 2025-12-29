@@ -139,4 +139,18 @@ describe('ContactsSettings Sorting', () => {
         });
         localStorage.clear();
     });
+
+    test('renders settings menu and export options', async () => {
+        render(<ContactsSettings />);
+        
+        await waitFor(() => screen.getAllByTestId('contact-card'));
+
+        const settingsButton = screen.getByLabelText('settings');
+        expect(settingsButton).toBeInTheDocument();
+
+        fireEvent.click(settingsButton);
+
+        expect(screen.getByText('Export as JSON')).toBeInTheDocument();
+        expect(screen.getByText('Export as CSV')).toBeInTheDocument();
+    });
 });

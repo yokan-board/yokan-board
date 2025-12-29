@@ -2,17 +2,19 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
     Box,
     Typography,
-    Button,
+    IconButton,
     FormControl,
     InputLabel,
     Select,
     MenuItem,
-    Divider
+    Tooltip
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import DownloadIcon from '@mui/icons-material/Download';
 import contactService from '../../services/contactService';
 import ContactEditDialog from '../ContactEditDialog';
 import ContactCard from '../ContactCard';
+import SettingsMenu from '../SettingsMenu';
 
 function ContactsSettings() {
     const [contacts, setContacts] = useState([]);
@@ -82,6 +84,48 @@ function ContactsSettings() {
         localStorage.setItem('contactsSortBy', newSortBy);
     };
 
+    const handleExportJson = () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(contacts, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", `yokan-contacts-${new Date().toISOString().slice(0, 10)}.json`);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    };
+
+    const handleExportCsv = () => {
+        const headers = ['Name', 'Title', 'Company', 'Email', 'Phone', 'Status', 'Avatar URL'];
+        const csvRows = [headers.join(',')];
+
+        contacts.forEach(contact => {
+            const row = [
+                `"${(contact.name || '').replace(/"/g, '""')}"`,
+                `"${(contact.title || '').replace(/"/g, '""')}"`,
+                `"${(contact.company || '').replace(/"/g, '""')}"`,
+                `"${(contact.email || '').replace(/"/g, '""')}"`,
+                `"${(contact.phone || '').replace(/"/g, '""')}"`,
+                `"${(contact.status || '').replace(/"/g, '""')}"`,
+                `"${(contact.avatarUrl || '').replace(/"/g, '""')}"`
+            ];
+            csvRows.push(row.join(','));
+        });
+
+        const csvString = csvRows.join('\n');
+        const dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csvString);
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", `yokan-contacts-${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    };
+
+    const exportMenuItems = [
+        { text: 'Export as JSON', icon: <DownloadIcon />, onClick: handleExportJson },
+        { text: 'Export as CSV', icon: <DownloadIcon />, onClick: handleExportCsv },
+    ];
+
     // Helper to extract last name
     const getLastNameInfo = (fullName) => {
         if (!fullName) return { lastName: '', rest: '' };
@@ -146,7 +190,7 @@ function ContactsSettings() {
             }
 
             // Handle non-letter keys for name/title sorts if necessary, ensuring everything falls into a bucket
-            if (!groupKey || !groupKey.match(/[A-Z0-9]/i) && sortBy !== 'company') {
+            if (!groupKey || (!groupKey.match(/[A-Z0-9]/i) && sortBy !== 'company')) {
                 groupKey = '#';
             }
 
@@ -168,8 +212,8 @@ function ContactsSettings() {
                         This is a centralized list of all your contacts from across all boards.
                     </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                    <FormControl size="small" sx={{ minWidth: 150 }}>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <FormControl size="small" sx={{ minWidth: 150, mr: 1 }}>
                         <InputLabel id="sort-by-label">Sort By</InputLabel>
                         <Select
                             labelId="sort-by-label"
@@ -184,13 +228,16 @@ function ContactsSettings() {
                             <MenuItem value="title">Title</MenuItem>
                         </Select>
                     </FormControl>
-                    <Button
-                        variant="contained"
-                        startIcon={<AddIcon />}
-                        onClick={handleAdd}
-                    >
-                        Add Contact
-                    </Button>
+                    <Tooltip title="Add Contact">
+                        <IconButton
+                            aria-label="add contact"
+                            onClick={handleAdd}
+                            color="inherit"
+                        >
+                            <AddIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <SettingsMenu menuItems={exportMenuItems} />
                 </Box>
             </Box>
             
@@ -221,7 +268,7 @@ function ContactsSettings() {
                 ))}
                 {contacts.length === 0 && (
                      <Typography color="text.secondary" align="center" sx={{ mt: 4 }}>
-                         No contacts found. Click "Add Contact" to create one.
+                         No contacts found. Click the "+" button to create one.
                      </Typography>
                 )}
             </Box>
