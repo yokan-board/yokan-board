@@ -18,10 +18,11 @@ function ContactInfo({ contact, viewMode = 'card', tags = [] }) {
             />
             <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                 <Typography variant="h6" sx={{ 
-                    fontSize: isList ? '1rem' : '1.25rem', 
+                    fontSize: isList ? '1.1rem' : '1.25rem', 
                     display: isList ? 'flex' : 'block', 
                     alignItems: isList ? 'center' : undefined, 
-                    flexWrap: 'wrap' 
+                    flexWrap: 'wrap',
+                    fontWeight: 'bold'
                 }}>
                     {contact.name}
                     {isList && (
@@ -39,7 +40,7 @@ function ContactInfo({ contact, viewMode = 'card', tags = [] }) {
                         </>
                     )}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom={!isList && tags.length === 0}>
+                <Typography variant="body1" color="text.secondary" gutterBottom={!isList && tags.length === 0}>
                     {contact.title} {contact.title && contact.company ? 'at' : ''} {contact.company}
                 </Typography>
                 

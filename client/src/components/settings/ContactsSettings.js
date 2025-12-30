@@ -265,7 +265,8 @@ function ContactsSettings() {
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
                                 isDeleteDisabled={contact.usageCount > 0}
-                                deleteTooltip={contact.usageCount > 0 ? "This contact is referenced by one or more boards and cannot be deleted." : ""}
+                                deleteTooltip={contact.usageCount > 0 ? "This contact is referenced by one or more boards and cannot be undone." : ""}
+                                useKababMenu={true}
                             />
                         ))}
                     </Box>

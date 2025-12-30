@@ -30,7 +30,7 @@ import contactService from '../services/contactService';
 import ContactEditDialog from '../components/ContactEditDialog';
 import { useBoards } from '../contexts/BoardContext';
 
-function SortableContactCard({ contact, onEdit, onDelete, dragHandleProps, viewMode, tags }) {
+function SortableContactCard({ contact, onEdit, onDelete, dragHandleProps, viewMode, tags, useKababMenu = true }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: contact.id,
     });
@@ -51,6 +51,7 @@ function SortableContactCard({ contact, onEdit, onDelete, dragHandleProps, viewM
                 dragHandleProps={listeners}
                 viewMode={viewMode}
                 tags={tags}
+                useKababMenu={useKababMenu}
             />
         </div>
     );
@@ -358,6 +359,7 @@ function BoardNotesPage({ bookmarks: initialBookmarks = [], contactIds: initialC
                                 onDelete={() => {}}
                                 viewMode={viewMode}
                                 tags={localContactTags[activeContactId] || []}
+                                useKababMenu={true}
                             />
                         ) : null}
                     </DragOverlay>

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Box, Typography, IconButton, Card, CardContent, Tooltip, Chip } from '@mui/material';
+import { Box, Typography, IconButton, Card, CardContent, Tooltip, Chip, Menu, MenuItem } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ContactInfo from './ContactInfo';
 
 function ContactCard({ 
@@ -15,12 +16,28 @@ function ContactCard({
     viewMode = 'card',
     isDeleteDisabled = false,
     deleteTooltip = '',
-    tags = []
+    tags = [],
+    useKababMenu = false
 }) {
     const [copied, setCopied] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
+
+    const handleMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
 
     const handleDelete = () => {
         onDelete(contact.id);
+        handleMenuClose();
+    };
+
+    const handleEdit = () => {
+        onEdit(contact);
+        handleMenuClose();
     };
 
     const handleCopy = async () => {
@@ -37,6 +54,7 @@ function ContactCard({
             await navigator.clipboard.writeText(details);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
+            handleMenuClose();
         } catch (err) {
             console.error('Failed to copy text: ', err);
         }
@@ -101,19 +119,20 @@ function ContactCard({
                 )}
 
                 <Box sx={{ 
-                    position: isList ? 'static' : 'absolute', 
-                    bottom: isList ? 'auto' : 12, 
-                    right: isList ? 'auto' : 16,
+                    position: isList ? 'absolute' : 'absolute', 
+                    bottom: isList ? 8 : 12, 
+                    right: isList ? 8 : 16,
                     display: 'flex',
                     alignItems: 'center',
-                    minWidth: isList ? '80px' : 'auto',
-                    justifyContent: isList ? 'center' : 'flex-start',
-                    ml: isList ? 2 : 0
+                    minWidth: isList ? 'auto' : 'auto',
+                    justifyContent: isList ? 'flex-end' : 'flex-start',
+                    ml: isList ? 0 : 0
                 }}>
                     <Typography variant="caption" sx={{
                         color: isInactive ? 'text.disabled' : 'success.main',
                         fontWeight: 'bold',
-                        textTransform: 'uppercase'
+                        textTransform: 'uppercase',
+                        fontSize: isList ? '0.7rem' : '0.75rem'
                     }}>
                         {contact.status}
                     </Typography>
@@ -121,37 +140,71 @@ function ContactCard({
 
                 <Box className="action-buttons" sx={{ 
                     display: 'flex', 
-                    flexDirection: isList ? 'row' : 'column',
+                    flexDirection: 'row', // Always row when in top right
                     visibility: 'hidden',
                     opacity: 0,
                     transition: 'opacity 0.2s',
-                    ml: 'auto',
-                    gap: isList ? 1 : 0
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    gap: 0.5,
                 }}>
-                    {dragHandleProps && (
-                        <IconButton size="small" {...dragHandleProps} sx={{ cursor: 'grab' }}>
-                            <DragHandleIcon fontSize="small" />
-                        </IconButton>
-                    )}
-                    <Tooltip title={copied ? "Copied!" : "Copy details"}>
-                        <IconButton size="small" onClick={handleCopy}>
-                            {copied ? <CheckIcon fontSize="small" color="success" /> : <ContentCopyIcon fontSize="small" />}
-                        </IconButton>
-                    </Tooltip>
-                    <IconButton size="small" onClick={() => onEdit(contact)}>
-                        <EditIcon fontSize="small" />
-                    </IconButton>
-                    <Tooltip title={deleteTooltip}>
-                        <span>
-                            <IconButton 
-                                size="small" 
-                                onClick={handleDelete}
-                                disabled={isDeleteDisabled}
-                            >
-                                <DeleteIcon fontSize="small" />
+                    {useKababMenu ? (
+                        <>
+                            <IconButton size="small" onClick={handleMenuOpen}>
+                                <MoreVertIcon fontSize="small" />
                             </IconButton>
-                        </span>
-                    </Tooltip>
+                            <Menu
+                                anchorEl={anchorEl}
+                                open={Boolean(anchorEl)}
+                                onClose={handleMenuClose}
+                            >
+                                <MenuItem onClick={handleCopy}>
+                                    <ContentCopyIcon fontSize="small" sx={{ mr: 1 }} />
+                                    Copy Details
+                                </MenuItem>
+                                <MenuItem onClick={handleEdit}>
+                                    <EditIcon fontSize="small" sx={{ mr: 1 }} />
+                                    Edit
+                                </MenuItem>
+                                <Tooltip title={isDeleteDisabled ? deleteTooltip : ""}>
+                                    <span>
+                                        <MenuItem onClick={handleDelete} disabled={isDeleteDisabled}>
+                                            <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+                                            Delete
+                                        </MenuItem>
+                                    </span>
+                                </Tooltip>
+                            </Menu>
+                        </>
+                    ) : (
+                        <>
+                            {dragHandleProps && (
+                                <IconButton size="small" {...dragHandleProps} sx={{ cursor: 'grab' }}>
+                                    <DragHandleIcon fontSize="small" />
+                                </IconButton>
+                            )}
+                            <Tooltip title={copied ? "Copied!" : "Copy details"}>
+                                <IconButton size="small" onClick={handleCopy}>
+                                    {copied ? <CheckIcon fontSize="small" color="success" /> : <ContentCopyIcon fontSize="small" />}
+                                </IconButton>
+                            </Tooltip>
+                            <IconButton size="small" onClick={() => onEdit(contact)}>
+                                <EditIcon fontSize="small" />
+                            </IconButton>
+                            <Tooltip title={deleteTooltip}>
+                                <span>
+                                    <IconButton 
+                                        size="small" 
+                                        onClick={handleDelete}
+                                        disabled={isDeleteDisabled}
+                                    >
+                                        <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                </span>
+                            </Tooltip>
+                        </>
+                    )}
                 </Box>
             </CardContent>
         </Card>
