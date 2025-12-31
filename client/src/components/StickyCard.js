@@ -24,19 +24,7 @@ import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 import CloseIcon from '@mui/icons-material/Close';
 import { marked } from 'marked';
 
-function StickyCard({
-    sticky,
-
-    onEdit,
-
-    onDelete,
-
-    dragHandleProps,
-
-    viewMode = 'card',
-
-    useKababMenu = true,
-}) {
+function StickyCard({ sticky, onEdit, onDelete, dragHandleProps, viewMode = 'card', useKababMenu = true }) {
     const [copied, setCopied] = useState(false);
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -96,22 +84,14 @@ function StickyCard({
             <Card
                 sx={{
                     width: isList ? '100%' : '24rem',
-
                     mb: 1,
-
                     display: 'flex',
-
                     flexDirection: 'column',
-
                     position: 'relative',
-
                     borderRadius: '8px',
-
                     height: '80px', // Uniform height
-
                     '&:hover .action-buttons': {
                         visibility: 'visible',
-
                         opacity: 1,
                     },
                 }}
