@@ -39,9 +39,11 @@ Stores user credentials and preferences.
 *   `id`: INTEGER PK
 *   `username`: TEXT UNIQUE
 *   `email`: TEXT UNIQUE
+*   `display_name`: TEXT
 *   `password`: TEXT (Bcrypt hash)
-*   `preferences`: TEXT (JSON string of user settings)
-*   `enabled`: INTEGER (1 = active, 0 = disabled)
+*   `preferences`: TEXT (JSON string of user settings, default `{}`)
+*   `enabled`: INTEGER (1 = active, 0 = disabled, default 0)
+*   `last_login`: DATETIME
 
 #### `boards`
 Stores the board metadata and the entire board state.
@@ -49,17 +51,37 @@ Stores the board metadata and the entire board state.
 *   `user_id`: INTEGER FK -> users.id
 *   `name`: TEXT
 *   `collection`: TEXT (Group name for organizing boards)
-*   `position`: INTEGER (Sort order in the dashboard)
+*   `position`: INTEGER (Sort order in the dashboard, default 0)
 *   `data`: **TEXT (JSON Blob)** - *Critical*
     *   This column stores the entire board structure (columns, tasks, order, colors) as a stringified JSON object.
-    *   **Structure**: `{ columns: { [id]: { id, title, tasks: [] } }, columnOrder: [], gradientColors: [] }`
+    *   **Structure**:
+        ```json
+        {
+          "columns": { "[id]": { "id": "...", "title": "...", "tasks": [] } },
+          "columnOrder": [],
+          "gradientColors": [],
+          "archiveHistory": [],
+          "bookmarks": [],
+          "contactIds": [],
+          "contactTags": {},
+          "stickies": []
+        }
+        ```
     *   This design avoids complex joins for task retrieval but requires parsing/stringifying on every read/write.
 
 #### `contacts`
 Stores address book entries.
 *   `id`: INTEGER PK
 *   `user_id`: INTEGER FK -> users.id
-*   `name`, `email`, `phone`, etc.
+*   `name`: TEXT NOT NULL
+*   `title`: TEXT
+*   `company`: TEXT
+*   `email`: TEXT
+*   `phone`: TEXT
+*   `avatarUrl`: TEXT
+*   `status`: TEXT (default 'ACTIVE')
+*   `created_at`: TIMESTAMP (default CURRENT_TIMESTAMP)
+*   **Constraint**: `UNIQUE(user_id, email)` - Ensures distinct contacts per user.
 
 ## 3. Data Flow & Architecture
 
@@ -75,10 +97,10 @@ The frontend uses a mix of **Context API** for global state and **Custom Hooks**
 
 *   **`AuthContext`**: Manages the authenticated user and JWT token.
 *   **`BoardContext`**: Manages the **list of boards** (for the sidebar and dashboard). It *does not* manage the active board's internal state.
-*   **`useBoardData` (Hook)**: Manages the **active board's state** (columns, tasks).
+*   **`useBoardData` (Hook)**: Manages the **active board's state** (columns, tasks, archive, board notes).
     *   Used by `Board.js`.
     *   Handles optimistic UI updates for drag-and-drop.
-    *   Provides handlers like `handleAddTask`, `handleUpdateColumn`.
+    *   Provides handlers like `handleAddTask`, `handleUpdateColumn`, `handleArchiveTask`.
 *   **`useBoardDnd` (Hook)**: Abstracts `@dnd-kit` sensors and collision detection logic.
 
 ## 4. API & Networking
@@ -119,4 +141,4 @@ The frontend uses a mix of **Context API** for global state and **Custom Hooks**
 
 ### Key Conventions
 *   **Styling**: Material-UI (MUI) components with `sx` prop for custom styles.
-*   **JSON in SQL**: Always remember that modifying a task requires fetching the board, parsing `data`, modifying the object, and updating the entire `data` field.
+*   **JSON in SQL**: Always remember that modifying a task or board note requires fetching the board, parsing `data`, modifying the object, and updating the entire `data` field.
