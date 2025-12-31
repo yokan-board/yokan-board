@@ -20,17 +20,14 @@ import DragHandleIcon from '@mui/icons-material/DragHandle';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import StickyNote2Icon from '@mui/icons-material/StickyNote2';
+import StickyNote2Icon from '@mui/icons-material/EditNote';
 import CloseIcon from '@mui/icons-material/Close';
 import { marked } from 'marked';
 
 function StickyCard({ sticky, onEdit, onDelete, dragHandleProps, viewMode = 'card', useKababMenu = true }) {
     const [copied, setCopied] = useState(false);
-
     const [anchorEl, setAnchorEl] = useState(null);
-
     const [isViewOpen, setIsViewOpen] = useState(false);
-
     const htmlContent = marked.parse(sticky.content || '');
 
     const handleMenuOpen = (event) => {
@@ -58,11 +55,8 @@ function StickyCard({ sticky, onEdit, onDelete, dragHandleProps, viewMode = 'car
 
         try {
             await navigator.clipboard.writeText(details);
-
             setCopied(true);
-
             setTimeout(() => setCopied(false), 2000);
-
             handleMenuClose();
         } catch (err) {
             console.error('Failed to copy text: ', err);
@@ -89,7 +83,7 @@ function StickyCard({ sticky, onEdit, onDelete, dragHandleProps, viewMode = 'car
                     flexDirection: 'column',
                     position: 'relative',
                     borderRadius: '8px',
-                    height: '80px', // Uniform height
+                    height: '92px', // Uniform height
                     '&:hover .action-buttons': {
                         visibility: 'visible',
                         opacity: 1,
@@ -120,7 +114,7 @@ function StickyCard({ sticky, onEdit, onDelete, dragHandleProps, viewMode = 'car
                             variant="subtitle1"
                             sx={{
                                 fontWeight: 'bold',
-                                mb: 0,
+                                mb: 0.75,
                                 cursor: 'pointer',
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
