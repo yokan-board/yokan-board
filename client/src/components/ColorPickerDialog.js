@@ -184,8 +184,12 @@ function ColorPickerDialog({ open, onClose, board, onSave }) {
                 />
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 3 }}>
-                <Button variant="outlined" onClick={onClose}>Cancel</Button>
-                <Button variant="contained" onClick={handleSave}>Save</Button>
+                <Button variant="outlined" onClick={onClose}>
+                    Cancel
+                </Button>
+                <Button variant="contained" onClick={handleSave}>
+                    Save
+                </Button>
             </DialogActions>
         </Dialog>
     );

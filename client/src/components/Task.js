@@ -98,12 +98,16 @@ function Task({ task, boardId, columnId, getParentDisplayId, onDelete, onArchive
                         const day = parseInt(dateParts[2]);
                         const localDate = new Date(year, month, day);
                         return (
-                            <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                sx={{ display: 'flex', alignItems: 'center' }}
+                            >
                                 Due: {localDate.toLocaleDateString()}
                             </Typography>
                         );
                     })()}
-                
+
                 {task.comments && task.comments.length > 0 && (
                     <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
                         <ChatBubbleOutlineIcon sx={{ fontSize: '0.75rem', mr: 0.5 }} />

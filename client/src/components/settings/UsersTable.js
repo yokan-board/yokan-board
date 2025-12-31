@@ -54,9 +54,7 @@ function UsersTable() {
     };
 
     const handleSaveUser = (updatedUser) => {
-        setUsers((prevUsers) =>
-            prevUsers.map((u) => (u.id === updatedUser.id ? { ...u, ...updatedUser } : u))
-        );
+        setUsers((prevUsers) => prevUsers.map((u) => (u.id === updatedUser.id ? { ...u, ...updatedUser } : u)));
     };
 
     return (
@@ -114,7 +112,9 @@ function UsersTable() {
                                                 // Clear any previous errors if successful
                                                 setError(null);
                                             } catch (err) {
-                                                setError(err.response?.data?.message || 'Failed to update user status.');
+                                                setError(
+                                                    err.response?.data?.message || 'Failed to update user status.'
+                                                );
                                             }
                                         }}
                                         disabled={user.id === 1} // Disable for admin user

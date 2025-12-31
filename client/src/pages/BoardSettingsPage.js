@@ -64,8 +64,6 @@ function BoardSettingsPage({ boardData, onSaveBoard }) {
 
     return (
         <Box sx={{ p: 3 }}>
-
-            
             <Box>
                 <Typography variant="h6" gutterBottom>
                     Organization

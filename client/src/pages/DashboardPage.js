@@ -220,7 +220,7 @@ function DashboardPage() {
 
         if (activeData?.type !== 'Board') return;
 
-        const activeBoard = boards.find(b => b.id === activeId);
+        const activeBoard = boards.find((b) => b.id === activeId);
         const activeContainer = activeBoard?.collection || 'Default';
 
         let overContainer = null;
@@ -240,22 +240,22 @@ function DashboardPage() {
             if (overData?.type === 'Board') {
                 newIndex = overIndex;
             } else {
-                const collectionBoards = prev.filter(b => (b.collection || 'Default') === overContainer);
+                const collectionBoards = prev.filter((b) => (b.collection || 'Default') === overContainer);
                 if (collectionBoards.length > 0) {
                     const lastBoard = collectionBoards[collectionBoards.length - 1];
-                    newIndex = prev.findIndex(b => b.id === lastBoard.id) + 1;
+                    newIndex = prev.findIndex((b) => b.id === lastBoard.id) + 1;
                 } else {
                     const collectionNames = Object.keys(groupedBoards);
                     const overCollIndex = collectionNames.indexOf(overContainer);
-                    
-                    if (overCollIndex <= 0) { 
+
+                    if (overCollIndex <= 0) {
                         newIndex = 0;
                     } else {
                         const prevCollName = collectionNames[overCollIndex - 1];
-                        const prevCollBoards = prev.filter(b => (b.collection || 'Default') === prevCollName);
+                        const prevCollBoards = prev.filter((b) => (b.collection || 'Default') === prevCollName);
                         if (prevCollBoards.length > 0) {
                             const lastOfPrev = prevCollBoards[prevCollBoards.length - 1];
-                            newIndex = prev.findIndex(b => b.id === lastOfPrev.id) + 1;
+                            newIndex = prev.findIndex((b) => b.id === lastOfPrev.id) + 1;
                         } else {
                             newIndex = 0;
                         }
@@ -265,12 +265,12 @@ function DashboardPage() {
 
             const updatedBoard = {
                 ...prev[activeIndex],
-                collection: overContainer === 'Default' ? null : overContainer
+                collection: overContainer === 'Default' ? null : overContainer,
             };
 
             const result = [...prev];
             result.splice(activeIndex, 1);
-            const finalIndex = (overIndex >= 0 && newIndex > activeIndex) ? newIndex - 1 : newIndex;
+            const finalIndex = overIndex >= 0 && newIndex > activeIndex ? newIndex - 1 : newIndex;
             result.splice(finalIndex, 0, updatedBoard);
             return result;
         });
@@ -300,7 +300,7 @@ function DashboardPage() {
 
         try {
             await boardService.updateBoard(movedBoard.id, movedBoard.name, movedBoard.data, movedBoard.collection);
-            
+
             const positions = finalBoards.map((board, index) => ({
                 id: board.id,
                 position: index + 1,
@@ -364,13 +364,7 @@ function DashboardPage() {
                     />
                 ))}
                 <DragOverlay>
-                    {activeBoard ? (
-                        <BoardCard
-                            board={activeBoard}
-                            isOverlay
-                            copiedGradient={copiedGradient}
-                        />
-                    ) : null}
+                    {activeBoard ? <BoardCard board={activeBoard} isOverlay copiedGradient={copiedGradient} /> : null}
                 </DragOverlay>
             </DndContext>
 
@@ -434,9 +428,9 @@ const CollectionSection = ({
     });
 
     return (
-        <Box 
+        <Box
             ref={setNodeRef}
-            sx={{ 
+            sx={{
                 mb: 4,
                 p: 3,
                 borderRadius: 2,
@@ -447,7 +441,7 @@ const CollectionSection = ({
                 ...(isOver && {
                     border: '2px dashed',
                     borderColor: 'primary.main',
-                })
+                }),
             }}
         >
             {!(collectionName === 'Default' && hideUnnamedCollectionHeading) && (

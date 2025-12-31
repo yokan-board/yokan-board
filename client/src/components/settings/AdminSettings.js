@@ -5,10 +5,9 @@ import UsersTable from './UsersTable';
 function AdminSettings() {
     return (
         <Box>
-
-        <Box sx={{ mt: -3 }}>
-            <UsersTable />
-        </Box>
+            <Box sx={{ mt: -3 }}>
+                <UsersTable />
+            </Box>
         </Box>
     );
 }

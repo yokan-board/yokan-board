@@ -7,7 +7,7 @@ import {
     DialogActions,
     Typography,
     TextField, // Add TextField
-    Autocomplete // Add Autocomplete
+    Autocomplete, // Add Autocomplete
 } from '@mui/material';
 import boardService from '../services/boardService'; // Add boardService
 import { useAuth } from '../contexts/AuthContext'; // Add useAuth
@@ -15,7 +15,7 @@ import { useAuth } from '../contexts/AuthContext'; // Add useAuth
 function ImportBoardJsonDialog({ open, onClose, onImport }) {
     const { user } = useAuth(); // Add this
     const [jsonFileContent, setJsonFileContent] = useState(null);
-    const [newBoardCollection, setNewBoardCollection] = useState("Imported Boards"); // New state for collection
+    const [newBoardCollection, setNewBoardCollection] = useState('Imported Boards'); // New state for collection
     const [collectionOptions, setCollectionOptions] = useState([]); // State for autocomplete options
 
     // Add useEffect to fetch collections
@@ -32,7 +32,7 @@ function ImportBoardJsonDialog({ open, onClose, onImport }) {
             fetchCollections();
         }
         if (open) {
-            setNewBoardCollection("Imported Boards"); // Reset to default when dialog opens
+            setNewBoardCollection('Imported Boards'); // Reset to default when dialog opens
         }
     }, [open, user]);
 
@@ -58,7 +58,7 @@ function ImportBoardJsonDialog({ open, onClose, onImport }) {
             // Pass collection to onImport
             onImport(jsonFileContent, newBoardCollection);
             setJsonFileContent(null);
-            setNewBoardCollection("Imported Boards"); // Reset collection to default after import
+            setNewBoardCollection('Imported Boards'); // Reset collection to default after import
             onClose();
         }
     };
@@ -96,7 +96,9 @@ function ImportBoardJsonDialog({ open, onClose, onImport }) {
                 />
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 3 }}>
-                <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                <Button variant="outlined" onClick={onClose}>
+                    Cancel
+                </Button>
                 <Button variant="contained" onClick={handleConfirmImport} disabled={!jsonFileContent}>
                     Import
                 </Button>

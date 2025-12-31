@@ -194,7 +194,7 @@ export const useBoardData = (initialBoardData, boardName, boardId, onSaveBoard, 
                     };
                 } else {
                     const activeTask = tasksMap[activeId]; // Use tasksMap to find the active task
-                    
+
                     // Create movement comment
                     const moveComment = {
                         id: crypto.randomUUID(),

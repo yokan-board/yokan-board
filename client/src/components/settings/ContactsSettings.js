@@ -1,14 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-    Box,
-    Typography,
-    IconButton,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Tooltip
-} from '@mui/material';
+import { Box, Typography, IconButton, FormControl, InputLabel, Select, MenuItem, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DownloadIcon from '@mui/icons-material/Download';
 import UploadIcon from '@mui/icons-material/Upload';
@@ -88,10 +79,10 @@ function ContactsSettings() {
     };
 
     const handleExportJson = () => {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(contacts, null, 2));
+        const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(contacts, null, 2));
         const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", `yokan-contacts-${new Date().toISOString().slice(0, 10)}.json`);
+        downloadAnchorNode.setAttribute('href', dataStr);
+        downloadAnchorNode.setAttribute('download', `yokan-contacts-${new Date().toISOString().slice(0, 10)}.json`);
         document.body.appendChild(downloadAnchorNode);
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
@@ -101,7 +92,7 @@ function ContactsSettings() {
         const headers = ['Name', 'Title', 'Company', 'Email', 'Phone', 'Status', 'Avatar URL'];
         const csvRows = [headers.join(',')];
 
-        contacts.forEach(contact => {
+        contacts.forEach((contact) => {
             const row = [
                 `"${(contact.name || '').replace(/"/g, '""')}"`,
                 `"${(contact.title || '').replace(/"/g, '""')}"`,
@@ -109,16 +100,16 @@ function ContactsSettings() {
                 `"${(contact.email || '').replace(/"/g, '""')}"`,
                 `"${(contact.phone || '').replace(/"/g, '""')}"`,
                 `"${(contact.status || '').replace(/"/g, '""')}"`,
-                `"${(contact.avatarUrl || '').replace(/"/g, '""')}"`
+                `"${(contact.avatarUrl || '').replace(/"/g, '""')}"`,
             ];
             csvRows.push(row.join(','));
         });
 
         const csvString = csvRows.join('\n');
-        const dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csvString);
+        const dataStr = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvString);
         const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", `yokan-contacts-${new Date().toISOString().slice(0, 10)}.csv`);
+        downloadAnchorNode.setAttribute('href', dataStr);
+        downloadAnchorNode.setAttribute('download', `yokan-contacts-${new Date().toISOString().slice(0, 10)}.csv`);
         document.body.appendChild(downloadAnchorNode);
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
@@ -142,7 +133,8 @@ function ContactsSettings() {
 
     const groupedContacts = useMemo(() => {
         const sorted = [...contacts].sort((a, b) => {
-            let valA = '', valB = '';
+            let valA = '',
+                valB = '';
 
             if (sortBy === 'name') {
                 valA = a.name || '';
@@ -169,13 +161,13 @@ function ContactsSettings() {
                     return (a.name || '').localeCompare(b.name || '');
                 }
             }
-            
+
             return valA.localeCompare(valB);
         });
 
         const groups = {};
 
-        sorted.forEach(contact => {
+        sorted.forEach((contact) => {
             let groupKey = '';
             let displayContact = { ...contact };
 
@@ -211,7 +203,9 @@ function ContactsSettings() {
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Box>
-                    <Typography variant="h6" gutterBottom>All Contacts</Typography>
+                    <Typography variant="h6" gutterBottom>
+                        All Contacts
+                    </Typography>
                     <Typography variant="body2" color="text.secondary">
                         This is a centralized list of all your contacts from across all boards.
                     </Typography>
@@ -233,28 +227,27 @@ function ContactsSettings() {
                         </Select>
                     </FormControl>
                     <Tooltip title="Add Contact">
-                        <IconButton
-                            aria-label="add contact"
-                            onClick={handleAdd}
-                            color="inherit"
-                        >
+                        <IconButton aria-label="add contact" onClick={handleAdd} color="inherit">
                             <AddIcon />
                         </IconButton>
                     </Tooltip>
                     <SettingsMenu menuItems={exportMenuItems} />
                 </Box>
             </Box>
-            
+
             <Box sx={{ mt: 2 }}>
                 {Object.entries(groupedContacts).map(([group, groupContacts]) => (
                     <Box key={group} sx={{ mb: 3 }}>
-                        <Typography variant="h6" sx={{ 
-                            color: 'text.secondary', 
-                            borderBottom: '1px solid', 
-                            borderColor: 'divider', 
-                            mb: 2, 
-                            pb: 0.5 
-                        }}>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                color: 'text.secondary',
+                                borderBottom: '1px solid',
+                                borderColor: 'divider',
+                                mb: 2,
+                                pb: 0.5,
+                            }}
+                        >
                             {group}
                         </Typography>
                         {groupContacts.map((contact) => (
@@ -265,16 +258,20 @@ function ContactsSettings() {
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
                                 isDeleteDisabled={contact.usageCount > 0}
-                                deleteTooltip={contact.usageCount > 0 ? "This contact is referenced by one or more boards and cannot be undone." : ""}
+                                deleteTooltip={
+                                    contact.usageCount > 0
+                                        ? 'This contact is referenced by one or more boards and cannot be undone.'
+                                        : ''
+                                }
                                 useKababMenu={true}
                             />
                         ))}
                     </Box>
                 ))}
                 {contacts.length === 0 && (
-                     <Typography color="text.secondary" align="center" sx={{ mt: 4 }}>
-                         No contacts found. Click the "+" button to create one.
-                     </Typography>
+                    <Typography color="text.secondary" align="center" sx={{ mt: 4 }}>
+                        No contacts found. Click the "+" button to create one.
+                    </Typography>
                 )}
             </Box>
 

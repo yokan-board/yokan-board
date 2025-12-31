@@ -153,7 +153,7 @@ function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) {
                                                 <TaskComments
                                                     comments={task.comments}
                                                     readOnly={true}
-                                                    setComments={() => { }}
+                                                    setComments={() => {}}
                                                     currentUser={null}
                                                     absoluteDates={true}
                                                 />

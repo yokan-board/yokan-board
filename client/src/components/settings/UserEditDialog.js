@@ -62,12 +62,12 @@ function UserEditDialog({ open, user, onClose, onSave }) {
         }
     };
 
-    const isChanged = user && (
-        editingUser.username !== (user.username || '') ||
-        editingUser.display_name !== (user.display_name || '') ||
-        editingUser.email !== (user.email || '') ||
-        editingUser.enabled !== (user.enabled ?? true)
-    );
+    const isChanged =
+        user &&
+        (editingUser.username !== (user.username || '') ||
+            editingUser.display_name !== (user.display_name || '') ||
+            editingUser.email !== (user.email || '') ||
+            editingUser.enabled !== (user.enabled ?? true));
 
     const isPasswordValid = newPassword.length === 0 || newPassword.length >= 6;
     const hasChanges = isChanged || newPassword.length > 0;
@@ -128,7 +128,7 @@ function UserEditDialog({ open, user, onClose, onSave }) {
                         fullWidth
                         size="small"
                     />
-                    
+
                     <FormControlLabel
                         control={
                             <Switch
@@ -162,19 +162,10 @@ function UserEditDialog({ open, user, onClose, onSave }) {
                     Cancel
                 </Button>
                 <Box sx={{ flexGrow: 1 }} />
-                <Button 
-                    variant="text" 
-                    onClick={handleReset} 
-                    disabled={saving || !hasChanges}
-                    color="secondary"
-                >
+                <Button variant="text" onClick={handleReset} disabled={saving || !hasChanges} color="secondary">
                     Reset Changes
                 </Button>
-                <Button
-                    onClick={handleSave}
-                    variant="contained"
-                    disabled={saving || !canSave}
-                >
+                <Button onClick={handleSave} variant="contained" disabled={saving || !canSave}>
                     {saving ? 'Saving...' : 'Save Changes'}
                 </Button>
             </DialogActions>

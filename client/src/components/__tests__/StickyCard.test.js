@@ -7,8 +7,8 @@ import StickyCard from '../StickyCard';
 jest.mock('marked', () => {
     return {
         marked: {
-            parse: (content) => `<p>${content}</p>`
-        }
+            parse: (content) => `<p>${content}</p>`,
+        },
     };
 });
 
@@ -16,7 +16,7 @@ describe('StickyCard', () => {
     const mockSticky = {
         id: 'sticky-1',
         title: 'Test Sticky',
-        content: 'This is a test sticky content'
+        content: 'This is a test sticky content',
     };
 
     const mockOnEdit = jest.fn();
@@ -27,12 +27,7 @@ describe('StickyCard', () => {
     test('renders sticky title and content', async () => {
         render(
             <ThemeProvider theme={theme}>
-                <StickyCard
-                    sticky={mockSticky}
-                    onEdit={mockOnEdit}
-                    onDelete={mockOnDelete}
-                    viewMode="list"
-                />
+                <StickyCard sticky={mockSticky} onEdit={mockOnEdit} onDelete={mockOnDelete} viewMode="list" />
             </ThemeProvider>
         );
 

@@ -1,15 +1,5 @@
 import React, { useState } from 'react';
-import {
-    Box,
-    Typography,
-    TextField,
-    Button,
-    Avatar,
-    IconButton,
-    Menu,
-    MenuItem,
-    Paper,
-} from '@mui/material';
+import { Box, Typography, TextField, Button, Avatar, IconButton, Menu, MenuItem, Paper } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -69,9 +59,7 @@ function TaskComments({ comments, setComments, currentUser, readOnly = false, ab
     const handleEditSave = () => {
         setComments(
             comments.map((c) =>
-                c.id === editingCommentId
-                    ? { ...c, content: editContent, updatedAt: new Date().toISOString() }
-                    : c
+                c.id === editingCommentId ? { ...c, content: editContent, updatedAt: new Date().toISOString() } : c
             )
         );
         setEditingCommentId(null);
@@ -98,7 +86,8 @@ function TaskComments({ comments, setComments, currentUser, readOnly = false, ab
             {/* Add Comment Section */}
             {!readOnly && (
                 <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
-                    <Avatar sx={{ ml: 0.5, mt: 0.5 }}
+                    <Avatar
+                        sx={{ ml: 0.5, mt: 0.5 }}
                         src={getGravatarUrl(currentUser?.email)}
                         alt={currentUser?.username || 'User'}
                     />
@@ -113,11 +102,7 @@ function TaskComments({ comments, setComments, currentUser, readOnly = false, ab
                             variant="outlined"
                             sx={{ mb: 1 }}
                         />
-                        <Button
-                            variant="contained"
-                            disabled={!newComment.trim()}
-                            onClick={handleAddComment}
-                        >
+                        <Button variant="contained" disabled={!newComment.trim()} onClick={handleAddComment}>
                             Comment
                         </Button>
                     </Box>
@@ -160,10 +145,7 @@ function TaskComments({ comments, setComments, currentUser, readOnly = false, ab
                                         </Typography>
                                     </Box>
                                     {!readOnly && (currentUser?.id === comment.userId || currentUser?.isAdmin) && (
-                                        <IconButton
-                                            size="small"
-                                            onClick={(e) => handleMenuOpen(e, comment.id)}
-                                        >
+                                        <IconButton size="small" onClick={(e) => handleMenuOpen(e, comment.id)}>
                                             <MoreVertIcon fontSize="small" />
                                         </IconButton>
                                     )}
@@ -180,17 +162,10 @@ function TaskComments({ comments, setComments, currentUser, readOnly = false, ab
                                             sx={{ mb: 1 }}
                                         />
                                         <Box sx={{ display: 'flex', gap: 1 }}>
-                                            <Button
-                                                size="small"
-                                                variant="contained"
-                                                onClick={handleEditSave}
-                                            >
+                                            <Button size="small" variant="contained" onClick={handleEditSave}>
                                                 Save
                                             </Button>
-                                            <Button
-                                                size="small"
-                                                onClick={handleEditCancel}
-                                            >
+                                            <Button size="small" onClick={handleEditCancel}>
                                                 Cancel
                                             </Button>
                                         </Box>
@@ -206,11 +181,7 @@ function TaskComments({ comments, setComments, currentUser, readOnly = false, ab
                 ))}
             </Box>
 
-            <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-            >
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                 <MenuItem onClick={handleEditStart}>
                     <EditIcon fontSize="small" sx={{ mr: 1 }} />
                     Edit

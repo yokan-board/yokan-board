@@ -294,11 +294,13 @@ function BoardPage() {
             // Resolve contactIds to actual contact data
             const contactService = (await import('../services/contactService')).default;
             const allContacts = await contactService.getContacts();
-            const resolvedContacts = (boardToExport.contactIds || []).map(id => allContacts.find(c => c.id === id)).filter(Boolean);
-            
+            const resolvedContacts = (boardToExport.contactIds || [])
+                .map((id) => allContacts.find((c) => c.id === id))
+                .filter(Boolean);
+
             const boardWithResolvedContacts = {
                 ...boardToExport,
-                contacts: resolvedContacts
+                contacts: resolvedContacts,
             };
 
             const boardDescription = boardToExport.description;
@@ -352,7 +354,9 @@ function BoardPage() {
     return (
         <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Box> {/* New Box to ensure vertical stacking of titles */}
+                <Box>
+                    {' '}
+                    {/* New Box to ensure vertical stacking of titles */}
                     <Typography variant="h6" color="textSecondary" sx={{ mb: 0.5 }}>
                         {boardCollectionName === 'Default' || !boardCollectionName ? 'Boards' : boardCollectionName}
                     </Typography>
@@ -381,11 +385,7 @@ function BoardPage() {
                             }}
                         />
                     ) : (
-                        <Typography
-                            variant="h4"
-                            onClick={() => setIsEditingBoardName(true)}
-                            sx={{ cursor: 'pointer' }}
-                        >
+                        <Typography variant="h4" onClick={() => setIsEditingBoardName(true)} sx={{ cursor: 'pointer' }}>
                             {editedBoardName}
                         </Typography>
                     )}

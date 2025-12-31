@@ -12,7 +12,9 @@ jest.mock('../../services/contactService', () => ({
 }));
 jest.mock('../ContactEditDialog', () => () => <div data-testid="contact-edit-dialog">ContactEditDialog</div>);
 jest.mock('../ContactCard', () => ({ contact }) => (
-    <div data-testid="contact-card">{contact.name} - {contact.company}</div>
+    <div data-testid="contact-card">
+        {contact.name} - {contact.company}
+    </div>
 ));
 
 describe('ContactsSettings Sorting', () => {
@@ -20,7 +22,7 @@ describe('ContactsSettings Sorting', () => {
         { id: 1, name: 'Alice Smith', company: 'Acme Corp', title: 'Developer', email: 'alice@example.com' },
         { id: 2, name: 'Bob Jones', company: 'Beta Inc', title: 'Manager', email: 'bob@example.com' },
         { id: 3, name: 'Charlie Brown', company: 'Acme Corp', title: 'Designer', email: 'charlie@example.com' },
-        { id: 4, name: 'David Lee', company: 'Gamma LLC', title: 'Analyst', email: 'david@example.com' }
+        { id: 4, name: 'David Lee', company: 'Gamma LLC', title: 'Analyst', email: 'david@example.com' },
     ];
 
     beforeEach(() => {
@@ -33,7 +35,7 @@ describe('ContactsSettings Sorting', () => {
 
     test('renders contacts sorted by Name by default', async () => {
         render(<ContactsSettings />);
-        
+
         await waitFor(() => {
             const cards = screen.getAllByTestId('contact-card');
             expect(cards).toHaveLength(4);
@@ -52,7 +54,7 @@ describe('ContactsSettings Sorting', () => {
 
     test('sorts by Company', async () => {
         render(<ContactsSettings />);
-        
+
         await waitFor(() => screen.getAllByTestId('contact-card'));
 
         const sortSelect = screen.getByLabelText('Sort By');
@@ -75,7 +77,7 @@ describe('ContactsSettings Sorting', () => {
 
     test('sorts by Last Name', async () => {
         render(<ContactsSettings />);
-        
+
         await waitFor(() => screen.getAllByTestId('contact-card'));
 
         const sortSelect = screen.getByLabelText('Sort By');
@@ -101,7 +103,7 @@ describe('ContactsSettings Sorting', () => {
 
     test('sorts by Title', async () => {
         render(<ContactsSettings />);
-        
+
         await waitFor(() => screen.getAllByTestId('contact-card'));
 
         const sortSelect = screen.getByLabelText('Sort By');
@@ -117,8 +119,8 @@ describe('ContactsSettings Sorting', () => {
             expect(cards[2]).toHaveTextContent('Alice Smith'); // Developer
             expect(cards[3]).toHaveTextContent('Bob Jones'); // Manager
         });
-        
-         // Check headers
+
+        // Check headers
         expect(screen.getByText('A')).toBeInTheDocument(); // Analyst
         expect(screen.getByText('D')).toBeInTheDocument(); // Designer, Developer
         expect(screen.getByText('M')).toBeInTheDocument(); // Manager
@@ -127,12 +129,12 @@ describe('ContactsSettings Sorting', () => {
     test('remembers sorting preference from localStorage', async () => {
         localStorage.setItem('contactsSortBy', 'company');
         render(<ContactsSettings />);
-        
+
         await waitFor(() => {
             // Check that Acme Corp header exists
             const headers = screen.getAllByText('Acme Corp');
             expect(headers.length).toBeGreaterThan(0);
-            
+
             // Check the select component display text
             const selectDisplay = screen.getByRole('combobox');
             expect(selectDisplay).toHaveTextContent('Company');
@@ -142,7 +144,7 @@ describe('ContactsSettings Sorting', () => {
 
     test('renders settings menu and export options', async () => {
         render(<ContactsSettings />);
-        
+
         await waitFor(() => screen.getAllByTestId('contact-card'));
 
         const settingsButton = screen.getByLabelText('settings');

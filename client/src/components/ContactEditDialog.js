@@ -11,7 +11,7 @@ import {
     Switch,
     Chip,
     Typography,
-    Divider
+    Divider,
 } from '@mui/material';
 import { debounce } from 'lodash';
 import { formatPhoneNumber } from '../utils/phoneUtils';
@@ -25,7 +25,7 @@ const initialContactState = {
     phone: '',
     avatarUrl: '',
     status: 'ACTIVE',
-    tags: []
+    tags: [],
 };
 
 function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] }) {
@@ -34,7 +34,7 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
     const [tagInput, setTagInput] = useState('');
 
     const suggestedTags = useMemo(() => {
-        return availableTags.filter(tag => !editingContact.tags.includes(tag));
+        return availableTags.filter((tag) => !editingContact.tags.includes(tag));
     }, [availableTags, editingContact.tags]);
 
     useEffect(() => {
@@ -49,45 +49,46 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
     }, [contact, open]);
 
     const debouncedSearch = useMemo(
-        () => debounce(async (query, isEditMode) => {
-            if (isEditMode || query.length <= 2) return;
+        () =>
+            debounce(async (query, isEditMode) => {
+                if (isEditMode || query.length <= 2) return;
 
-            try {
-                const results = await contactService.searchContacts(query);
-                // Look for an exact email match first
-                const exactMatch = results.find(r => r.email.toLowerCase() === query.toLowerCase());
-                
-                if (exactMatch) {
-                    setEditingContact({
-                        id: exactMatch.id,
-                        name: exactMatch.name,
-                        title: exactMatch.title || '',
-                        company: exactMatch.company || '',
-                        email: exactMatch.email,
-                        phone: exactMatch.phone || '',
-                        avatarUrl: exactMatch.avatarUrl || '',
-                        status: exactMatch.status || 'ACTIVE',
-                    });
-                    setIsExisting(true);
-                } else if (results.length === 1) {
-                    // Fallback to single result if it's close enough (though exact email is preferred)
-                    const found = results[0];
-                    setEditingContact({
-                        id: found.id,
-                        name: found.name,
-                        title: found.title || '',
-                        company: found.company || '',
-                        email: found.email,
-                        phone: found.phone || '',
-                        avatarUrl: found.avatarUrl || '',
-                        status: found.status || 'ACTIVE',
-                    });
-                    setIsExisting(true);
+                try {
+                    const results = await contactService.searchContacts(query);
+                    // Look for an exact email match first
+                    const exactMatch = results.find((r) => r.email.toLowerCase() === query.toLowerCase());
+
+                    if (exactMatch) {
+                        setEditingContact({
+                            id: exactMatch.id,
+                            name: exactMatch.name,
+                            title: exactMatch.title || '',
+                            company: exactMatch.company || '',
+                            email: exactMatch.email,
+                            phone: exactMatch.phone || '',
+                            avatarUrl: exactMatch.avatarUrl || '',
+                            status: exactMatch.status || 'ACTIVE',
+                        });
+                        setIsExisting(true);
+                    } else if (results.length === 1) {
+                        // Fallback to single result if it's close enough (though exact email is preferred)
+                        const found = results[0];
+                        setEditingContact({
+                            id: found.id,
+                            name: found.name,
+                            title: found.title || '',
+                            company: found.company || '',
+                            email: found.email,
+                            phone: found.phone || '',
+                            avatarUrl: found.avatarUrl || '',
+                            status: found.status || 'ACTIVE',
+                        });
+                        setIsExisting(true);
+                    }
+                } catch (error) {
+                    console.error('Error searching contacts:', error);
                 }
-            } catch (error) {
-                console.error('Error searching contacts:', error);
-            }
-        }, 500),
+            }, 500),
         []
     );
 
@@ -102,8 +103,8 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
 
     const handleEditChange = (field) => (e) => {
         const value = e.target.value;
-        setEditingContact(prev => ({ ...prev, [field]: value }));
-        
+        setEditingContact((prev) => ({ ...prev, [field]: value }));
+
         // If we were in "existing" mode and user changed the email, we might need to drop out of it
         if (field === 'email' && isExisting) {
             setIsExisting(false);
@@ -119,9 +120,9 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
         if (e.key === 'Enter' && tagInput.trim()) {
             e.preventDefault();
             if (!editingContact.tags.includes(tagInput.trim())) {
-                setEditingContact(prev => ({
+                setEditingContact((prev) => ({
                     ...prev,
-                    tags: [...prev.tags, tagInput.trim()]
+                    tags: [...prev.tags, tagInput.trim()],
                 }));
             }
             setTagInput('');
@@ -129,9 +130,9 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
     };
 
     const handleDeleteTag = (tagToDelete) => {
-        setEditingContact(prev => ({
+        setEditingContact((prev) => ({
             ...prev,
-            tags: prev.tags.filter(tag => tag !== tagToDelete)
+            tags: prev.tags.filter((tag) => tag !== tagToDelete),
         }));
     };
 
@@ -139,7 +140,7 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
         if (editingContact) {
             const toSave = {
                 ...editingContact,
-                phone: formatPhoneNumber(editingContact.phone)
+                phone: formatPhoneNumber(editingContact.phone),
             };
             onSave(toSave);
         }
@@ -148,7 +149,7 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
             <DialogTitle>
-                {isEditMode ? 'Edit Contact' : (isExisting ? 'Existing Contact Found' : 'Add New Contact')}
+                {isEditMode ? 'Edit Contact' : isExisting ? 'Existing Contact Found' : 'Add New Contact'}
             </DialogTitle>
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
@@ -159,7 +160,9 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
                         fullWidth
                         size="small"
                         autoFocus={!isEditMode}
-                        helperText={!isEditMode && !isExisting ? "Start typing an email to find an existing contact." : ""}
+                        helperText={
+                            !isEditMode && !isExisting ? 'Start typing an email to find an existing contact.' : ''
+                        }
                     />
                     <TextField
                         label="Full Name"
@@ -250,9 +253,9 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
                                         key={tag}
                                         label={tag}
                                         onClick={() => {
-                                            setEditingContact(prev => ({
+                                            setEditingContact((prev) => ({
                                                 ...prev,
-                                                tags: [...prev.tags, tag]
+                                                tags: [...prev.tags, tag],
                                             }));
                                         }}
                                         size="small"
@@ -266,13 +269,15 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
                 </Box>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 3 }}>
-                <Button variant="outlined" onClick={onClose}>Cancel</Button>
-                <Button 
-                    onClick={handleSave} 
-                    variant="contained" 
+                <Button variant="outlined" onClick={onClose}>
+                    Cancel
+                </Button>
+                <Button
+                    onClick={handleSave}
+                    variant="contained"
                     disabled={!editingContact?.name?.trim() || !editingContact?.email?.trim()}
                 >
-                    {isEditMode ? 'Save Changes' : (isExisting ? 'Link Contact' : 'Add Contact')}
+                    {isEditMode ? 'Save Changes' : isExisting ? 'Link Contact' : 'Add Contact'}
                 </Button>
             </DialogActions>
         </Dialog>

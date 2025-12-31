@@ -46,7 +46,7 @@ export function AuthProvider({ children }) {
             const now = Date.now();
             const storedLastActivity = parseInt(localStorage.getItem('lastActivity') || '0');
             const effectiveLastActivity = Math.max(lastActivity.current, storedLastActivity);
-            
+
             const timeSinceLastActivity = now - effectiveLastActivity;
             const isInactive = timeSinceLastActivity > 30 * 60 * 1000; // 30 minutes
 
@@ -89,7 +89,7 @@ export function AuthProvider({ children }) {
             const userToSet = { ...profile, token: loginResponse.token };
             setUser(userToSet);
             localStorage.setItem('user', JSON.stringify(userToSet));
-            
+
             // Reset inactivity timer on login
             const now = Date.now();
             lastActivity.current = now;

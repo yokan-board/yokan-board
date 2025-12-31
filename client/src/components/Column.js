@@ -212,7 +212,7 @@ function Column({
                     </Typography>
                 )}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Tooltip title={isMinimized ? "Expand" : "Minimize"}>
+                    <Tooltip title={isMinimized ? 'Expand' : 'Minimize'}>
                         <IconButton size="small" onClick={handleToggleMinimize} color="inherit" sx={{ opacity: 0.7 }}>
                             {isMinimized ? <UnfoldMoreIcon fontSize="small" /> : <UnfoldLessIcon fontSize="small" />}
                         </IconButton>
@@ -244,9 +244,9 @@ function Column({
                         </IconButton>
                     </Tooltip>
                     <Tooltip title="Archive column tasks">
-                        <IconButton 
-                            size="small" 
-                            onClick={handleArchiveColumnClick} 
+                        <IconButton
+                            size="small"
+                            onClick={handleArchiveColumnClick}
                             disabled={column.tasks.length === 0}
                             sx={{ opacity: 0.7 }}
                         >
@@ -295,19 +295,21 @@ function Column({
                     >
                         {' '}
                         {/* Added maxHeight and overflowY */}
-                        {(column.tasks || []).filter((task) => task && task.id).map((task) => (
-                            <Task
-                                key={task.id}
-                                task={task}
-                                boardId={boardId}
-                                columnId={column.id}
-                                getParentDisplayId={getParentDisplayId}
-                                onDelete={onDeleteTask}
-                                onArchiveTask={onArchiveTask}
-                                highlightColor={column.highlightColor}
-                                tasksMap={tasksMap}
-                            />
-                        ))}
+                        {(column.tasks || [])
+                            .filter((task) => task && task.id)
+                            .map((task) => (
+                                <Task
+                                    key={task.id}
+                                    task={task}
+                                    boardId={boardId}
+                                    columnId={column.id}
+                                    getParentDisplayId={getParentDisplayId}
+                                    onDelete={onDeleteTask}
+                                    onArchiveTask={onArchiveTask}
+                                    highlightColor={column.highlightColor}
+                                    tasksMap={tasksMap}
+                                />
+                            ))}
                     </Box>
                 </SortableContext>
             )}
@@ -324,13 +326,7 @@ function Column({
                     }}
                     sx={{ mb: 1 }}
                 />
-                <Button 
-                    fullWidth 
-                    variant="contained" 
-                    disableElevation
-                    startIcon={<AddIcon />} 
-                    onClick={handleAddTask}
-                >
+                <Button fullWidth variant="contained" disableElevation startIcon={<AddIcon />} onClick={handleAddTask}>
                     Add Task
                 </Button>
             </Box>
@@ -384,8 +380,12 @@ function Column({
                     </Box>
                 </DialogContent>
                 <DialogActions sx={{ px: 3, pb: 3 }}>
-                    <Button variant="outlined" onClick={handleCloseColorPicker}>Cancel</Button>
-                    <Button variant="contained" onClick={handleSaveBaseColor}>Save</Button>
+                    <Button variant="outlined" onClick={handleCloseColorPicker}>
+                        Cancel
+                    </Button>
+                    <Button variant="contained" onClick={handleSaveBaseColor}>
+                        Save
+                    </Button>
                 </DialogActions>
             </Dialog>
 
@@ -398,7 +398,9 @@ function Column({
                     </Typography>
                 </DialogContent>
                 <DialogActions sx={{ px: 3, pb: 3 }}>
-                    <Button variant="outlined" onClick={handleCancelDeleteColumn}>Cancel</Button>
+                    <Button variant="outlined" onClick={handleCancelDeleteColumn}>
+                        Cancel
+                    </Button>
                     <Button variant="contained" onClick={handleConfirmDeleteColumn} color="error">
                         Delete
                     </Button>

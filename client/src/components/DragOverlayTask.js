@@ -22,8 +22,10 @@ function DragOverlayTask({ task, tasksMap }) {
 
     return (
         <Paper style={style}>
-            <Typography variant="body1" sx={{ fontWeight: 500 }}>{task.content}</Typography>
-            
+            <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                {task.content}
+            </Typography>
+
             {/* Metadata mockup for overlay */}
             <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.25 }}>
                 {task.dueDate && (

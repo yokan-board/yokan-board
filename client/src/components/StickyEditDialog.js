@@ -1,19 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {
-    Box,
-    Button,
-    TextField,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Typography,
-} from '@mui/material';
+import { Box, Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from '@mui/material';
 import MarkdownEditor from './MarkdownEditor';
 
 const initialStickyState = {
     title: '',
-    content: ''
+    content: '',
 };
 
 function StickyEditDialog({ open, sticky, onClose, onSave }) {
@@ -28,11 +19,11 @@ function StickyEditDialog({ open, sticky, onClose, onSave }) {
     }, [sticky, open]);
 
     const handleTitleChange = (e) => {
-        setEditingSticky(prev => ({ ...prev, title: e.target.value }));
+        setEditingSticky((prev) => ({ ...prev, title: e.target.value }));
     };
 
     const handleContentChange = (content) => {
-        setEditingSticky(prev => ({ ...prev, content }));
+        setEditingSticky((prev) => ({ ...prev, content }));
     };
 
     const handleSave = () => {
@@ -50,17 +41,15 @@ function StickyEditDialog({ open, sticky, onClose, onSave }) {
     };
 
     const isEditMode = !!sticky;
-    const hasChanges = sticky 
-        ? (editingSticky.title !== (sticky.title || '') || editingSticky.content !== (sticky.content || ''))
-        : (editingSticky.title.trim() !== '' || editingSticky.content.trim() !== '');
+    const hasChanges = sticky
+        ? editingSticky.title !== (sticky.title || '') || editingSticky.content !== (sticky.content || '')
+        : editingSticky.title.trim() !== '' || editingSticky.content.trim() !== '';
 
     const isSaveDisabled = !hasChanges || (!editingSticky.title.trim() && !editingSticky.content.trim());
 
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-            <DialogTitle>
-                {isEditMode ? 'Edit Sticky Note' : 'Add New Sticky Note'}
-            </DialogTitle>
+            <DialogTitle>{isEditMode ? 'Edit Sticky Note' : 'Add New Sticky Note'}</DialogTitle>
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1, minHeight: '400px' }}>
                     <TextField
@@ -72,9 +61,9 @@ function StickyEditDialog({ open, sticky, onClose, onSave }) {
                         autoFocus
                     />
                     <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                        <MarkdownEditor 
-                            value={editingSticky.content} 
-                            onChange={handleContentChange} 
+                        <MarkdownEditor
+                            value={editingSticky.content}
+                            onChange={handleContentChange}
                             placeholder="Write your note here..."
                         />
                     </Box>
@@ -85,12 +74,10 @@ function StickyEditDialog({ open, sticky, onClose, onSave }) {
                     Clear Changes
                 </Button>
                 <Box sx={{ flexGrow: 1 }} />
-                <Button variant="outlined" onClick={onClose}>Cancel</Button>
-                <Button 
-                    onClick={handleSave} 
-                    variant="contained" 
-                    disabled={isSaveDisabled}
-                >
+                <Button variant="outlined" onClick={onClose}>
+                    Cancel
+                </Button>
+                <Button onClick={handleSave} variant="contained" disabled={isSaveDisabled}>
                     {isEditMode ? 'Save Changes' : 'Add Sticky'}
                 </Button>
             </DialogActions>

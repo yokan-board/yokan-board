@@ -1,7 +1,7 @@
 /**
  * Formats a phone number string to '+1 (XXX) XXX-XXXX'
  * Defaults to '+1' if international code is missing.
- * @param {string} phone 
+ * @param {string} phone
  * @returns {string}
  */
 export function formatPhoneNumber(phone) {

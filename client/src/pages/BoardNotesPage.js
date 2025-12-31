@@ -69,7 +69,7 @@ function SortableStickyCard({ sticky, onEdit, onDelete, viewMode }) {
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1,
-        width: '100%',
+        width: viewMode === 'list' ? '100%' : 'auto',
     };
 
     return (
@@ -85,13 +85,13 @@ function SortableStickyCard({ sticky, onEdit, onDelete, viewMode }) {
     );
 }
 
-function BoardNotesPage({ 
-    bookmarks: initialBookmarks = [], 
-    contactIds: initialContactIds = [], 
-    contactTags: initialContactTags = {}, 
+function BoardNotesPage({
+    bookmarks: initialBookmarks = [],
+    contactIds: initialContactIds = [],
+    contactTags: initialContactTags = {},
     stickies: initialStickies = [],
-    onSave, 
-    onHasUnsavedChangesChange 
+    onSave,
+    onHasUnsavedChangesChange,
 }) {
     const { boards } = useBoards();
     const [localBookmarks, setLocalBookmarks] = useState(initialBookmarks);
@@ -103,19 +103,19 @@ function BoardNotesPage({
     // Extract all unique tags across all boards
     const availableTags = useMemo(() => {
         const tagSet = new Set();
-        boards.forEach(board => {
+        boards.forEach((board) => {
             if (board.data && board.data.contactTags) {
-                Object.values(board.data.contactTags).forEach(tags => {
+                Object.values(board.data.contactTags).forEach((tags) => {
                     if (Array.isArray(tags)) {
-                        tags.forEach(tag => tagSet.add(tag));
+                        tags.forEach((tag) => tagSet.add(tag));
                     }
                 });
             }
         });
         // Also include tags from current unsaved state
-        Object.values(localContactTags).forEach(tags => {
+        Object.values(localContactTags).forEach((tags) => {
             if (Array.isArray(tags)) {
-                tags.forEach(tag => tagSet.add(tag));
+                tags.forEach((tag) => tagSet.add(tag));
             }
         });
         return Array.from(tagSet).sort();
@@ -197,8 +197,8 @@ function BoardNotesPage({
 
         if (active.id !== over?.id) {
             setLocalStickies((items) => {
-                const oldIndex = items.findIndex(s => s.id === active.id);
-                const newIndex = items.findIndex(s => s.id === over.id);
+                const oldIndex = items.findIndex((s) => s.id === active.id);
+                const newIndex = items.findIndex((s) => s.id === over.id);
 
                 return arrayMove(items, oldIndex, newIndex);
             });
@@ -216,18 +216,28 @@ function BoardNotesPage({
         const stringifiedInitialContactTags = JSON.stringify(initialContactTags || {});
         const stringifiedLocalStickies = JSON.stringify(localStickies);
         const stringifiedInitialStickies = JSON.stringify(initialStickies || []);
-        
+
         const bookmarksChanged = stringifiedLocalBookmarks !== stringifiedInitialBookmarks;
         const contactsChanged = stringifiedLocalContactIds !== stringifiedInitialContactIds;
         const tagsChanged = stringifiedLocalContactTags !== stringifiedInitialContactTags;
         const stickiesChanged = stringifiedLocalStickies !== stringifiedInitialStickies;
-        
+
         const newHasUnsavedChanges = bookmarksChanged || contactsChanged || tagsChanged || stickiesChanged;
         setHasUnsavedChanges(newHasUnsavedChanges);
         if (onHasUnsavedChangesChange) {
             onHasUnsavedChangesChange(newHasUnsavedChanges);
         }
-    }, [localBookmarks, initialBookmarks, localContactIds, initialContactIds, localContactTags, initialContactTags, localStickies, initialStickies, onHasUnsavedChangesChange]);
+    }, [
+        localBookmarks,
+        initialBookmarks,
+        localContactIds,
+        initialContactIds,
+        localContactTags,
+        initialContactTags,
+        localStickies,
+        initialStickies,
+        onHasUnsavedChangesChange,
+    ]);
 
     const blocker = useBlocker(
         ({ currentLocation, nextLocation }) => hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname
@@ -259,11 +269,11 @@ function BoardNotesPage({
     }, [hasUnsavedChanges]);
 
     const handleSaveChanges = () => {
-        onSave({ 
-            bookmarks: localBookmarks, 
-            contactIds: localContactIds, 
+        onSave({
+            bookmarks: localBookmarks,
+            contactIds: localContactIds,
             contactTags: localContactTags,
-            stickies: localStickies
+            stickies: localStickies,
         });
     };
 
@@ -298,7 +308,7 @@ function BoardNotesPage({
         if (contact) {
             setEditingContact({
                 ...contact,
-                tags: localContactTags[contact.id] || []
+                tags: localContactTags[contact.id] || [],
             });
         } else {
             setEditingContact(null);
@@ -318,22 +328,22 @@ function BoardNotesPage({
             if (contact.id) {
                 // Update existing
                 await contactService.updateContact(contact.id, contactData);
-                setAllContacts(prev => prev.map(c => c.id === contact.id ? { ...c, ...contactData } : c));
+                setAllContacts((prev) => prev.map((c) => (c.id === contact.id ? { ...c, ...contactData } : c)));
                 savedContact = { ...contactData, id: contact.id };
                 if (!localContactIds.includes(contact.id)) {
-                    setLocalContactIds(prev => [...prev, contact.id]);
+                    setLocalContactIds((prev) => [...prev, contact.id]);
                 }
             } else {
                 // Create new
                 savedContact = await contactService.createContact(contactData);
-                setAllContacts(prev => [...prev, savedContact]);
-                setLocalContactIds(prev => [...prev, savedContact.id]);
+                setAllContacts((prev) => [...prev, savedContact]);
+                setLocalContactIds((prev) => [...prev, savedContact.id]);
             }
-            
+
             // Save tags locally for this board
-            setLocalContactTags(prev => ({
+            setLocalContactTags((prev) => ({
                 ...prev,
-                [savedContact.id]: tags || []
+                [savedContact.id]: tags || [],
             }));
 
             handleCloseEdit();
@@ -363,11 +373,11 @@ function BoardNotesPage({
     const handleSaveStickyEdit = (sticky) => {
         if (sticky.id) {
             // Update existing
-            setLocalStickies(prev => prev.map(s => s.id === sticky.id ? sticky : s));
+            setLocalStickies((prev) => prev.map((s) => (s.id === sticky.id ? sticky : s)));
         } else {
             // Create new
             const newSticky = { ...sticky, id: uuidv4() };
-            setLocalStickies(prev => [...prev, newSticky]);
+            setLocalStickies((prev) => [...prev, newSticky]);
         }
         handleCloseStickyEdit();
     };
@@ -384,7 +394,7 @@ function BoardNotesPage({
             setLocalBookmarks(updatedBookmarks);
         } else if (deleteType === 'contact') {
             // Only remove from local board view, don't delete from global database
-            setLocalContactIds(prev => prev.filter(id => id !== itemToDelete));
+            setLocalContactIds((prev) => prev.filter((id) => id !== itemToDelete));
         } else if (deleteType === 'sticky') {
             const updatedStickies = localStickies.filter((sticky) => sticky.id !== itemToDelete);
             setLocalStickies(updatedStickies);
@@ -394,9 +404,7 @@ function BoardNotesPage({
         setDeleteType(null);
     };
 
-    const displayContacts = localContactIds
-        .map(id => allContacts.find(c => c.id === id))
-        .filter(Boolean);
+    const displayContacts = localContactIds.map((id) => allContacts.find((c) => c.id === id)).filter(Boolean);
 
     return (
         <Box sx={{ p: 3 }}>
@@ -411,23 +419,23 @@ function BoardNotesPage({
                     onDragStart={handleStickyDragStart}
                     onDragEnd={handleStickyDragEnd}
                 >
-                    <SortableContext 
-                        items={localStickies.map(s => s.id)} 
-                        strategy={verticalListSortingStrategy}
-                    >
-                        <Box sx={{ 
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '8px', 
-                            mb: 2 
-                        }}>
+                    <SortableContext items={localStickies.map((s) => s.id)} strategy={rectSortingStrategy}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                flexDirection: 'row',
+                                gap: '16px',
+                                mb: 2,
+                            }}
+                        >
                             {localStickies.map((sticky) => (
                                 <SortableStickyCard
                                     key={sticky.id}
                                     sticky={sticky}
                                     onEdit={handleOpenStickyEdit}
                                     onDelete={handleDeleteSticky}
-                                    viewMode="list"
+                                    viewMode="card"
                                 />
                             ))}
                         </Box>
@@ -438,18 +446,13 @@ function BoardNotesPage({
                                 sticky={localStickies.find((s) => s.id === activeStickyId)}
                                 onEdit={() => {}}
                                 onDelete={() => {}}
-                                viewMode="list"
+                                viewMode="card"
                             />
                         ) : null}
                     </DragOverlay>
                 </DndContext>
-                <Box sx={{ width: '100%', mt: 2 }}>
-                    <Button
-                        startIcon={<AddIcon />}
-                        onClick={() => handleOpenStickyEdit()}
-                        variant="outlined"
-                        fullWidth
-                    >
+                <Box sx={{ width: '24rem', mt: 2 }}>
+                    <Button startIcon={<AddIcon />} onClick={() => handleOpenStickyEdit()} variant="outlined" fullWidth>
                         Add New Sticky
                     </Button>
                 </Box>
@@ -459,9 +462,7 @@ function BoardNotesPage({
 
             {/* Contacts Section */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h5">
-                    Contacts
-                </Typography>
+                <Typography variant="h5">Contacts</Typography>
                 <ToggleButtonGroup
                     value={viewMode}
                     exclusive
@@ -484,18 +485,17 @@ function BoardNotesPage({
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
                 >
-                    <SortableContext 
-                        items={localContactIds} 
-                        strategy={rectSortingStrategy}
-                    >
-                        <Box sx={{ 
-                            display: viewMode === 'list' ? 'grid' : 'flex',
-                            gridTemplateColumns: viewMode === 'list' ? { xs: '1fr', xl: '1fr 1fr' } : undefined,
-                            flexWrap: viewMode === 'list' ? undefined : 'wrap',
-                            flexDirection: viewMode === 'list' ? undefined : 'row',
-                            gap: '16px', 
-                            mb: 2 
-                        }}>
+                    <SortableContext items={localContactIds} strategy={rectSortingStrategy}>
+                        <Box
+                            sx={{
+                                display: viewMode === 'list' ? 'grid' : 'flex',
+                                gridTemplateColumns: viewMode === 'list' ? { xs: '1fr', xl: '1fr 1fr' } : undefined,
+                                flexWrap: viewMode === 'list' ? undefined : 'wrap',
+                                flexDirection: viewMode === 'list' ? undefined : 'row',
+                                gap: '16px',
+                                mb: 2,
+                            }}
+                        >
                             {displayContacts.map((contact) => (
                                 <SortableContactCard
                                     key={contact.id}
@@ -522,12 +522,7 @@ function BoardNotesPage({
                     </DragOverlay>
                 </DndContext>
                 <Box sx={{ width: viewMode === 'list' ? '100%' : '24rem', mt: 2 }}>
-                    <Button
-                        startIcon={<AddIcon />}
-                        onClick={() => handleOpenEdit()}
-                        variant="outlined"
-                        fullWidth
-                    >
+                    <Button startIcon={<AddIcon />} onClick={() => handleOpenEdit()} variant="outlined" fullWidth>
                         Add New Contact
                     </Button>
                 </Box>
@@ -570,7 +565,9 @@ function BoardNotesPage({
                 message={
                     deleteType === 'contact'
                         ? 'Are you sure you want to remove the reference to this contact from this board? This action is not reversible.'
-                        : (deleteType === 'sticky' ? 'Are you sure you want to delete this sticky note? This action is not reversible.' : 'Are you sure you want to delete this bookmark? This action is not reversible.')
+                        : deleteType === 'sticky'
+                          ? 'Are you sure you want to delete this sticky note? This action is not reversible.'
+                          : 'Are you sure you want to delete this bookmark? This action is not reversible.'
                 }
                 confirmButtonText={deleteType === 'contact' ? 'Remove' : 'Delete'}
             />
@@ -594,4 +591,3 @@ function BoardNotesPage({
 }
 
 export default BoardNotesPage;
-

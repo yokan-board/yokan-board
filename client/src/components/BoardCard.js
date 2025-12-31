@@ -28,14 +28,7 @@ function BoardCard({
     const navigate = useNavigate();
     const longPressTimer = useRef(null);
 
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: board.id,
         disabled: isOverlay, // Disable sortable logic for the overlay component itself
         data: {

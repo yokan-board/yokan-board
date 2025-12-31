@@ -88,7 +88,7 @@ const Sidebar = ({ open, setOpen }) => {
         : `https://www.gravatar.com/avatar/?d=identicon`;
 
     const groupedBoards = useMemo(() => {
-        const groups = { 'Boards': [] }; // 'Boards' will be the default collection for unassigned boards
+        const groups = { Boards: [] }; // 'Boards' will be the default collection for unassigned boards
 
         boards.forEach((board) => {
             const collectionName = board.collection || 'Boards'; // Use 'Boards' as default
@@ -112,7 +112,6 @@ const Sidebar = ({ open, setOpen }) => {
 
         return sortedGroups;
     }, [boards]);
-
 
     const drawerContent = (
         <>

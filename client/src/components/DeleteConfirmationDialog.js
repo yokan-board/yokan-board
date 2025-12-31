@@ -16,7 +16,9 @@ function DeleteConfirmationDialog({
                 <Typography>{message}</Typography>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 3 }}>
-                <Button variant="outlined" onClick={onClose}>Cancel</Button>
+                <Button variant="outlined" onClick={onClose}>
+                    Cancel
+                </Button>
                 <Button variant="contained" onClick={onConfirm} color="error">
                     {confirmButtonText}
                 </Button>

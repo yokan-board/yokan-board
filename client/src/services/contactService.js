@@ -29,7 +29,6 @@ const searchContacts = async (query) => {
     return response.data.data;
 };
 
-
 const contactService = {
     getContacts,
     createContact,
