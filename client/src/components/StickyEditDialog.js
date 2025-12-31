@@ -52,7 +52,9 @@ function StickyEditDialog({ open, sticky, onClose, onSave }) {
     const isEditMode = !!sticky;
     const hasChanges = sticky 
         ? (editingSticky.title !== (sticky.title || '') || editingSticky.content !== (sticky.content || ''))
-        : (editingSticky.title !== '' || editingSticky.content !== '');
+        : (editingSticky.title.trim() !== '' || editingSticky.content.trim() !== '');
+
+    const isSaveDisabled = !hasChanges || (!editingSticky.title.trim() && !editingSticky.content.trim());
 
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -87,7 +89,7 @@ function StickyEditDialog({ open, sticky, onClose, onSave }) {
                 <Button 
                     onClick={handleSave} 
                     variant="contained" 
-                    disabled={!editingSticky.title.trim() && !editingSticky.content.trim()}
+                    disabled={isSaveDisabled}
                 >
                     {isEditMode ? 'Save Changes' : 'Add Sticky'}
                 </Button>
