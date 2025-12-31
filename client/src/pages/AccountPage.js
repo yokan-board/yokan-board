@@ -49,10 +49,10 @@ function AccountPage() {
     return (
         <Box sx={{ width: '100%' }}>
             <Typography variant="h4" component="h1" sx={{ p: 3, pb: 0 }}>
-                Account Settings
+                Settings
             </Typography>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs value={value} onChange={handleChange} aria-label="account settings tabs">
+                <Tabs value={value} onChange={handleChange} aria-label="settings tabs">
                     <Tab label="Profile" {...a11yProps(0)} />
                     <Tab label="Contacts" {...a11yProps(1)} />
                     <Tab label="Preferences" {...a11yProps(2)} />
