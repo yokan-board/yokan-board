@@ -70,6 +70,7 @@ function ContactCard({
             sx={{
                 width: isList ? '100%' : '24rem',
                 height: isList ? 'auto' : '14.8rem',
+                minHeight: isList ? '92px' : '14.8rem',
                 flexShrink: 0,
                 mb: 2,
                 opacity: isInactive ? 0.6 : 1,
