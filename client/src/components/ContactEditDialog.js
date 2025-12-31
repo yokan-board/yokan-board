@@ -13,6 +13,7 @@ import {
     Typography,
     Divider,
     Avatar,
+    Alert,
 } from '@mui/material';
 import { debounce } from 'lodash';
 import { formatPhoneNumber } from '../utils/phoneUtils';
@@ -33,6 +34,7 @@ const initialContactState = {
 function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] }) {
     const [editingContact, setEditingContact] = useState(initialContactState);
     const [isExisting, setIsExisting] = useState(false);
+    const [foundContact, setFoundContact] = useState(null);
     const [tagInput, setTagInput] = useState('');
 
     const suggestedTags = useMemo(() => {
@@ -47,6 +49,7 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
             setEditingContact(initialContactState);
             setIsExisting(false);
         }
+        setFoundContact(null);
         setTagInput('');
     }, [contact, open]);
 
@@ -59,36 +62,15 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
                     const results = await contactService.searchContacts(query);
                     // Look for an exact email match first
                     const exactMatch = results.find((r) => r.email.toLowerCase() === query.toLowerCase());
-
+                    
                     if (exactMatch) {
-                        setEditingContact({
-                            id: exactMatch.id,
-                            name: exactMatch.name,
-                            title: exactMatch.title || '',
-                            company: exactMatch.company || '',
-                            email: exactMatch.email,
-                            phone: exactMatch.phone || '',
-                            avatarUrl: exactMatch.avatarUrl || '',
-                            status: exactMatch.status || 'ACTIVE',
-                            tags: exactMatch.tags || [],
-                        });
-                        setIsExisting(true);
+                        setFoundContact(exactMatch);
                     } else if (results.length === 1) {
-                        // Fallback to single result if it's close enough (though exact email is preferred)
-                        const found = results[0];
-                        setEditingContact({
-                            id: found.id,
-                            name: found.name,
-                            title: found.title || '',
-                            company: found.company || '',
-                            email: found.email,
-                            phone: found.phone || '',
-                            avatarUrl: found.avatarUrl || '',
-                            status: found.status || 'ACTIVE',
-                            tags: found.tags || [],
-                        });
-                        setIsExisting(true);
+                        setFoundContact(results[0]);
+                    } else {
+                         setFoundContact(null);
                     }
+
                 } catch (error) {
                     console.error('Error searching contacts:', error);
                 }
@@ -107,13 +89,42 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
 
     const handleEditChange = (field) => (e) => {
         const value = e.target.value;
-        setEditingContact((prev) => ({ ...prev, [field]: value }));
+        setEditingContact((prev) => {
+            const newState = { ...prev, [field]: value };
+            
+            // If email changes, check against foundContact
+            if (field === 'email') {
+                if (foundContact && foundContact.email.toLowerCase() !== value.toLowerCase()) {
+                    setFoundContact(null);
+                }
+                
+                // If we were linked to an existing contact, break the link
+                if (isExisting) {
+                    setIsExisting(false);
+                    // Remove ID to prevent overwriting the original contact
+                    const { id, ...rest } = newState;
+                    return rest;
+                }
+            }
+            return newState;
+        });
+    };
 
-        // If we were in "existing" mode and user changed the email, we might need to drop out of it
-        if (field === 'email' && isExisting) {
-            setIsExisting(false);
-            // We don't reset all fields immediately because user might just be correcting a typo
-        }
+    const handleLinkContact = () => {
+        if (!foundContact) return;
+        setEditingContact({
+            id: foundContact.id,
+            name: foundContact.name,
+            title: foundContact.title || '',
+            company: foundContact.company || '',
+            email: foundContact.email,
+            phone: foundContact.phone || '',
+            avatarUrl: foundContact.avatarUrl || '',
+            status: foundContact.status || 'ACTIVE',
+            tags: foundContact.tags || [],
+        });
+        setIsExisting(true);
+        setFoundContact(null);
     };
 
     const handleStatusChange = (e) => {
@@ -153,10 +164,23 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
             <DialogTitle>
-                {isEditMode ? 'Edit Contact' : isExisting ? 'Existing Contact Found' : 'Add New Contact'}
+                {isEditMode ? 'Edit Contact' : isExisting ? 'Existing Contact Linked' : 'Add New Contact'}
             </DialogTitle>
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+                    {foundContact && !isExisting && !isEditMode && (
+                        <Alert 
+                            severity="info" 
+                            action={
+                                <Button color="inherit" size="small" onClick={handleLinkContact}>
+                                    Link
+                                </Button>
+                            }
+                            sx={{ mb: 1 }}
+                        >
+                            Found existing contact: <strong>{foundContact.name}</strong> ({foundContact.email})
+                        </Alert>
+                    )}
                     <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
                         <Avatar
                             src={editingContact.avatarUrl || getGravatarUrl(editingContact.email)}
@@ -171,7 +195,7 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
                         size="small"
                         autoFocus={!isEditMode}
                         helperText={
-                            !isEditMode && !isExisting ? 'Start typing an email to find an existing contact.' : ''
+                            !isEditMode && !isExisting && !foundContact ? 'Start typing an email to find an existing contact.' : ''
                         }
                     />
                     <TextField
@@ -285,7 +309,7 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
                 <Button
                     onClick={handleSave}
                     variant="contained"
-                    disabled={!editingContact?.name?.trim() || !editingContact?.email?.trim()}
+                    disabled={!editingContact?.name?.trim() || !editingContact?.email?.trim() || (foundContact && !isExisting && !isEditMode)}
                 >
                     {isEditMode ? 'Save Changes' : isExisting ? 'Link Contact' : 'Add Contact'}
                 </Button>
