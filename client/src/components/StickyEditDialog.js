@@ -41,7 +41,18 @@ function StickyEditDialog({ open, sticky, onClose, onSave }) {
         }
     };
 
+    const handleClear = () => {
+        if (sticky) {
+            setEditingSticky({ ...initialStickyState, ...sticky });
+        } else {
+            setEditingSticky(initialStickyState);
+        }
+    };
+
     const isEditMode = !!sticky;
+    const hasChanges = sticky 
+        ? (editingSticky.title !== (sticky.title || '') || editingSticky.content !== (sticky.content || ''))
+        : (editingSticky.title !== '' || editingSticky.content !== '');
 
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -68,6 +79,10 @@ function StickyEditDialog({ open, sticky, onClose, onSave }) {
                 </Box>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 3 }}>
+                <Button onClick={handleClear} disabled={!hasChanges}>
+                    Clear Changes
+                </Button>
+                <Box sx={{ flexGrow: 1 }} />
                 <Button variant="outlined" onClick={onClose}>Cancel</Button>
                 <Button 
                     onClick={handleSave} 
