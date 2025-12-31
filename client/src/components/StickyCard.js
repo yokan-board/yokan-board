@@ -78,61 +78,75 @@ function StickyCard({
 
     const isList = viewMode === 'list';
 
-    return (
-        <>
-            <Card sx={{
-                width: '100%',
-                mb: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'relative',
-                borderRadius: '8px',
-                '&:hover .action-buttons': {
-                    visibility: 'visible',
-                    opacity: 1,
-                }
-            }}>
-                <CardContent sx={{
-                    flexGrow: 1,
-                    p: '12px 16px !important',
+        return (
+            <>
+                <Card sx={{ 
+                    width: '100%', 
+                    mb: 1, 
                     display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'flex-start',
-                    gap: 2
+                    flexDirection: 'column',
+                    position: 'relative',
+                    borderRadius: '8px',
+                    height: '80px', // Uniform height
+                    '&:hover .action-buttons': {
+                        visibility: 'visible',
+                        opacity: 1,
+                    }
                 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                        <Tooltip title="View full content">
-                            <IconButton size="small" onClick={handleOpenView} sx={{ p: 0 }}>
-                                <StickyNote2Icon sx={{ color: '#fdfd96' }} />
-                            </IconButton>
-                        </Tooltip>
-                    </Box>
-                    
-                    <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 0.5, cursor: 'pointer' }} onClick={handleOpenView}>
-                            {sticky.title}
-                        </Typography>
-                        <Box 
-                            className="markdown-content"
-                            dangerouslySetInnerHTML={{ __html: htmlContent }}
-                            sx={{
-                                fontSize: '0.875rem',
-                                color: 'text.secondary',
-                                '& p': { m: 0 },
-                                '& ul, & ol': { m: '4px 0', pl: '20px' },
-                                maxHeight: isList ? '3em' : 'none',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                display: '-webkit-box',
-                                WebkitLineClamp: isList ? 2 : 'none',
-                                WebkitBoxOrient: 'vertical',
-                                cursor: 'pointer'
-                            }}
-                            onClick={handleOpenView}
-                        />
-                    </Box>
-
-                    <Box className="action-buttons" sx={{
+                    <CardContent sx={{ 
+                        flexGrow: 1, 
+                        p: '12px 16px !important',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'flex-start',
+                        gap: 2,
+                        height: '100%',
+                        boxSizing: 'border-box'
+                    }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                            <Tooltip title="View full content">
+                                <IconButton size="small" onClick={handleOpenView} sx={{ p: 0 }}>
+                                    <StickyNote2Icon sx={{ color: '#fdfd96' }} />
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
+                        
+                        <Box sx={{ flexGrow: 1, overflow: 'hidden', height: '100%' }}>
+                            <Typography 
+                                variant="subtitle1" 
+                                sx={{ 
+                                    fontWeight: 'bold', 
+                                    mb: 0, 
+                                    cursor: 'pointer',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    lineHeight: 1.2
+                                }} 
+                                onClick={handleOpenView}
+                            >
+                                {sticky.title}
+                            </Typography>
+                            <Box 
+                                className="markdown-content"
+                                dangerouslySetInnerHTML={{ __html: htmlContent }}
+                                sx={{ 
+                                    fontSize: '0.875rem',
+                                    color: 'text.secondary',
+                                    '& p': { m: 0 },
+                                    '& ul, & ol': { m: 0, pl: '20px' },
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2, // Always clamp to 2 lines for uniform height
+                                    WebkitBoxOrient: 'vertical',
+                                    cursor: 'pointer',
+                                    lineHeight: 1.4
+                                }}
+                                onClick={handleOpenView}
+                            />
+                        </Box>
+                        <Box className="action-buttons" sx={{
                         display: 'flex',
                         flexDirection: 'row',
                         visibility: 'hidden',
