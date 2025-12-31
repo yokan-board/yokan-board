@@ -96,7 +96,7 @@ function ContactCard({
                     gap: 2,
                 }}
             >
-                <ContactInfo contact={contact} viewMode={viewMode} tags={tags} />
+                <ContactInfo contact={contact} viewMode={viewMode} tags={tags} onAvatarClick={handleEdit} />
 
                 {!isList && tags.length > 0 && (
                     <Box

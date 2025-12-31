@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography, Avatar, Chip } from '@mui/material';
 import { getGravatarUrl } from '../utils/gravatar';
 
-function ContactInfo({ contact, viewMode = 'card', tags = [] }) {
+function ContactInfo({ contact, viewMode = 'card', tags = [], onAvatarClick }) {
     const isList = viewMode === 'list';
 
     return (
@@ -17,11 +17,13 @@ function ContactInfo({ contact, viewMode = 'card', tags = [] }) {
         >
             <Avatar
                 src={contact.avatarUrl || getGravatarUrl(contact.email)}
+                onClick={onAvatarClick}
                 sx={{
                     width: isList ? 40 : 56,
                     height: isList ? 40 : 56,
                     alignSelf: isList ? 'center' : 'flex-start',
                     mt: isList ? 0 : 0.5,
+                    cursor: onAvatarClick ? 'pointer' : 'default',
                 }}
             />
             <Box sx={{ flexGrow: 1, minWidth: 0 }}>
