@@ -12,10 +12,12 @@ import {
     Chip,
     Typography,
     Divider,
+    Avatar,
 } from '@mui/material';
 import { debounce } from 'lodash';
 import { formatPhoneNumber } from '../utils/phoneUtils';
 import contactService from '../services/contactService';
+import { getGravatarUrl } from '../utils/gravatar';
 
 const initialContactState = {
     name: '',
@@ -34,7 +36,7 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
     const [tagInput, setTagInput] = useState('');
 
     const suggestedTags = useMemo(() => {
-        return availableTags.filter((tag) => !editingContact.tags.includes(tag));
+        return availableTags.filter((tag) => !editingContact.tags?.includes(tag));
     }, [availableTags, editingContact.tags]);
 
     useEffect(() => {
@@ -68,6 +70,7 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
                             phone: exactMatch.phone || '',
                             avatarUrl: exactMatch.avatarUrl || '',
                             status: exactMatch.status || 'ACTIVE',
+                            tags: exactMatch.tags || [],
                         });
                         setIsExisting(true);
                     } else if (results.length === 1) {
@@ -82,6 +85,7 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
                             phone: found.phone || '',
                             avatarUrl: found.avatarUrl || '',
                             status: found.status || 'ACTIVE',
+                            tags: found.tags || [],
                         });
                         setIsExisting(true);
                     }
@@ -153,6 +157,12 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
             </DialogTitle>
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                        <Avatar
+                            src={editingContact.avatarUrl || getGravatarUrl(editingContact.email)}
+                            sx={{ width: 80, height: 80 }}
+                        />
+                    </Box>
                     <TextField
                         label="Email"
                         value={editingContact.email || ''}
@@ -230,7 +240,7 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
                         placeholder="e.g. Solution Architect"
                     />
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, minHeight: '32px' }}>
-                        {editingContact.tags.map((tag) => (
+                        {editingContact.tags?.map((tag) => (
                             <Chip
                                 key={tag}
                                 label={tag}
