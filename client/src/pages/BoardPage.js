@@ -107,8 +107,11 @@ function BoardPage() {
                         if (!data.data.contactTags || typeof data.data.contactTags !== 'object') {
                             data.data.contactTags = {};
                         }
+                        if (!data.data.stickies || !Array.isArray(data.data.stickies)) {
+                            data.data.stickies = [];
+                        }
                     } else {
-                        data.data = { columns: {}, contactTags: {} };
+                        data.data = { columns: {}, contactTags: {}, stickies: [] };
                     }
                     return data; // RETURN THE FETCHED DATA
                 } else {
@@ -166,12 +169,13 @@ function BoardPage() {
         [id, fetchBoards, handleBoardDataChange]
     );
 
-    const handleSaveNotes = async ({ bookmarks, contactIds, contactTags }) => {
+    const handleSaveNotes = async ({ bookmarks, contactIds, contactTags, stickies }) => {
         const updatedBoardData = {
             ...currentBoardData,
             bookmarks: bookmarks,
             contactIds: contactIds,
             contactTags: contactTags,
+            stickies: stickies,
         };
         await handleSaveBoard({ name: editedBoardName, data: updatedBoardData });
     };
@@ -443,6 +447,7 @@ function BoardPage() {
                             bookmarks={currentBoardData.bookmarks}
                             contactIds={currentBoardData.contactIds || []}
                             contactTags={currentBoardData.contactTags || {}}
+                            stickies={currentBoardData.stickies || []}
                             onSave={handleSaveNotes}
                             onHasUnsavedChangesChange={setNotesHaveUnsavedChanges}
                         />
