@@ -14,6 +14,7 @@ const BoardPage = React.lazy(() => import('./pages/BoardPage'));
 const EditTaskPage = React.lazy(() => import('./pages/EditTaskPage'));
 const AccountPage = React.lazy(() => import('./pages/AccountPage'));
 const AboutPage = React.lazy(() => import('./pages/AboutPage'));
+const JournalPage = React.lazy(() => import('./pages/JournalPage'));
 
 function PrivateRoute({ children }) {
     const { isAuthenticated, loading } = useAuth();
@@ -98,6 +99,16 @@ const router = createBrowserRouter([
                     <PrivateRoute>
                         <Suspense fallback={<CircularProgress />}>
                             <AboutPage />
+                        </Suspense>
+                    </PrivateRoute>
+                ),
+            },
+            {
+                path: 'journal',
+                element: (
+                    <PrivateRoute>
+                        <Suspense fallback={<CircularProgress />}>
+                            <JournalPage />
                         </Suspense>
                     </PrivateRoute>
                 ),

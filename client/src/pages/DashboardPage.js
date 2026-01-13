@@ -19,6 +19,7 @@ import { useBoards } from '../contexts/BoardContext';
 import boardService from '../services/boardService';
 import userService from '../services/userService';
 import { generateRandomGradientColors } from '../services/colorService';
+import { VIRTUAL_ID_JOURNAL } from '../utils/constants';
 
 import BoardList from '../components/BoardList';
 import BoardCard from '../components/BoardCard';
@@ -179,6 +180,16 @@ function DashboardPage() {
 
     const groupedBoards = useMemo(() => {
         const groups = { Default: [] };
+
+        // Prepend Kanban Journal virtual board
+        groups.Default.push({
+            id: VIRTUAL_ID_JOURNAL,
+            name: 'Kanban Journal',
+            data: {
+                gradientColors: ['#183F1E', '#56CD01'],
+            },
+            taskCount: boards.reduce((acc, b) => acc + (b.taskCount || 0), 0),
+        });
 
         boards.forEach((board) => {
             const collectionName = board.collection || 'Default';

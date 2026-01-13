@@ -26,9 +26,11 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import BookOutlinedIcon from '@mui/icons-material/BookOutlined';
 import { useAuth } from '../contexts/AuthContext';
 import { useBoards } from '../contexts/BoardContext';
 import md5 from 'md5';
+import { VIRTUAL_ID_JOURNAL } from '../utils/constants';
 
 const drawerWidth = '20rem';
 
@@ -89,6 +91,17 @@ const Sidebar = ({ open, setOpen }) => {
 
     const groupedBoards = useMemo(() => {
         const groups = { Boards: [] }; // 'Boards' will be the default collection for unassigned boards
+
+        // Prepend Kanban Journal virtual board
+        groups.Boards.push({
+            id: VIRTUAL_ID_JOURNAL,
+            name: 'Kanban Journal',
+            data: {
+                description: 'Cross-board activity feed',
+                gradientColors: ['#183F1E', '#56CD01'],
+            },
+            taskCount: boards.reduce((acc, b) => acc + (b.taskCount || 0), 0),
+        });
 
         boards.forEach((board) => {
             const collectionName = board.collection || 'Boards'; // Use 'Boards' as default
@@ -167,7 +180,13 @@ const Sidebar = ({ open, setOpen }) => {
                                             <Tooltip title={board.data.description} placement="right">
                                                 <ListItemButton
                                                     sx={{ pl: 4 }}
-                                                    onClick={() => handleItemClick(`/board/${board.id}`)}
+                                                    onClick={() =>
+                                                        handleItemClick(
+                                                            board.id === VIRTUAL_ID_JOURNAL
+                                                                ? '/journal'
+                                                                : `/board/${board.id}`
+                                                        )
+                                                    }
                                                 >
                                                     <ListItemIcon
                                                         sx={{
@@ -222,7 +241,13 @@ const Sidebar = ({ open, setOpen }) => {
                                         ) : (
                                             <ListItemButton
                                                 sx={{ pl: 4 }}
-                                                onClick={() => handleItemClick(`/board/${board.id}`)}
+                                                onClick={() =>
+                                                    handleItemClick(
+                                                        board.id === VIRTUAL_ID_JOURNAL
+                                                            ? '/journal'
+                                                            : `/board/${board.id}`
+                                                    )
+                                                }
                                             >
                                                 <ListItemIcon
                                                     sx={{

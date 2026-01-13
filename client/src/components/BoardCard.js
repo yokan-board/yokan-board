@@ -12,6 +12,7 @@ import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { VIRTUAL_ID_JOURNAL } from '../utils/constants';
 
 function BoardCard({
     board,
@@ -28,9 +29,11 @@ function BoardCard({
     const navigate = useNavigate();
     const longPressTimer = useRef(null);
 
+    const isJournal = board.id === VIRTUAL_ID_JOURNAL;
+
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: board.id,
-        disabled: isOverlay, // Disable sortable logic for the overlay component itself
+        disabled: isOverlay || isJournal, // Disable sortable logic for the overlay component itself or Journal
         data: {
             type: 'Board',
             board,
@@ -89,7 +92,7 @@ function BoardCard({
                 '&:hover': {
                     boxShadow: theme.shadows[3],
                     '& .drag-handle': {
-                        opacity: 1,
+                        opacity: isJournal ? 0 : 1,
                     },
                 },
                 display: 'flex',
@@ -99,10 +102,11 @@ function BoardCard({
                 padding: theme.spacing(2),
                 color: textColor,
                 position: 'relative',
+                cursor: isJournal ? 'pointer' : 'default',
             }}
             {...attributes}
         >
-            {!isOverlay && (
+            {!isOverlay && !isJournal && (
                 <IconButton
                     className="drag-handle"
                     size="small"
@@ -155,86 +159,90 @@ function BoardCard({
                 </Box>
             )}
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', gap: '4px' }}>
-                <IconButton
-                    aria-label="copy gradient"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onCopyGradient(board);
-                    }}
-                    size="small"
-                    sx={{
-                        color: iconColor,
-                        '&:hover': {
-                            color: iconHoverColor,
-                        },
-                    }}
-                >
-                    <ContentCopy fontSize="small" />
-                </IconButton>
-                <IconButton
-                    aria-label="paste gradient"
-                    disabled={!copiedGradient}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onPasteGradient(board);
-                    }}
-                    size="small"
-                    sx={{
-                        color: copiedGradient ? iconColor : '#e0e0e0',
-                        '&:hover': {
-                            color: copiedGradient ? iconHoverColor : '#e0e0e0',
-                        },
-                    }}
-                >
-                    <ContentPaste fontSize="small" />
-                </IconButton>
-                <IconButton
-                    aria-label="edit board"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onEditClick(board);
-                    }}
-                    size="small"
-                    sx={{
-                        color: iconColor,
-                        '&:hover': {
-                            color: iconHoverColor,
-                        },
-                    }}
-                >
-                    <EditIcon fontSize="small" />
-                </IconButton>
-                <IconButton
-                    aria-label="change gradient"
-                    onMouseDown={() => {
-                        longPressTimer.current = setTimeout(() => {
-                            onChangeGradientClick(board);
-                            longPressTimer.current = null;
-                        }, 500);
-                    }}
-                    onMouseUp={() => {
-                        if (longPressTimer.current) {
-                            clearTimeout(longPressTimer.current);
-                            longPressTimer.current = null;
-                            onLongPressChangeGradient(board);
-                        }
-                    }}
-                    onMouseLeave={handleLongPressEnd}
-                    size="small"
-                    sx={{
-                        color: iconColor,
-                        '&:hover': {
-                            color: iconHoverColor,
-                        },
-                    }}
-                >
-                    <PaletteIcon fontSize="small" />
-                </IconButton>
+                {!isJournal && (
+                    <>
+                        <IconButton
+                            aria-label="copy gradient"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onCopyGradient(board);
+                            }}
+                            size="small"
+                            sx={{
+                                color: iconColor,
+                                '&:hover': {
+                                    color: iconHoverColor,
+                                },
+                            }}
+                        >
+                            <ContentCopy fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                            aria-label="paste gradient"
+                            disabled={!copiedGradient}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onPasteGradient(board);
+                            }}
+                            size="small"
+                            sx={{
+                                color: copiedGradient ? iconColor : '#e0e0e0',
+                                '&:hover': {
+                                    color: copiedGradient ? iconHoverColor : '#e0e0e0',
+                                },
+                            }}
+                        >
+                            <ContentPaste fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                            aria-label="edit board"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEditClick(board);
+                            }}
+                            size="small"
+                            sx={{
+                                color: iconColor,
+                                '&:hover': {
+                                    color: iconHoverColor,
+                                },
+                            }}
+                        >
+                            <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                            aria-label="change gradient"
+                            onMouseDown={() => {
+                                longPressTimer.current = setTimeout(() => {
+                                    onChangeGradientClick(board);
+                                    longPressTimer.current = null;
+                                }, 500);
+                            }}
+                            onMouseUp={() => {
+                                if (longPressTimer.current) {
+                                    clearTimeout(longPressTimer.current);
+                                    longPressTimer.current = null;
+                                    onLongPressChangeGradient(board);
+                                }
+                            }}
+                            onMouseLeave={handleLongPressEnd}
+                            size="small"
+                            sx={{
+                                color: iconColor,
+                                '&:hover': {
+                                    color: iconHoverColor,
+                                },
+                            }}
+                        >
+                            <PaletteIcon fontSize="small" />
+                        </IconButton>
+                    </>
+                )}
             </Box>
 
             <Box
                 data-testid="board-card-content"
-                onClick={() => !isOverlay && navigate(`/board/${board.id}`)}
+                onClick={() => !isOverlay && navigate(isJournal ? '/journal' : `/board/${board.id}`)}
                 sx={{
                     textDecoration: 'none',
                     color: 'inherit',
@@ -279,19 +287,21 @@ function BoardCard({
                 <Typography sx={{ fontSize: '1.2rem', fontWeight: 'medium', color: secondaryTextColor }}>
                     {board.taskCount} {board.taskCount === 1 ? 'Task' : 'Tasks'}
                 </Typography>
-                <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={() => !isOverlay && onDeleteClick(board.id)}
-                    sx={{
-                        color: iconColor,
-                        '&:hover': {
-                            color: iconHoverColor,
-                        },
-                    }}
-                >
-                    <DeleteIcon />
-                </IconButton>
+                {!isJournal && (
+                    <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => !isOverlay && onDeleteClick(board.id)}
+                        sx={{
+                            color: iconColor,
+                            '&:hover': {
+                                color: iconHoverColor,
+                            },
+                        }}
+                    >
+                        <DeleteIcon />
+                    </IconButton>
+                )}
             </Box>
         </ListItem>
     );
