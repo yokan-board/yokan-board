@@ -35,10 +35,11 @@ export const flattenTasks = (boards) => {
 /**
  * Categorizes tasks into Overdue, Today, Upcoming, and No Due Date.
  * @param {Array} tasks - Flat array of tasks.
+ * @param {Object} [todayOverride] - Optional dayjs object for "today".
  * @returns {Object} Categorized tasks.
  */
-export const categorizeTasks = (tasks) => {
-    const today = dayjs().startOf('day');
+export const categorizeTasks = (tasks, todayOverride = null) => {
+    const today = todayOverride || dayjs().startOf('day');
     
     const categories = {
         overdue: [],
