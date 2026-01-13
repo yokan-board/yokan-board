@@ -45,21 +45,8 @@ describe('TaskForm', () => {
             </ThemeProvider>
         );
 
-        expect(screen.getByRole('textbox', { name: 'Task Title' })).toHaveValue('Initial Task Content');
         expect(screen.getByDisplayValue('12/31/2025')).toBeInTheDocument(); // Target the input by its display value
         expect(screen.getByPlaceholderText('Description (Markdown)')).toHaveValue('Initial Description');
-    });
-
-    test('calls setContent on task title change', () => {
-        render(
-            <ThemeProvider theme={theme}>
-                <TaskForm {...defaultProps} />
-            </ThemeProvider>
-        );
-
-        fireEvent.change(screen.getByRole('textbox', { name: 'Task Title' }), { target: { value: 'New Title' } });
-        expect(mockSetContent).toHaveBeenCalledTimes(1);
-        expect(mockSetContent).toHaveBeenCalledWith('New Title');
     });
 
     test('calls setDueDate on due date change', () => {

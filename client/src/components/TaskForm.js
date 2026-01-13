@@ -33,6 +33,7 @@ function TaskForm({
                         }}
                         slots={{ textField: TextField }}
                         slotProps={{
+                            field: { clearable: true },
                             textField: {
                                 sx: { width: 220 },
                             },
