@@ -1,5 +1,39 @@
 # CHANGES
 
+## v0.1.0-alpha-8 (2026-01-13)
+
+### Features
+
+- **Kanban Journal**:
+  - Implemented a centralized "Journal" for a cross-board view of all active tasks.
+  - Organized tasks into chronological priority groups: Overdue, Today, Upcoming, and No Due Date.
+  - Added a persistent "Kanban Journal" virtual board card to the Dashboard with a unique green gradient.
+  - Integrated the Journal into the Sidebar for easy navigation.
+  - Enhanced task items with board and column context (e.g., "Board / Column") and column highlight color indicators.
+  - Supported expandable task descriptions with Markdown rendering.
+  - Added "Jump to Task" navigation to go directly from the Journal to a task's full Edit page.
+  - Implemented a dedicated `useJournalData` hook and `journalUtils` for efficient data aggregation and memoization.
+- **Global Data Synchronization**:
+  - Modified the application to ensure that task updates (like changing due dates) are immediately reflected in the Journal and Sidebar.
+  - Integrated `fetchBoards` into the `EditTaskPage` save flow to invalidate the global boards cache upon update.
+  - Added mandatory mount synchronization to the Journal page to handle browser back-button navigation.
+
+### Fixes & Improvements
+
+- **UI/UX Refinements**:
+  - Adjusted `BoardCard` layout with symmetrical minimum heights to ensure perfect vertical centering of titles when action icons are hidden.
+  - Standardized font weights for section headings in the Journal to match the Archive panel.
+  - Renamed the Journal's "Activities" tab to "Tasks" for better semantic clarity and consistency with the rest of the app.
+- **Code Quality & Stability**:
+  - Added comprehensive unit tests for task aggregation and categorization logic (`journalUtils.test.js`).
+  - Performed a linting pass to remove unused variables and imports across several components and pages (`Sidebar.js`, `JournalPage.js`, etc.).
+  - Improved data utility functions to support custom date overrides for better testability.
+
+### Documentation
+
+- Created a comprehensive feature epic, user stories, and implementation plan for the Kanban Journal.
+- Documented the architectural proposal for solving stale data issues in cross-board views.
+
 ## v0.1.0-alpha-7 (2025-12-29)
 
 ### Features
