@@ -158,7 +158,7 @@ function BoardCard({
                     )}
                 </Box>
             )}
-            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', gap: '4px' }}>
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', gap: '4px', minHeight: '34px' }}>
                 {!isJournal && (
                     <>
                         <IconButton
@@ -283,7 +283,15 @@ function BoardCard({
                 />
             </Box>
 
-            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box
+                sx={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    minHeight: '34px',
+                }}
+            >
                 <Typography sx={{ fontSize: '1.2rem', fontWeight: 'medium', color: secondaryTextColor }}>
                     {board.taskCount} {board.taskCount === 1 ? 'Task' : 'Tasks'}
                 </Typography>

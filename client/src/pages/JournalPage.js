@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Box, Typography, Tab } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
+import { useJournalData } from '../hooks/useJournalData';
 
 function JournalPage() {
     const [selectedTab, setSelectedTab] = useState('activities');
+    const { overdue, today, upcoming, noDueDate } = useJournalData();
 
     const handleTabChange = (event, newValue) => {
         setSelectedTab(newValue);
