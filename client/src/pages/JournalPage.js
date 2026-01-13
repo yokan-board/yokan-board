@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
-import { Box, Typography, Tab, Divider } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Tab } from '@mui/material';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { useJournalData } from '../hooks/useJournalData';
+import { useBoards } from '../contexts/BoardContext';
 import JournalTaskItem from '../components/JournalTaskItem';
 import dayjs from 'dayjs';
 
 function JournalPage() {
+    const { fetchBoards } = useBoards();
     const [selectedTab, setSelectedTab] = useState('tasks');
     const [expandedTaskId, setExpandedTaskId] = useState(null);
     const { overdue, today, upcoming, noDueDate } = useJournalData();
+
+    // Ensure we have fresh data on mount (handles browser back button scenarios)
+    useEffect(() => {
+        fetchBoards();
+    }, [fetchBoards]);
 
     const handleTabChange = (event, newValue) => {
         setSelectedTab(newValue);

@@ -26,7 +26,6 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
-import BookOutlinedIcon from '@mui/icons-material/BookOutlined';
 import { useAuth } from '../contexts/AuthContext';
 import { useBoards } from '../contexts/BoardContext';
 import md5 from 'md5';

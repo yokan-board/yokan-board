@@ -9,11 +9,13 @@ import ParentTaskDisplay from '../components/ParentTaskDisplay';
 import TaskComments from '../components/TaskComments';
 import { useTaskRelationships } from '../hooks/useTaskRelationships';
 import { useAuth } from '../contexts/AuthContext';
+import { useBoards } from '../contexts/BoardContext';
 
 function EditTaskPage() {
     const { boardId, taskId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { fetchBoards } = useBoards();
     const [task, setTask] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -208,6 +210,13 @@ function EditTaskPage() {
 
                 await boardService.updateBoard(boardId, board.name, updatedBoardData);
                 fetchTaskData(); // Refresh data to reflect saved state
+                
+                // Refresh global boards context to avoid stale data in Journal/Sidebar
+                try {
+                    await fetchBoards();
+                } catch (syncErr) {
+                    console.error('Background boards sync failed:', syncErr);
+                }
             } else {
                 setError('Board not found or invalid data for update.');
             }
