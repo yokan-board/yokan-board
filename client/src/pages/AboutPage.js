@@ -33,7 +33,7 @@ function AboutPage() {
                     Yokan is created by: <strong>Julian I. Kamil</strong>
                 </Typography>
                 <Typography variant="body1" paragraph>
-                    Copyright © 2025 Julian I. Kamil. All rights reserved.
+                    Copyright © 2025-2026 Julian I. Kamil. All rights reserved.
                 </Typography>
 
                 <Typography variant="h5" component="h2" sx={{ mt: 3, mb: 1 }}>

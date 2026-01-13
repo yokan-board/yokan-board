@@ -288,7 +288,7 @@ Please make sure to update tests as appropriate and follow the existing code sty
 
 Yokan is created by: **Julian I. Kamil**
 
-© Copyright 2025 Julian I. Kamil. All rights reserved.
+© Copyright 2025-2026 Julian I. Kamil. All rights reserved.
 
 ## 📄 License
 
