@@ -14,6 +14,19 @@ function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) {
         setExpandedTaskId(expandedTaskId === taskId ? null : taskId);
     };
 
+    // Custom renderer to open links in a new tab
+    const renderer = new marked.Renderer();
+    renderer.link = ({ href, title, text }) => {
+        return `<a href="${href}" ${title ? `title="${title}"` : ''} target="_blank" rel="noopener noreferrer">${text}</a>`;
+    };
+
+    const handleDescriptionClick = (e) => {
+        // If the click was on a link, don't collapse the task
+        if (e.target.tagName === 'A') {
+            e.stopPropagation();
+        }
+    };
+
     if (!archiveHistory || archiveHistory.length === 0) {
         return (
             <Box sx={{ p: 3 }}>
@@ -134,16 +147,23 @@ function ArchiveHistoryDisplay({ archiveHistory, tasksMap }) {
                                                     Description
                                                 </Typography>
                                                 <Box
-                                                    dangerouslySetInnerHTML={{ __html: marked.parse(task.description) }}
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: marked.parse(task.description, { renderer }),
+                                                    }}
+                                                    onClick={handleDescriptionClick}
                                                     sx={{
                                                         py: 1,
                                                         px: 2, // Increased horizontal padding
                                                         border: `1px solid ${theme.palette.divider}`,
                                                         borderRadius: 1,
-                                                        backgroundColor: theme.palette.common.white, // Set background to white
-                                                        color: '#222', // Set text color
+                                                        backgroundColor: theme.palette.background.default, // Use default background
+                                                        color: theme.palette.text.primary, // Use primary text color
                                                         maxHeight: '200px',
                                                         overflowY: 'auto',
+                                                        '& a': {
+                                                            color: 'primary.main',
+                                                            textDecoration: 'underline',
+                                                        },
                                                     }}
                                                 />
                                             </Box>
