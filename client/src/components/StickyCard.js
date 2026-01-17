@@ -133,6 +133,10 @@ function StickyCard({ sticky, onEdit, onDelete, dragHandleProps, viewMode = 'car
                                 color: 'text.secondary',
                                 '& p': { m: 0 },
                                 '& ul, & ol': { m: 0, pl: '20px' },
+                                '& a': {
+                                    color: 'primary.main',
+                                    textDecoration: 'underline',
+                                },
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 display: '-webkit-box',
@@ -238,6 +242,10 @@ function StickyCard({ sticky, onEdit, onDelete, dragHandleProps, viewMode = 'car
                             '& p': { mb: 2 },
                             '& ul, & ol': { mb: 2, pl: 3 },
                             '& h1, & h2, & h3, & h4, & h5, & h6': { mb: 2 },
+                            '& a': {
+                                color: 'primary.main',
+                                textDecoration: 'underline',
+                            },
                         }}
                     />
                 </DialogContent>
