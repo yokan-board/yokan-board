@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, Typography, IconButton } from '@mui/material';
+import { Box, TextField, Typography, IconButton, Link } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 function BookmarkItem({ bookmark, onUpdate, onDelete }) {
@@ -88,15 +88,19 @@ function BookmarkItem({ bookmark, onUpdate, onDelete }) {
             <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                 <Typography>{bookmark.title}</Typography>
                 <Typography color="text.secondary">
-                    <a
+                    <Link
                         href={bookmark.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()} // Prevent parent Box's onClick
-                        style={{ color: 'inherit', textDecoration: 'underline', cursor: 'pointer' }}
+                        sx={{
+                            color: 'primary.main',
+                            textDecoration: 'underline',
+                            cursor: 'pointer',
+                        }}
                     >
                         {bookmark.url}
-                    </a>
+                    </Link>
                 </Typography>
             </Box>
             {isHovered && (
