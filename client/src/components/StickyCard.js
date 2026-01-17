@@ -28,7 +28,14 @@ function StickyCard({ sticky, onEdit, onDelete, dragHandleProps, viewMode = 'car
     const [copied, setCopied] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const [isViewOpen, setIsViewOpen] = useState(false);
-    const htmlContent = marked.parse(sticky.content || '');
+
+    // Custom renderer to open links in a new tab
+    const renderer = new marked.Renderer();
+    renderer.link = ({ href, title, text }) => {
+        return `<a href="${href}" ${title ? `title="${title}"` : ''} target="_blank" rel="noopener noreferrer">${text}</a>`;
+    };
+
+    const htmlContent = marked.parse(sticky.content || '', { renderer });
 
     const handleMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -69,6 +76,15 @@ function StickyCard({ sticky, onEdit, onDelete, dragHandleProps, viewMode = 'car
 
     const handleCloseView = () => {
         setIsViewOpen(false);
+    };
+
+    const handleMarkdownClick = (e) => {
+        // If the click was on a link, don't open the full view
+        if (e.target.tagName === 'A') {
+            e.stopPropagation();
+        } else {
+            handleOpenView();
+        }
     };
 
     const isList = viewMode === 'list';
@@ -145,7 +161,7 @@ function StickyCard({ sticky, onEdit, onDelete, dragHandleProps, viewMode = 'car
                                 cursor: 'pointer',
                                 lineHeight: 1.4,
                             }}
-                            onClick={handleOpenView}
+                            onClick={handleMarkdownClick}
                         />
                     </Box>
                     <Box
