@@ -92,7 +92,7 @@ function ContactCard({
                     p: isList ? '8px 16px !important' : undefined,
                     display: 'flex',
                     flexDirection: 'row',
-                    alignItems: isList ? 'center' : 'flex-start',
+                    alignItems: 'flex-start',
                     gap: 2,
                 }}
             >

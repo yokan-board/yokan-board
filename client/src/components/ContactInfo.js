@@ -9,7 +9,7 @@ function ContactInfo({ contact, viewMode = 'card', tags = [], onAvatarClick }) {
         <Box
             sx={{
                 display: 'flex',
-                alignItems: isList ? 'center' : 'flex-start',
+                alignItems: 'flex-start',
                 gap: 2,
                 flexGrow: 1,
                 overflow: 'hidden',
@@ -21,8 +21,8 @@ function ContactInfo({ contact, viewMode = 'card', tags = [], onAvatarClick }) {
                 sx={{
                     width: isList ? 40 : 56,
                     height: isList ? 40 : 56,
-                    alignSelf: isList ? 'center' : 'flex-start',
-                    mt: isList ? 0 : 0.5,
+                    alignSelf: 'flex-start',
+                    mt: 0.5,
                     cursor: onAvatarClick ? 'pointer' : 'default',
                 }}
             />
