@@ -33,7 +33,7 @@ Yokan aims to provide a straightforward, privacy-focused alternative to complex 
     - Customize column appearance with a highlight color picker
 - **Real-time Organization**: Drag and drop tasks between columns with immediate visual feedback
 - **Dark/Light Mode**: Choose your preferred theme for comfortable viewing
-- **Gravatar Integration**: Personalized avatars based on your email address
+- **Customizable User Avatars**: Set a custom avatar URL for your profile or use the integrated Gravatar support
 - **Nested Tasks Support**: Support for parent-child relationships and subtasks
 - **Task Details**: Due dates and descriptions for tasks (supporting Markdown)
 - **Task and Column Archival**: Archive individual tasks or entire columns to keep boards clean while retaining a historical record. Archived tasks are moved to a dedicated "ARCHIVE" tab, preserving their original column's highlight color. Additionally, when a subtask is archived, its details are appended to its parent task's description for a comprehensive historical log.
@@ -42,7 +42,8 @@ Yokan aims to provide a straightforward, privacy-focused alternative to complex 
 - **Self-Hosted Control**: Complete ownership of your data with no external dependencies
 - **Responsive Design**: Works well on various screen sizes and devices
 - **Persistent Sidebar**: A navigation sidebar that can be pinned/unpinned, displaying a list of boards with task counts and quick access to settings and user information
-- **User Account Management**: A dedicated "Settings" page for managing your profile (display name, email, password) and preferences, including **Admin User Management** features for enabling/disabling users and displaying user Gravatars. The 'ADMIN' tab is now conditionally displayed only for administrative users.
+- **User Account Management**: A dedicated "Settings" page for managing your profile (display name, email, avatar, password) and preferences, including **Admin User Management** features for enabling/disabling users and managing user records. The 'ADMIN' tab is now conditionally displayed only for administrative users.
+- **Automated Deployment**: Built-in scripts for seamless updates, database backups, and automated rollbacks
 - **About Page**: Displays application version, author, and license information
 - **OpenAPI Specification**: Documented server API with Swagger UI, including new user administration endpoints.
 - **MCP Server**: Use [**Yokan Board MCP**](https://github.com/yokan-board/yokan-board-mcp) to use AI agents to interact with your Kanban boards
@@ -259,6 +260,22 @@ Yokan includes Dockerfiles for both client and server:
     docker build -t yokanboard/yokan-client .
     docker run -p 3000:3000 -e REACT_APP_SERVER_URL=http://localhost:3001/api/v1.1 yokanboard/yokan-client
     ```
+
+### Automated Updates & Rollbacks
+
+For production environments, Yokan includes a robust deployment pipeline in the `scripts/` directory:
+
+- **`scripts/deploy.sh`**: Automates the entire update process. It pulls the latest code, builds new images, backs up the SQLite database, rotates tags, and verifies health before completing. If health checks fail, it automatically rolls back.
+- **`scripts/rollback.sh`**: A dedicated script to manually revert to the last known-good version immediately.
+
+**Configuration:**
+Copy `.env.example` to `.env` in the project root and adjust the paths to your local environment before running the scripts.
+
+```bash
+cp .env.example .env
+# Edit .env with your specific paths
+./scripts/deploy.sh
+```
 
 ## 🤝 Contributing
 

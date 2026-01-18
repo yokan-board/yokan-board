@@ -1,5 +1,35 @@
 # CHANGES
 
+## v0.1.0-alpha-9 (2026-01-17)
+
+### Features
+
+- **User Avatar Support**:
+  - Added `avatar_url` column to the `users` table and updated the backend API to handle custom avatar URLs.
+  - Enhanced the "Edit User Record" dialog in Admin Settings with a centered avatar preview and a URL input field.
+  - Added an "Avatar URL" field to the User Profile settings, allowing users to set custom avatars with Gravatar as the default fallback.
+  - Integrated custom avatars into the Sidebar, Task Comments, and Users Table.
+- **Link Visibility & Interaction**:
+  - Standardized link styling across Sticky Notes, Archived Tasks, and Board Bookmarks to use the theme's `primary.main` color with underlining for better visibility.
+  - Configured all internal Markdown and bookmark links to open in a new tab (`target="_blank"`).
+  - Implemented click propagation stops on links to prevent accidental parent interactions, such as collapsing archived tasks or opening sticky note dialogs.
+- **Deployment Automation**:
+  - Created a robust `scripts/deploy.sh` script implementing a "Build-Verify-Swap" strategy to minimize downtime and ensure atomic failures.
+  - Added a `scripts/rollback.sh` script for rapid manual or automated recovery to the previous working version.
+  - Externalized deployment configuration using a `.env` file pattern and provided a `.env.example` template with portable `$HOME` paths.
+
+### Fixes & Improvements
+
+- **UI/UX Consistency**:
+  - Fixed an issue where contact avatars in the "compact" (list) view were vertically centered; they are now properly aligned to the top.
+  - Updated the "Add New Contact" button in the list view to have a responsive width that matches the column width on larger screens.
+  - Unified the "Reset Changes" button style across the application, removing inconsistent purple colors in favor of the standard primary theme color.
+  - Standardized the "Edit Contact" dialog UI to match the "Edit User Record" layout, including left-aligned "Cancel" buttons and the addition of a "Reset Changes" button.
+  - Fixed dark mode readability in the Archive History description box by making background and text colors theme-aware.
+- **Repository Maintenance**:
+  - Updated `.gitignore` to handle environment-specific configuration files.
+  - Performed a project-wide linting and formatting pass on all newly modified components.
+
 ## v0.1.0-alpha-8 (2026-01-13)
 
 ### Features
