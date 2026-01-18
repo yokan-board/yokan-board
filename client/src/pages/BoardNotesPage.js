@@ -521,7 +521,12 @@ function BoardNotesPage({
                         ) : null}
                     </DragOverlay>
                 </DndContext>
-                <Box sx={{ width: viewMode === 'list' ? '100%' : '24rem', mt: 2 }}>
+                <Box
+                    sx={{
+                        width: viewMode === 'list' ? { xs: '100%', xl: 'calc(50% - 8px)' } : '24rem',
+                        mt: 2,
+                    }}
+                >
                     <Button startIcon={<AddIcon />} onClick={() => handleOpenEdit()} variant="outlined" fullWidth>
                         Add New Contact
                     </Button>
