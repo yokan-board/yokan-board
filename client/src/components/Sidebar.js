@@ -84,9 +84,11 @@ const Sidebar = ({ open, setOpen }) => {
         navigate(path);
     };
 
-    const gravatarUrl = user?.email
-        ? `https://www.gravatar.com/avatar/${md5(user.email.trim().toLowerCase())}?d=identicon`
-        : `https://www.gravatar.com/avatar/?d=identicon`;
+    const gravatarUrl =
+        user?.avatar_url ||
+        (user?.email
+            ? `https://www.gravatar.com/avatar/${md5(user.email.trim().toLowerCase())}?d=identicon`
+            : `https://www.gravatar.com/avatar/?d=identicon`);
 
     const groupedBoards = useMemo(() => {
         const groups = { Boards: [] }; // 'Boards' will be the default collection for unassigned boards

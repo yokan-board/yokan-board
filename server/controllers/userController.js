@@ -205,7 +205,7 @@ exports.updateUserEnabledStatus = async (req, res, next) => {
  */
 exports.updateUserByAdmin = async (req, res, next) => {
     const userId = parseInt(req.params.id, 10);
-    const { username, display_name, email, enabled } = req.body;
+    const { username, display_name, email, avatar_url, enabled } = req.body;
 
     if (isNaN(userId)) {
         return next(new BadRequestError('Invalid user ID.'));
@@ -240,6 +240,7 @@ exports.updateUserByAdmin = async (req, res, next) => {
         if (username !== undefined) updateData.username = username;
         if (display_name !== undefined) updateData.display_name = display_name;
         if (email !== undefined) updateData.email = email;
+        if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
         if (enabled !== undefined) updateData.enabled = enabled;
 
         await userModel.updateUser(userId, updateData);
@@ -250,6 +251,7 @@ exports.updateUserByAdmin = async (req, res, next) => {
             username: updatedUser.username,
             display_name: updatedUser.display_name,
             email: updatedUser.email,
+            avatar_url: updatedUser.avatar_url,
             enabled: updatedUser.enabled,
         });
     } catch (err) {

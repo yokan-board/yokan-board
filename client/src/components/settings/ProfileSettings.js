@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Button, CircularProgress, Alert } from '@mui/material';
+import { Box, Typography, TextField, Button, CircularProgress, Alert, Avatar } from '@mui/material';
 import { useAuth } from '../../contexts/AuthContext';
 import userService from '../../services/userService';
+import { getGravatarUrl } from '../../utils/gravatar';
 
 function ProfileSettings() {
     const { user, updateUser } = useAuth();
     const [displayName, setDisplayName] = useState(user?.display_name || user?.username || '');
     const [email, setEmail] = useState(user?.email || '');
+    const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
     const [loading, setLoading] = useState(false); // No longer need to load user data here
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -22,6 +24,7 @@ function ProfileSettings() {
                     updateUser(profile);
                     setDisplayName(profile.display_name || profile.username);
                     setEmail(profile.email || '');
+                    setAvatarUrl(profile.avatar_url || '');
                 })
                 .catch(() => setError('Failed to load profile.'))
                 .finally(() => setLoading(false));
@@ -32,9 +35,10 @@ function ProfileSettings() {
         if (user) {
             const nameChanged = displayName !== (user.display_name || user.username);
             const emailChanged = email !== (user.email || '');
-            setHasChanges(nameChanged || emailChanged);
+            const avatarChanged = avatarUrl !== (user.avatar_url || '');
+            setHasChanges(nameChanged || emailChanged || avatarChanged);
         }
-    }, [displayName, email, user]);
+    }, [displayName, email, avatarUrl, user]);
 
     const handleSave = async () => {
         setError('');
@@ -43,6 +47,7 @@ function ProfileSettings() {
             const updatedProfile = await userService.updateUserProfile({
                 display_name: displayName,
                 email: email,
+                avatar_url: avatarUrl,
             });
             updateUser(updatedProfile);
             setSuccess('Profile updated successfully!');
@@ -63,6 +68,15 @@ function ProfileSettings() {
             {error && <Alert severity="error">{error}</Alert>}
             {success && <Alert severity="success">{success}</Alert>}
             <Box sx={{ maxWidth: 500 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 2 }}>
+                    <Avatar src={avatarUrl || getGravatarUrl(email)} sx={{ width: 64, height: 64 }} />
+                    <Box>
+                        <Typography variant="body2" color="textSecondary">
+                            Your avatar is automatically fetched from Gravatar based on your email address, unless you
+                            provide a custom URL below.
+                        </Typography>
+                    </Box>
+                </Box>
                 <Box component="form" noValidate autoComplete="off" sx={{ mt: 2 }}>
                     <TextField
                         label="Username"
@@ -87,6 +101,14 @@ function ProfileSettings() {
                         onChange={(e) => setEmail(e.target.value)}
                         fullWidth
                         margin="normal"
+                    />
+                    <TextField
+                        label="Avatar URL"
+                        value={avatarUrl}
+                        onChange={(e) => setAvatarUrl(e.target.value)}
+                        fullWidth
+                        margin="normal"
+                        placeholder="Leave blank to use Gravatar"
                     />
                     <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
                         <Button variant="contained" onClick={handleSave} disabled={!hasChanges}>

@@ -14,15 +14,16 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
         }
         db.run(
             `CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE,
-            password TEXT,
-            email TEXT UNIQUE,
-            display_name TEXT,
-            preferences TEXT DEFAULT '{}',
-            enabled INTEGER DEFAULT 0,
-            last_login DATETIME
-        )`,
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        username TEXT UNIQUE,
+                        password TEXT,
+                        email TEXT UNIQUE,
+                        display_name TEXT,
+                        avatar_url TEXT,
+                        preferences TEXT DEFAULT '{}',
+                        enabled INTEGER DEFAULT 0,
+                        last_login DATETIME
+                    )`,
             (err) => {
                 if (err) {
                     console.error('Error creating users table (might already exist):', err.message);
@@ -110,6 +111,16 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
                                 console.error('Error adding last_login column:', errAlter.message);
                             } else {
                                 console.log('Added last_login column to users table.');
+                            }
+                        });
+                    }
+
+                    if (!columns.includes('avatar_url')) {
+                        db.run(`ALTER TABLE users ADD COLUMN avatar_url TEXT`, (errAlter) => {
+                            if (errAlter) {
+                                console.error('Error adding avatar_url column:', errAlter.message);
+                            } else {
+                                console.log('Added avatar_url column to users table.');
                             }
                         });
                     }

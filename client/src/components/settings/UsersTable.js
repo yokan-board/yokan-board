@@ -87,7 +87,7 @@ function UsersTable() {
                                 <TableCell>
                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                         <Avatar
-                                            src={getGravatarUrl(user.email, 24)} // Adjust size as needed
+                                            src={user.avatar_url || getGravatarUrl(user.email, 24)}
                                             alt={user.username}
                                             sx={{ width: 24, height: 24, mr: 2 }}
                                         />

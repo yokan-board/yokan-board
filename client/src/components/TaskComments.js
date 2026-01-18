@@ -24,6 +24,7 @@ function TaskComments({ comments, setComments, currentUser, readOnly = false, ab
             userId: currentUser.id,
             username: currentUser.username || currentUser.display_name || 'User',
             userEmail: currentUser.email,
+            userAvatarUrl: currentUser.avatar_url,
             content: newComment,
             createdAt: new Date().toISOString(),
         };
@@ -88,7 +89,7 @@ function TaskComments({ comments, setComments, currentUser, readOnly = false, ab
                 <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
                     <Avatar
                         sx={{ ml: 0.5, mt: 0.5 }}
-                        src={getGravatarUrl(currentUser?.email)}
+                        src={currentUser?.avatar_url || getGravatarUrl(currentUser?.email)}
                         alt={currentUser?.username || 'User'}
                     />
                     <Box sx={{ flexGrow: 1 }}>
@@ -120,7 +121,7 @@ function TaskComments({ comments, setComments, currentUser, readOnly = false, ab
                     <Paper key={comment.id} elevation={1} sx={{ p: 2, position: 'relative' }}>
                         <Box sx={{ display: 'flex', gap: 2 }}>
                             <Avatar
-                                src={getGravatarUrl(comment.userEmail)}
+                                src={comment.userAvatarUrl || getGravatarUrl(comment.userEmail)}
                                 alt={comment.username}
                                 sx={{ width: 32, height: 32 }}
                             />

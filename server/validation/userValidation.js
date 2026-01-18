@@ -15,6 +15,7 @@ const { check } = require('express-validator');
 exports.updateProfileValidation = [
     check('display_name', 'Display name must not be empty').optional().not().isEmpty(),
     check('email', 'Please include a valid email').optional().isEmail(),
+    check('avatar_url', 'Avatar URL must be a valid URL').optional(),
 ];
 
 /**
@@ -36,6 +37,7 @@ exports.adminUpdateUserValidation = [
     check('username', 'Username must not be empty').optional().not().isEmpty(),
     check('display_name', 'Display name must not be empty').optional().not().isEmpty(),
     check('email', 'Please include a valid email').optional().isEmail(),
+    check('avatar_url', 'Avatar URL must be a valid URL').optional(),
     check('enabled', 'Enabled must be a boolean').optional().isBoolean(),
 ];
 

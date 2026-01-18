@@ -113,7 +113,8 @@ exports.updateUser = (userId, userData) => {
  */
 exports.findAllUsers = () => {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT id, username, display_name, email, enabled, last_login FROM users';
+        const sql =
+            'SELECT id, username, display_name, email, avatar_url, enabled, last_login FROM users';
         db.all(sql, [], (err, rows) => {
             if (err) {
                 reject(err);

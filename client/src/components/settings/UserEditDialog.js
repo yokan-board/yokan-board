@@ -11,13 +11,16 @@ import {
     Switch,
     Typography,
     Divider,
+    Avatar,
 } from '@mui/material';
 import userService from '../../services/userService';
+import { getGravatarUrl } from '../../utils/gravatar';
 
 const initialUserState = {
     username: '',
     display_name: '',
     email: '',
+    avatar_url: '',
     enabled: true,
 };
 
@@ -33,6 +36,7 @@ function UserEditDialog({ open, user, onClose, onSave }) {
                 username: user.username || '',
                 display_name: user.display_name || '',
                 email: user.email || '',
+                avatar_url: user.avatar_url || '',
                 enabled: user.enabled ?? true,
             });
             setNewPassword('');
@@ -55,6 +59,7 @@ function UserEditDialog({ open, user, onClose, onSave }) {
                 username: user.username || '',
                 display_name: user.display_name || '',
                 email: user.email || '',
+                avatar_url: user.avatar_url || '',
                 enabled: user.enabled ?? true,
             });
             setNewPassword('');
@@ -67,6 +72,7 @@ function UserEditDialog({ open, user, onClose, onSave }) {
         (editingUser.username !== (user.username || '') ||
             editingUser.display_name !== (user.display_name || '') ||
             editingUser.email !== (user.email || '') ||
+            editingUser.avatar_url !== (user.avatar_url || '') ||
             editingUser.enabled !== (user.enabled ?? true));
 
     const isPasswordValid = newPassword.length === 0 || newPassword.length >= 6;
@@ -106,6 +112,12 @@ function UserEditDialog({ open, user, onClose, onSave }) {
                             {error}
                         </Typography>
                     )}
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                        <Avatar
+                            src={editingUser.avatar_url || getGravatarUrl(editingUser.email)}
+                            sx={{ width: 80, height: 80 }}
+                        />
+                    </Box>
                     <TextField
                         label="Username"
                         value={editingUser.username}
@@ -127,6 +139,14 @@ function UserEditDialog({ open, user, onClose, onSave }) {
                         onChange={handleEditChange('email')}
                         fullWidth
                         size="small"
+                    />
+                    <TextField
+                        label="Avatar URL"
+                        value={editingUser.avatar_url}
+                        onChange={handleEditChange('avatar_url')}
+                        fullWidth
+                        size="small"
+                        placeholder="Gravatar used if blank"
                     />
 
                     <FormControlLabel
@@ -162,7 +182,7 @@ function UserEditDialog({ open, user, onClose, onSave }) {
                     Cancel
                 </Button>
                 <Box sx={{ flexGrow: 1 }} />
-                <Button variant="text" onClick={handleReset} disabled={saving || !hasChanges} color="secondary">
+                <Button variant="text" onClick={handleReset} disabled={saving || !hasChanges}>
                     Reset Changes
                 </Button>
                 <Button onClick={handleSave} variant="contained" disabled={saving || !canSave}>
