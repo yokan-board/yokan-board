@@ -62,15 +62,14 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
                     const results = await contactService.searchContacts(query);
                     // Look for an exact email match first
                     const exactMatch = results.find((r) => r.email.toLowerCase() === query.toLowerCase());
-                    
+
                     if (exactMatch) {
                         setFoundContact(exactMatch);
                     } else if (results.length === 1) {
                         setFoundContact(results[0]);
                     } else {
-                         setFoundContact(null);
+                        setFoundContact(null);
                     }
-
                 } catch (error) {
                     console.error('Error searching contacts:', error);
                 }
@@ -91,13 +90,13 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
         const value = e.target.value;
         setEditingContact((prev) => {
             const newState = { ...prev, [field]: value };
-            
+
             // If email changes, check against foundContact
             if (field === 'email') {
                 if (foundContact && foundContact.email.toLowerCase() !== value.toLowerCase()) {
                     setFoundContact(null);
                 }
-                
+
                 // If we were linked to an existing contact, break the link
                 if (isExisting) {
                     setIsExisting(false);
@@ -109,6 +108,41 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
             return newState;
         });
     };
+
+    const handleReset = () => {
+        if (contact) {
+            setEditingContact({ ...initialContactState, ...contact, tags: contact.tags || [] });
+            setIsExisting(false);
+        } else {
+            setEditingContact(initialContactState);
+            setIsExisting(false);
+        }
+        setTagInput('');
+    };
+
+    const hasChanges = useMemo(() => {
+        if (!isEditMode) {
+            return (
+                editingContact.name !== '' ||
+                editingContact.email !== '' ||
+                editingContact.title !== '' ||
+                editingContact.company !== '' ||
+                editingContact.phone !== '' ||
+                editingContact.avatarUrl !== '' ||
+                editingContact.tags.length > 0
+            );
+        }
+        return (
+            editingContact.name !== (contact.name || '') ||
+            editingContact.email !== (contact.email || '') ||
+            editingContact.title !== (contact.title || '') ||
+            editingContact.company !== (contact.company || '') ||
+            editingContact.phone !== (contact.phone || '') ||
+            editingContact.avatarUrl !== (contact.avatarUrl || '') ||
+            editingContact.status !== (contact.status || 'ACTIVE') ||
+            JSON.stringify(editingContact.tags) !== JSON.stringify(contact.tags || [])
+        );
+    }, [editingContact, contact, isEditMode]);
 
     const handleLinkContact = () => {
         if (!foundContact) return;
@@ -169,8 +203,8 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
                     {foundContact && !isExisting && !isEditMode && (
-                        <Alert 
-                            severity="info" 
+                        <Alert
+                            severity="info"
                             action={
                                 <Button color="inherit" size="small" onClick={handleLinkContact}>
                                     Link
@@ -195,7 +229,9 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
                         size="small"
                         autoFocus={!isEditMode}
                         helperText={
-                            !isEditMode && !isExisting && !foundContact ? 'Start typing an email to find an existing contact.' : ''
+                            !isEditMode && !isExisting && !foundContact
+                                ? 'Start typing an email to find an existing contact.'
+                                : ''
                         }
                     />
                     <TextField
@@ -306,10 +342,18 @@ function ContactEditDialog({ open, contact, onClose, onSave, availableTags = [] 
                 <Button variant="outlined" onClick={onClose}>
                     Cancel
                 </Button>
+                <Box sx={{ flexGrow: 1 }} />
+                <Button variant="text" onClick={handleReset} disabled={!hasChanges}>
+                    Reset Changes
+                </Button>
                 <Button
                     onClick={handleSave}
                     variant="contained"
-                    disabled={!editingContact?.name?.trim() || !editingContact?.email?.trim() || (foundContact && !isExisting && !isEditMode)}
+                    disabled={
+                        !editingContact?.name?.trim() ||
+                        !editingContact?.email?.trim() ||
+                        (foundContact && !isExisting && !isEditMode)
+                    }
                 >
                     {isEditMode ? 'Save Changes' : isExisting ? 'Link Contact' : 'Add Contact'}
                 </Button>
