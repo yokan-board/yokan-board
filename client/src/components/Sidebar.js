@@ -404,6 +404,11 @@ const Sidebar = ({ open, setOpen }) => {
                         overflowX: 'hidden',
                         display: 'flex',
                         flexDirection: 'column',
+                        '&::-webkit-scrollbar': {
+                            display: 'none',
+                        },
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none',
                     },
                 }}
             >
