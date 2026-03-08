@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import StickyCard from '../StickyCard';
 
@@ -8,6 +8,9 @@ jest.mock('marked', () => {
     return {
         marked: {
             parse: (content) => `<p>${content}</p>`,
+            Renderer: jest.fn().mockImplementation(() => ({
+                link: jest.fn(),
+            })),
         },
     };
 });
